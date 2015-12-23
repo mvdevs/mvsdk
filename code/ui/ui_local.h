@@ -942,7 +942,9 @@ void			trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float
 void			trap_R_RenderScene( const refdef_t *fd );
 void			trap_R_SetColor( const float *rgba );
 void			trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
+/*
 void			trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
+*/
 void			trap_UpdateScreen( void );
 int				trap_CM_LerpTag( orientation_t *tag, clipHandle_t mod, int startFrame, int endFrame, float frac, const char *tagName );
 void			trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum );
@@ -960,14 +962,17 @@ void			trap_GetClipboardData( char *buf, int bufsize );
 void			trap_GetClientState( uiClientState_t *state );
 void			trap_GetGlconfig( glconfig_t *glconfig );
 int				trap_GetConfigString( int index, char* buff, int buffsize );
+/*
 int				trap_LAN_GetServerCount( int source );
 void			trap_LAN_GetServerAddressString( int source, int n, char *buf, int buflen );
 void			trap_LAN_GetServerInfo( int source, int n, char *buf, int buflen );
 int				trap_LAN_GetServerPing( int source, int n );
+*/
 int				trap_LAN_GetPingQueueCount( void );
 void			trap_LAN_ClearPing( int n );
 void			trap_LAN_GetPing( int n, char *buf, int buflen, int *pingtime );
 void			trap_LAN_GetPingInfo( int n, char *buf, int buflen );
+/*
 void			trap_LAN_LoadCachedServers();
 void			trap_LAN_SaveCachedServers();
 void			trap_LAN_MarkServerVisible(int source, int n, qboolean visible);
@@ -979,6 +984,7 @@ void			trap_LAN_ResetPings(int n);
 int				trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int maxLen );
 int				trap_LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 );
 int				trap_MemoryRemaining( void );
+*/
 
 #ifdef USE_CD_KEY
 
@@ -993,9 +999,10 @@ int				trap_R_Font_StrLenPixels(const char *text, const int iFontIndex, const fl
 int				trap_R_Font_StrLenChars(const char *text);
 int				trap_R_Font_HeightPixels(const int iFontIndex, const float scale);
 void			trap_R_Font_DrawString(int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale);
+/*
 qboolean		trap_Language_IsAsian(void);
 qboolean		trap_Language_UsesSpaces(void);
-unsigned		trap_AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/ );
+unsigned		trap_AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation );
 void			trap_S_StopBackgroundTrack( void );
 void			trap_S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bReturnWithoutStarting);
 int				trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits);
@@ -1005,6 +1012,7 @@ void			trap_CIN_DrawCinematic (int handle);
 void			trap_CIN_SetExtents (int handle, int x, int y, int w, int h);
 int				trap_RealTime(qtime_t *qtime);
 void			trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
+*/
 
 /*
 Ghoul2 Insert Start
@@ -1150,3 +1158,15 @@ typedef struct postGameInfo_s {
 
 
 #endif
+
+extern qboolean mvapi;
+
+int MVAPI_Init(int apilevel);
+void MVAPI_AfterInit(void);
+
+int trap_MV_GetCurrentGameversion( void );
+
+int MV_UiDetectVersion( void );
+
+#include "../api/mvapi.h"
+#include "ui_multiversion.h"

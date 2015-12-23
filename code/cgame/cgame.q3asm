@@ -42,3 +42,7 @@ q_math
 q_shared
 ui_shared
 cg_newDraw
+
+cg_multiversion
+bg_multiversion
+animMappingTable

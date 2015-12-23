@@ -1745,87 +1745,8 @@ void ClientSpawn(gentity_t *ent) {
 		wDisable = g_weaponDisable.integer;
 	}
 
-
-
-	if ( g_gametype.integer != GT_HOLOCRON 
-		&& g_gametype.integer != GT_JEDIMASTER 
-		&& !HasSetSaberOnly()
-		&& !AllForceDisabled( g_forcePowerDisable.integer )
-		&& g_trueJedi.integer )
+	if ( jk2gameplay == VERSION_1_02 )
 	{
-		if ( g_gametype.integer >= GT_TEAM && (client->sess.sessionTeam == TEAM_BLUE || client->sess.sessionTeam == TEAM_RED) )
-		{//In Team games, force one side to be merc and other to be jedi
-			if ( level.numPlayingClients > 0 )
-			{//already someone in the game
-				int		i, forceTeam = TEAM_SPECTATOR;
-				for ( i = 0 ; i < level.maxclients ; i++ ) 
-				{
-					if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {
-						continue;
-					}
-					if ( level.clients[i].sess.sessionTeam == TEAM_BLUE || level.clients[i].sess.sessionTeam == TEAM_RED ) 
-					{//in-game
-						if ( WP_HasForcePowers( &level.clients[i].ps ) )
-						{//this side is using force
-							forceTeam = level.clients[i].sess.sessionTeam;
-						}
-						else
-						{//other team is using force
-							if ( level.clients[i].sess.sessionTeam == TEAM_BLUE )
-							{
-								forceTeam = TEAM_RED;
-							}
-							else
-							{
-								forceTeam = TEAM_BLUE;
-							}
-						}
-						break;
-					}
-				}
-				if ( WP_HasForcePowers( &client->ps ) && client->sess.sessionTeam != forceTeam )
-				{//using force but not on right team, switch him over
-					const char *teamName = TeamName( forceTeam );
-					//client->sess.sessionTeam = forceTeam;
-					SetTeam( ent, (char *)teamName );
-					return;
-				}
-			}
-		}
-
-		if ( WP_HasForcePowers( &client->ps ) )
-		{
-			client->ps.trueNonJedi = qfalse;
-			client->ps.trueJedi = qtrue;
-			//make sure they only use the saber
-			client->ps.weapon = WP_SABER;
-			client->ps.stats[STAT_WEAPONS] = (1 << WP_SABER);
-		}
-		else
-		{//no force powers set
-			client->ps.trueNonJedi = qtrue;
-			client->ps.trueJedi = qfalse;
-			if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
-			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
-			}
-			if (!wDisable || !(wDisable & (1 << WP_BLASTER)))
-			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BLASTER );
-			}
-			if (!wDisable || !(wDisable & (1 << WP_BOWCASTER)))
-			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BOWCASTER );
-			}
-			client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_SABER);
-			client->ps.stats[STAT_WEAPONS] |= (1 << WP_STUN_BATON);
-			client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;
-			client->ps.weapon = WP_BRYAR_PISTOL;
-		}
-	}
-	else
-	{//jediVmerc is incompatible with this gametype, turn it off!
-		trap_Cvar_Set( "g_jediVmerc", "0" );
 		if (g_gametype.integer == GT_HOLOCRON)
 		{
 			//always get free saber level 1 in holocron
@@ -1842,7 +1763,7 @@ void ClientSpawn(gentity_t *ent) {
 				client->ps.stats[STAT_WEAPONS] |= (1 << WP_STUN_BATON);
 			}
 		}
-
+		
 		if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
 		{
 			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
@@ -1869,6 +1790,136 @@ void ClientSpawn(gentity_t *ent) {
 		else
 		{
 			client->ps.weapon = WP_STUN_BATON;
+		}
+	}
+	else
+	{
+		if ( g_gametype.integer != GT_HOLOCRON 
+			&& g_gametype.integer != GT_JEDIMASTER 
+			&& !HasSetSaberOnly()
+			&& !AllForceDisabled( g_forcePowerDisable.integer )
+			&& g_trueJedi.integer )
+		{
+			if ( jk2gameplay == VERSION_1_04 && g_gametype.integer >= GT_TEAM && (client->sess.sessionTeam == TEAM_BLUE || client->sess.sessionTeam == TEAM_RED) )
+			{//In Team games, force one side to be merc and other to be jedi
+				if ( level.numPlayingClients > 0 )
+				{//already someone in the game
+					int		i, forceTeam = TEAM_SPECTATOR;
+					for ( i = 0 ; i < level.maxclients ; i++ ) 
+					{
+						if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {
+							continue;
+						}
+						if ( level.clients[i].sess.sessionTeam == TEAM_BLUE || level.clients[i].sess.sessionTeam == TEAM_RED ) 
+						{//in-game
+							if ( WP_HasForcePowers( &level.clients[i].ps ) )
+							{//this side is using force
+								forceTeam = level.clients[i].sess.sessionTeam;
+							}
+							else
+							{//other team is using force
+								if ( level.clients[i].sess.sessionTeam == TEAM_BLUE )
+								{
+									forceTeam = TEAM_RED;
+								}
+								else
+								{
+									forceTeam = TEAM_BLUE;
+								}
+							}
+							break;
+						}
+					}
+					if ( WP_HasForcePowers( &client->ps ) && client->sess.sessionTeam != forceTeam )
+					{//using force but not on right team, switch him over
+						const char *teamName = TeamName( forceTeam );
+						//client->sess.sessionTeam = forceTeam;
+						SetTeam( ent, (char *)teamName );
+						return;
+					}
+				}
+			}
+
+			if ( WP_HasForcePowers( &client->ps ) )
+			{
+				client->ps.trueNonJedi = qfalse;
+				client->ps.trueJedi = qtrue;
+				//make sure they only use the saber
+				client->ps.weapon = WP_SABER;
+				client->ps.stats[STAT_WEAPONS] = (1 << WP_SABER);
+			}
+			else
+			{//no force powers set
+				client->ps.trueNonJedi = qtrue;
+				client->ps.trueJedi = qfalse;
+				if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
+				{
+					client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
+				}
+				if ( jk2gameplay == VERSION_1_04 )
+				{
+					if (!wDisable || !(wDisable & (1 << WP_BLASTER)))
+					{
+						client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BLASTER );
+					}
+					if (!wDisable || !(wDisable & (1 << WP_BOWCASTER)))
+					{
+						client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BOWCASTER );
+					}
+				}
+				client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_SABER);
+				client->ps.stats[STAT_WEAPONS] |= (1 << WP_STUN_BATON);
+				client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;
+				client->ps.weapon = WP_BRYAR_PISTOL;
+			}
+		}
+		else
+		{//jediVmerc is incompatible with this gametype, turn it off!
+			if ( jk2gameplay == VERSION_1_04 ) trap_Cvar_Set( "g_jediVmerc", "0" ); // JK2MV: I don't know what happens if you try jediVmerc with one of the incompatible gametypes, but maybe you end up with some special kind of jedi-master gametype... // FIXME: Check if jediVmerc with incompatible gametypes has some bad side-effects.
+			if (g_gametype.integer == GT_HOLOCRON)
+			{
+				//always get free saber level 1 in holocron
+				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//these are precached in g_items, ClearRegisteredItems()
+			}
+			else
+			{
+				if (client->ps.fd.forcePowerLevel[FP_SABERATTACK])
+				{
+					client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//these are precached in g_items, ClearRegisteredItems()
+				}
+				else
+				{ //if you don't have saber attack rank then you don't get a saber
+					client->ps.stats[STAT_WEAPONS] |= (1 << WP_STUN_BATON);
+				}
+			}
+
+			if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
+			{
+				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
+			}
+			else if (g_gametype.integer == GT_JEDIMASTER)
+			{
+				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
+			}
+
+			if (g_gametype.integer == GT_JEDIMASTER)
+			{
+				client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_SABER);
+				client->ps.stats[STAT_WEAPONS] |= (1 << WP_STUN_BATON);
+			}
+
+			if (client->ps.stats[STAT_WEAPONS] & (1 << WP_BRYAR_PISTOL))
+			{
+				client->ps.weapon = WP_BRYAR_PISTOL;
+			}
+			else if (client->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
+			{
+				client->ps.weapon = WP_SABER;
+			}
+			else
+			{
+				client->ps.weapon = WP_STUN_BATON;
+			}
 		}
 	}
 

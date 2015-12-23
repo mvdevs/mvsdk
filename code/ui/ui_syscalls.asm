@@ -27,9 +27,15 @@ equ trap_R_Font_StrLenPixels				 -58	; UI_R_FONT_STRLENPIXELS
 equ trap_R_Font_StrLenChars					 -59	; UI_R_FONT_STRLENCHARS 
 equ trap_R_Font_HeightPixels				 -60	; UI_R_FONT_STRHEIGHTPIXELS 
 equ trap_R_Font_DrawString					 -61	; UI_R_FONT_DRAWSTRING 
-equ trap_Language_IsAsian					 -62	; UI_LANGUAGE_ISASIAN 
-equ trap_Language_UsesSpaces				 -63	; UI_LANGUAGE_USESSPACES 
-equ trap_AnyLanguage_ReadCharFromString		 -64	; UI_ANYLANGUAGE_READCHARFROMSTRING 
+
+;1.04
+equ trap_Language_IsAsian_1_04				 -62	; UI_LANGUAGE_ISASIAN 
+equ trap_Language_UsesSpaces_1_04			 -63	; UI_LANGUAGE_USESSPACES 
+equ trap_AnyLanguage_ReadCharFromString_1_04 -64	; UI_ANYLANGUAGE_READCHARFROMSTRING 
+
+;1.02
+equ trap_AnyLanguage_ReadCharFromString_1_02 -62	; UI_ANYLANGUAGE_READCHARFROMSTRING 
+
 equ trap_R_RegisterShaderNoMip				 -21	; UI_R_REGISTERSHADERNOMIP 
 equ trap_R_ClearScene						 -22	; UI_R_CLEARSCENE 
 equ trap_R_AddRefEntityToScene				 -23	; UI_R_ADDREFENTITYTOSCENE 
@@ -38,15 +44,21 @@ equ trap_R_AddLightToScene					 -25	; UI_R_ADDLIGHTTOSCENE
 equ trap_R_RenderScene						 -26	; UI_R_RENDERSCENE 
 equ trap_R_SetColor							 -27	; UI_R_SETCOLOR 
 equ trap_R_DrawStretchPic					 -28	; UI_R_DRAWSTRETCHPIC 
-equ trap_R_ModelBounds						 -65	; UI_R_MODELBOUNDS 
+
+;1.04
+equ trap_R_ModelBounds_1_04					 -65	; UI_R_MODELBOUNDS 
+
+;1.02
+equ trap_R_ModelBounds_1_02					 -63	; UI_R_MODELBOUNDS 
+
 equ trap_UpdateScreen						 -29	; UI_UPDATESCREEN 
 equ trap_CM_LerpTag							 -30	; UI_CM_LERPTAG 
 equ trap_S_StartLocalSound					 -33	; UI_S_STARTLOCALSOUND 
 equ trap_S_RegisterSound					 -32	; UI_S_REGISTERSOUND 
-equ trap_Key_KeynumToStringBuf				 -34	; UI_KEY_KEYNUMTOSTRINGBUF 
-equ trap_Key_GetBindingBuf					 -35	; UI_KEY_GETBINDINGBUF 
-equ trap_Key_SetBinding						 -36	; UI_KEY_SETBINDING 
-equ trap_Key_IsDown							 -37	; UI_KEY_ISDOWN 
+equ trap_Key_KeynumToStringBuf_real			 -34	; UI_KEY_KEYNUMTOSTRINGBUF 
+equ trap_Key_GetBindingBuf_real				 -35	; UI_KEY_GETBINDINGBUF 
+equ trap_Key_SetBinding_real				 -36	; UI_KEY_SETBINDING 
+equ trap_Key_IsDown_real					 -37	; UI_KEY_ISDOWN 
 equ trap_Key_GetOverstrikeMode				 -38	; UI_KEY_GETOVERSTRIKEMODE 
 equ trap_Key_SetOverstrikeMode				 -39	; UI_KEY_SETOVERSTRIKEMODE 
 equ trap_Key_ClearStates					 -40	; UI_KEY_CLEARSTATES 
@@ -56,44 +68,94 @@ equ trap_GetClipboardData					 -43	; UI_GETCLIPBOARDDATA
 equ trap_GetClientState						 -45	; UI_GETCLIENTSTATE 
 equ trap_GetGlconfig						 -44	; UI_GETGLCONFIG 
 equ trap_GetConfigString					 -46	; UI_GETCONFIGSTRING 
-equ trap_LAN_GetServerCount					 -76	; UI_LAN_GETSERVERCOUNT 
-equ trap_LAN_GetServerAddressString			 -77	; UI_LAN_GETSERVERADDRESSSTRING 
-equ trap_LAN_GetServerInfo					 -78	; UI_LAN_GETSERVERINFO 
-equ trap_LAN_GetServerPing					 -93	; UI_LAN_GETSERVERPING 
+
+;1.04
+equ trap_LAN_GetServerCount_1_04			 -76	; UI_LAN_GETSERVERCOUNT 
+equ trap_LAN_GetServerAddressString_1_04	 -77	; UI_LAN_GETSERVERADDRESSSTRING 
+equ trap_LAN_GetServerInfo_1_04				 -78	; UI_LAN_GETSERVERINFO 
+equ trap_LAN_GetServerPing_1_04				 -93	; UI_LAN_GETSERVERPING 
+
+;1.02
+equ trap_LAN_GetServerCount_1_02			 -74	; UI_LAN_GETSERVERCOUNT 
+equ trap_LAN_GetServerAddressString_1_02	 -75	; UI_LAN_GETSERVERADDRESSSTRING 
+equ trap_LAN_GetServerInfo_1_02				 -76	; UI_LAN_GETSERVERINFO 
+equ trap_LAN_GetServerPing_1_02				 -91	; UI_LAN_GETSERVERPING 
+
 equ trap_LAN_GetPingQueueCount				 -47	; UI_LAN_GETPINGQUEUECOUNT 
-equ trap_LAN_ServerStatus					 -92	; UI_LAN_SERVERSTATUS 
-equ trap_LAN_SaveCachedServers				 -83	; UI_LAN_SAVECACHEDSERVERS 
-equ trap_LAN_LoadCachedServers				 -82	; UI_LAN_LOADCACHEDSERVERS 
-equ trap_LAN_ResetPings						 -81	; UI_LAN_RESETPINGS 
+
+;1.04
+equ trap_LAN_ServerStatus_1_04				 -92	; UI_LAN_SERVERSTATUS 
+equ trap_LAN_SaveCachedServers_1_04			 -83	; UI_LAN_SAVECACHEDSERVERS 
+equ trap_LAN_LoadCachedServers_1_04			 -82	; UI_LAN_LOADCACHEDSERVERS 
+equ trap_LAN_ResetPings_1_04				 -81	; UI_LAN_RESETPINGS 
+
+;1.02
+equ trap_LAN_ServerStatus_1_02				 -90	; UI_LAN_SERVERSTATUS 
+equ trap_LAN_SaveCachedServers_1_02			 -81	; UI_LAN_SAVECACHEDSERVERS 
+equ trap_LAN_LoadCachedServers_1_02			 -80	; UI_LAN_LOADCACHEDSERVERS 
+equ trap_LAN_ResetPings_1_02				 -79	; UI_LAN_RESETPINGS 
+
 equ trap_LAN_ClearPing						 -48	; UI_LAN_CLEARPING 
 equ trap_LAN_GetPing						 -49	; UI_LAN_GETPING 
 equ trap_LAN_GetPingInfo					 -50	; UI_LAN_GETPINGINFO 
-equ trap_LAN_MarkServerVisible				 -79	; UI_LAN_MARKSERVERVISIBLE 
-equ trap_LAN_ServerIsVisible				 -94	; UI_LAN_SERVERISVISIBLE 
-equ trap_LAN_UpdateVisiblePings				 -80	; UI_LAN_UPDATEVISIBLEPINGS 
-equ trap_LAN_AddServer						 -84	; UI_LAN_ADDSERVER 
-equ trap_LAN_RemoveServer					 -85	; UI_LAN_REMOVESERVER 
-equ trap_LAN_CompareServers					 -95	; UI_LAN_COMPARESERVERS 
+
+;1.04
+equ trap_LAN_MarkServerVisible_1_04			 -79	; UI_LAN_MARKSERVERVISIBLE 
+equ trap_LAN_ServerIsVisible_1_04			 -94	; UI_LAN_SERVERISVISIBLE 
+equ trap_LAN_UpdateVisiblePings_1_04		 -80	; UI_LAN_UPDATEVISIBLEPINGS 
+equ trap_LAN_AddServer_1_04					 -84	; UI_LAN_ADDSERVER 
+equ trap_LAN_RemoveServer_1_04				 -85	; UI_LAN_REMOVESERVER 
+equ trap_LAN_CompareServers_1_04			 -95	; UI_LAN_COMPARESERVERS 
+
+;1.02
+equ trap_LAN_MarkServerVisible_1_02			 -77	; UI_LAN_MARKSERVERVISIBLE 
+equ trap_LAN_ServerIsVisible_1_02			 -92	; UI_LAN_SERVERISVISIBLE 
+equ trap_LAN_UpdateVisiblePings_1_02		 -78	; UI_LAN_UPDATEVISIBLEPINGS 
+equ trap_LAN_AddServer_1_02					 -82	; UI_LAN_ADDSERVER 
+equ trap_LAN_RemoveServer_1_02				 -83	; UI_LAN_REMOVESERVER 
+equ trap_LAN_CompareServers_1_02			 -93	; UI_LAN_COMPARESERVERS 
+
 equ trap_MemoryRemaining					 -53	; UI_MEMORY_REMAINING 
 equ trap_GetCDKey							 -54	; UI_GET_CDKEY 
 equ trap_SetCDKey							 -55	; UI_SET_CDKEY 
 equ trap_VerifyCDKey						 -56	; UI_VERIFY_CDKEY 
-equ trap_PC_AddGlobalDefine					 -66	; UI_PC_ADD_GLOBAL_DEFINE 
-equ trap_PC_LoadSource						 -67	; UI_PC_LOAD_SOURCE 
-equ trap_PC_FreeSource						 -68	; UI_PC_FREE_SOURCE 
-equ trap_PC_ReadToken						 -69	; UI_PC_READ_TOKEN 
-equ trap_PC_SourceFileAndLine				 -70	; UI_PC_SOURCE_FILE_AND_LINE 
-equ trap_PC_LoadGlobalDefines				 -71	; UI_PC_LOAD_GLOBAL_DEFINES 
-equ trap_PC_RemoveAllGlobalDefines			 -72	; UI_PC_REMOVE_ALL_GLOBAL_DEFINES 
-equ trap_S_StopBackgroundTrack				 -73	; UI_S_STOPBACKGROUNDTRACK 
-equ trap_S_StartBackgroundTrack				 -74	; UI_S_STARTBACKGROUNDTRACK 
-equ trap_RealTime							 -75	; UI_REAL_TIME 
-equ trap_CIN_PlayCinematic					 -86	; UI_CIN_PLAYCINEMATIC 
-equ trap_CIN_StopCinematic					 -87	; UI_CIN_STOPCINEMATIC 
-equ trap_CIN_RunCinematic					 -88	; UI_CIN_RUNCINEMATIC 
-equ trap_CIN_DrawCinematic					 -89	; UI_CIN_DRAWCINEMATIC 
-equ trap_CIN_SetExtents						 -90	; UI_CIN_SETEXTENTS 
-equ trap_R_RemapShader						 -91	; UI_R_REMAP_SHADER 
+
+;1.04
+equ trap_PC_AddGlobalDefine_1_04			 -66	; UI_PC_ADD_GLOBAL_DEFINE 
+equ trap_PC_LoadSource_1_04					 -67	; UI_PC_LOAD_SOURCE 
+equ trap_PC_FreeSource_1_04					 -68	; UI_PC_FREE_SOURCE 
+equ trap_PC_ReadToken_1_04					 -69	; UI_PC_READ_TOKEN 
+equ trap_PC_SourceFileAndLine_1_04			 -70	; UI_PC_SOURCE_FILE_AND_LINE 
+equ trap_PC_LoadGlobalDefines_1_04			 -71	; UI_PC_LOAD_GLOBAL_DEFINES 
+equ trap_PC_RemoveAllGlobalDefines_1_04		 -72	; UI_PC_REMOVE_ALL_GLOBAL_DEFINES 
+equ trap_S_StopBackgroundTrack_1_04			 -73	; UI_S_STOPBACKGROUNDTRACK 
+equ trap_S_StartBackgroundTrack_1_04		 -74	; UI_S_STARTBACKGROUNDTRACK 
+equ trap_RealTime_1_04						 -75	; UI_REAL_TIME 
+equ trap_CIN_PlayCinematic_1_04				 -86	; UI_CIN_PLAYCINEMATIC 
+equ trap_CIN_StopCinematic_1_04				 -87	; UI_CIN_STOPCINEMATIC 
+equ trap_CIN_RunCinematic_1_04				 -88	; UI_CIN_RUNCINEMATIC 
+equ trap_CIN_DrawCinematic_1_04				 -89	; UI_CIN_DRAWCINEMATIC 
+equ trap_CIN_SetExtents_1_04				 -90	; UI_CIN_SETEXTENTS 
+equ trap_R_RemapShader_1_04					 -91	; UI_R_REMAP_SHADER 
+
+;1.02
+equ trap_PC_AddGlobalDefine_1_02			 -64	; UI_PC_ADD_GLOBAL_DEFINE 
+equ trap_PC_LoadSource_1_02					 -65	; UI_PC_LOAD_SOURCE 
+equ trap_PC_FreeSource_1_02					 -66	; UI_PC_FREE_SOURCE 
+equ trap_PC_ReadToken_1_02					 -67	; UI_PC_READ_TOKEN 
+equ trap_PC_SourceFileAndLine_1_02			 -68	; UI_PC_SOURCE_FILE_AND_LINE 
+equ trap_PC_LoadGlobalDefines_1_02			 -69	; UI_PC_LOAD_GLOBAL_DEFINES 
+equ trap_PC_RemoveAllGlobalDefines_1_02		 -70	; UI_PC_REMOVE_ALL_GLOBAL_DEFINES 
+equ trap_S_StopBackgroundTrack_1_02			 -71	; UI_S_STOPBACKGROUNDTRACK 
+equ trap_S_StartBackgroundTrack_1_02		 -72	; UI_S_STARTBACKGROUNDTRACK 
+equ trap_RealTime_1_02						 -73	; UI_REAL_TIME 
+equ trap_CIN_PlayCinematic_1_02				 -84	; UI_CIN_PLAYCINEMATIC 
+equ trap_CIN_StopCinematic_1_02				 -85	; UI_CIN_STOPCINEMATIC 
+equ trap_CIN_RunCinematic_1_02				 -86	; UI_CIN_RUNCINEMATIC 
+equ trap_CIN_DrawCinematic_1_02				 -87	; UI_CIN_DRAWCINEMATIC 
+equ trap_CIN_SetExtents_1_02				 -88	; UI_CIN_SETEXTENTS 
+equ trap_R_RemapShader_1_02					 -89	; UI_R_REMAP_SHADER 
+
 equ trap_SP_Register						-201	; UI_SP_REGISTER 
 equ trap_SP_GetStringTextString				-202	; UI_SP_GETSTRINGTEXTSTRING 
 equ trap_G2API_SetBoneAngles				-203	; UI_G2_ANGLEOVERRIDE 
@@ -114,3 +176,7 @@ equ floor									-108	; UI_FLOOR
 equ ceil									-111	; UI_CEIL 
 equ acos									-114	; UI_ACOS 
 equ asin									-115	; UI_ASIN 
+
+
+; JK2MV Syscalls
+equ trap_MV_GetCurrentGameversion				-705    ;MVAPI_GET_VERSION

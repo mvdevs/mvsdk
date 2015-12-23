@@ -1416,7 +1416,7 @@ void CG_Weapon_f( void ) {
 	}
 
 	if (num >= WP_THERMAL)
-	{
+	{ // JK2MV: FIXME: TODO: Check what the difference between 1.02 and 1.03 is and add "compatibility mode" if required...
 		int weap, i = 0;
 
 		if (cg.snap->ps.weapon >= WP_THERMAL &&

@@ -633,6 +633,7 @@ qboolean	trap_G2API_GetBoltMatrix(void *ghoul2, const int modelIndex, const int 
 								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale);
 qboolean	trap_G2API_GetBoltMatrix_NoReconstruct(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
 								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale);
+/*
 qboolean	trap_G2API_GetBoltMatrix_NoRecNoRot(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
 								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale);
 int			trap_G2API_InitGhoul2Model(void **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin,
@@ -655,6 +656,7 @@ qboolean	trap_G2API_SetBoneAngles(void *ghoul2, int modelIndex, const char *bone
 void		trap_G2API_GetGLAName(void *ghoul2, int modelIndex, char *fillBuf);
 qboolean	trap_G2API_SetBoneAnim(void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame,
 							  const int flags, const float animSpeed, const int currentTime, const float setFrame , const int blendTime );
+*/
 /*
 Ghoul2 Insert End
 */
@@ -794,6 +796,7 @@ void DeathmatchScoreboardMessage (gentity_t *client);
 extern vmCvar_t g_ff_objectives;
 extern qboolean gDoSlowMoDuel;
 extern int gSlowMoDuelTime;
+extern gclient_t g_clients[MAX_CLIENTS];
 
 void FindIntermissionPoint( void );
 void SetLeader(int team, int client);
@@ -1042,6 +1045,8 @@ extern	vmCvar_t	g_saberDebugPrint;
 
 extern	vmCvar_t	g_austrian;
 
+extern	vmCvar_t	mv_gameplay;
+
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );
 int		trap_Milliseconds( void );
@@ -1262,4 +1267,16 @@ int			trap_ROFF_Cache( char *file );
 qboolean	trap_ROFF_Play( int entID, int roffID, qboolean doTranslation );
 qboolean	trap_ROFF_Purge_Ent( int entID );
 
+
+#define SABER_BOX_SIZE /*16.0f*/(jk2gameplay == VERSION_1_02 ? 8.0f : 16.0f) //JK2MV: Moved from w_saber.c
+
+extern qboolean mvapi;
+
+int MVAPI_Init(int apilevel);
+void MVAPI_AfterInit(void);
+
+int trap_MV_GetCurrentGameversion( void );
+
+#include "../api/mvapi.h"
+#include "g_multiversion.h"
 

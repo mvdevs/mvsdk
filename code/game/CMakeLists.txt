@@ -83,6 +83,19 @@ set(MVGAMEFILES
 	"${SRCDir}/game/w_saber.c"
 	
 #	"${SRCDir}/game/JK2_game.def"
+
+	"${SRCDir}/api/mvapi.h"
+	
+	"${SRCDir}/game/g_multiversion.c"
+	"${SRCDir}/game/g_multiversion.h"
+	
+	"${SRCDir}/game/g_multiversion_syscalls.c"
+	"${SRCDir}/game/g_multiversion_syscalls.h"
+	
+	"${SRCDir}/game/bg_multiversion.c"
+	"${SRCDir}/game/bg_multiversion.h"
+
+	"${SRCDir}/game/animMappingTable.c"
 )
 add_library(${MVGAME} SHARED ${MVGAMEFILES})
 

@@ -445,6 +445,31 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
+	if ( !Q_stricmp(cmd, "jk2gameplay") )
+	{
+		char arg1[MAX_TOKEN_CHARS];
+
+		trap_Argv( 1, arg1, sizeof(arg1) );
+
+		switch ( atoi(arg1) )
+		{
+			case VERSION_1_02:
+				MV_SetGamePlay(VERSION_1_02);
+				trap_SendServerCommand( -1, "print \"Gameplay changed to 1.02\n\"" );
+				break;
+			case VERSION_1_03:
+				MV_SetGamePlay(VERSION_1_03);
+				trap_SendServerCommand( -1, "print \"Gameplay changed to 1.03\n\"" );
+				break;
+			default:
+			case VERSION_1_04:
+				MV_SetGamePlay(VERSION_1_04);
+				trap_SendServerCommand( -1, "print \"Gameplay changed to 1.04\n\"" );
+				break;
+		}
+		return qtrue;
+	}
+
 	if (g_dedicated.integer) {
 		if (Q_stricmp (cmd, "say") == 0) {
 			trap_SendServerCommand( -1, va("print \"server: %s\"", ConcatArgs(1) ) );

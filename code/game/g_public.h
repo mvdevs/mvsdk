@@ -430,6 +430,350 @@ Ghoul2 Insert End
 } gameImport_t;
 
 
+typedef enum {
+	//============== general Quake services ==================
+
+	G_PRINT_1_02,		// ( const char *string );
+	// print message on the local console
+
+	G_ERROR_1_02,		// ( const char *string );
+	// abort the game
+
+	G_MILLISECONDS_1_02,	// ( void );
+	// get current time for profiling reasons
+	// this should NOT be used for any game related tasks,
+	// because it is not journaled
+
+	// console variable interaction
+	G_CVAR_REGISTER_1_02,	// ( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags );
+	G_CVAR_UPDATE_1_02,	// ( vmCvar_t *vmCvar );
+	G_CVAR_SET_1_02,		// ( const char *var_name, const char *value );
+	G_CVAR_VARIABLE_INTEGER_VALUE_1_02,	// ( const char *var_name );
+
+	G_CVAR_VARIABLE_STRING_BUFFER_1_02,	// ( const char *var_name, char *buffer, int bufsize );
+
+	G_ARGC_1_02,			// ( void );
+	// ClientCommand and ServerCommand parameter access
+
+	G_ARGV_1_02,			// ( int n, char *buffer, int bufferLength );
+
+	G_FS_FOPEN_FILE_1_02,	// ( const char *qpath, fileHandle_t *file, fsMode_t mode );
+	G_FS_READ_1_02,		// ( void *buffer, int len, fileHandle_t f );
+	G_FS_WRITE_1_02,		// ( const void *buffer, int len, fileHandle_t f );
+	G_FS_FCLOSE_FILE_1_02,		// ( fileHandle_t f );
+
+	G_SEND_CONSOLE_COMMAND_1_02,	// ( const char *text );
+	// add commands to the console as if they were typed in
+	// for map changing, etc
+
+
+	//=========== server specific functionality =============
+
+	G_LOCATE_GAME_DATA_1_02,		// ( gentity_t *gEnts, int numGEntities, int sizeofGEntity_t,
+	//							playerState_t *clients, int sizeofGameClient );
+	// the game needs to let the server system know where and how big the gentities
+	// are, so it can look at them directly without going through an interface
+
+	G_DROP_CLIENT_1_02,		// ( int clientNum, const char *reason );
+	// kick a client off the server with a message
+
+	G_SEND_SERVER_COMMAND_1_02,	// ( int clientNum, const char *fmt, ... );
+	// reliably sends a command string to be interpreted by the given
+	// client.  If clientNum is -1, it will be sent to all clients
+
+	G_SET_CONFIGSTRING_1_02,	// ( int num, const char *string );
+	// config strings hold all the index strings, and various other information
+	// that is reliably communicated to all clients
+	// All of the current configstrings are sent to clients when
+	// they connect, and changes are sent to all connected clients.
+	// All confgstrings are cleared at each level start.
+
+	G_GET_CONFIGSTRING_1_02,	// ( int num, char *buffer, int bufferSize );
+
+	G_GET_USERINFO_1_02,		// ( int num, char *buffer, int bufferSize );
+	// userinfo strings are maintained by the server system, so they
+	// are persistant across level loads, while all other game visible
+	// data is completely reset
+
+	G_SET_USERINFO_1_02,		// ( int num, const char *buffer );
+
+	G_GET_SERVERINFO_1_02,	// ( char *buffer, int bufferSize );
+	// the serverinfo info string has all the cvars visible to server browsers
+
+	G_SET_BRUSH_MODEL_1_02,	// ( gentity_t *ent, const char *name );
+	// sets mins and maxs based on the brushmodel name
+
+	G_TRACE_1_02,	// ( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
+	// collision detection against all linked entities
+
+	G_POINT_CONTENTS_1_02,	// ( const vec3_t point, int passEntityNum );
+	// point contents against all linked entities
+
+	G_IN_PVS_1_02,			// ( const vec3_t p1, const vec3_t p2 );
+
+	G_IN_PVS_IGNORE_PORTALS_1_02,	// ( const vec3_t p1, const vec3_t p2 );
+
+	G_ADJUST_AREA_PORTAL_STATE_1_02,	// ( gentity_t *ent, qboolean open );
+
+	G_AREAS_CONNECTED_1_02,	// ( int area1, int area2 );
+
+	G_LINKENTITY_1_02,		// ( gentity_t *ent );
+	// an entity will never be sent to a client or used for collision
+	// if it is not passed to linkentity.  If the size, position, or
+	// solidity changes, it must be relinked.
+
+	G_UNLINKENTITY_1_02,		// ( gentity_t *ent );		
+	// call before removing an interactive entity
+
+	G_ENTITIES_IN_BOX_1_02,	// ( const vec3_t mins, const vec3_t maxs, gentity_t **list, int maxcount );
+	// EntitiesInBox will return brush models based on their bounding box,
+	// so exact determination must still be done with EntityContact
+
+	G_ENTITY_CONTACT_1_02,	// ( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
+	// perform an exact check against inline brush models of non-square shape
+
+	// access for bots to get and free a server client (FIXME?)
+	G_BOT_ALLOCATE_CLIENT_1_02,	// ( void );
+
+	G_BOT_FREE_CLIENT_1_02,	// ( int clientNum );
+
+	G_GET_USERCMD_1_02,	// ( int clientNum, usercmd_t *cmd )
+
+	G_GET_ENTITY_TOKEN_1_02,	// qboolean ( char *buffer, int bufferSize )
+	// Retrieves the next string token from the entity spawn text, returning
+	// false when all tokens have been parsed.
+	// This should only be done at GAME_INIT time.
+
+	G_FS_GETFILELIST_1_02,
+	G_DEBUG_POLYGON_CREATE_1_02,
+	G_DEBUG_POLYGON_DELETE_1_02,
+	G_REAL_TIME_1_02,
+	G_SNAPVECTOR_1_02,
+
+	G_TRACECAPSULE_1_02,	// ( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
+	G_ENTITY_CONTACTCAPSULE_1_02,	// ( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
+
+	SP_REGISTER_SERVER_CMD_1_02,
+	SP_GETSTRINGTEXTSTRING_1_02,
+
+	G_ROFF_CLEAN_1_02,				// qboolean	ROFF_Clean(void);
+	G_ROFF_UPDATE_ENTITIES_1_02,		// void		ROFF_UpdateEntities(void);
+	G_ROFF_CACHE_1_02,				// int		ROFF_Cache(char *file);
+	G_ROFF_PLAY_1_02,				// qboolean	ROFF_Play(int entID, int roffID, qboolean doTranslation);
+	G_ROFF_PURGE_ENT_1_02,			// qboolean ROFF_PurgeEnt( int entID )
+
+	//BEGIN VM STUFF
+	G_MEMSET_1_02 = 100,
+	G_MEMCPY_1_02,
+	G_STRNCPY_1_02,
+	G_SIN_1_02,
+	G_COS_1_02,
+	G_ATAN2_1_02,
+	G_SQRT_1_02,
+	G_MATRIXMULTIPLY_1_02,
+	G_ANGLEVECTORS_1_02,
+	G_PERPENDICULARVECTOR_1_02,
+	G_FLOOR_1_02,
+	G_CEIL_1_02,
+
+	G_TESTPRINTINT_1_02,
+	G_TESTPRINTFLOAT_1_02,
+
+	G_ACOS_1_02,
+	G_ASIN_1_02,
+
+	//END VM STUFF
+
+	BOTLIB_SETUP_1_02 = 200,				// ( void );
+	BOTLIB_SHUTDOWN_1_02,				// ( void );
+	BOTLIB_LIBVAR_SET_1_02,
+	BOTLIB_LIBVAR_GET_1_02,
+	BOTLIB_PC_ADD_GLOBAL_DEFINE_1_02,
+	BOTLIB_START_FRAME_1_02,
+	BOTLIB_LOAD_MAP_1_02,
+	BOTLIB_UPDATENTITY_1_02,
+	BOTLIB_TEST_1_02,
+
+	BOTLIB_GET_SNAPSHOT_ENTITY_1_02,		// ( int client, int ent );
+	BOTLIB_GET_CONSOLE_MESSAGE_1_02,		// ( int client, char *message, int size );
+	BOTLIB_USER_COMMAND_1_02,			// ( int client, usercmd_t *ucmd );
+
+	BOTLIB_AAS_ENABLE_ROUTING_AREA_1_02 = 300,
+	BOTLIB_AAS_BBOX_AREAS_1_02,
+	BOTLIB_AAS_AREA_INFO_1_02,
+	BOTLIB_AAS_ENTITY_INFO_1_02,
+
+	BOTLIB_AAS_INITIALIZED_1_02,
+	BOTLIB_AAS_PRESENCE_TYPE_BOUNDING_BOX_1_02,
+	BOTLIB_AAS_TIME_1_02,
+
+	BOTLIB_AAS_POINT_AREA_NUM_1_02,
+	BOTLIB_AAS_TRACE_AREAS_1_02,
+
+	BOTLIB_AAS_POINT_CONTENTS_1_02,
+	BOTLIB_AAS_NEXT_BSP_ENTITY_1_02,
+	BOTLIB_AAS_VALUE_FOR_BSP_EPAIR_KEY_1_02,
+	BOTLIB_AAS_VECTOR_FOR_BSP_EPAIR_KEY_1_02,
+	BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY_1_02,
+	BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY_1_02,
+
+	BOTLIB_AAS_AREA_REACHABILITY_1_02,
+
+	BOTLIB_AAS_AREA_TRAVEL_TIME_TO_GOAL_AREA_1_02,
+
+	BOTLIB_AAS_SWIMMING_1_02,
+	BOTLIB_AAS_PREDICT_CLIENT_MOVEMENT_1_02,
+
+	BOTLIB_EA_SAY_1_02 = 400,
+	BOTLIB_EA_SAY_TEAM_1_02,
+	BOTLIB_EA_COMMAND_1_02,
+
+	BOTLIB_EA_ACTION_1_02,
+	BOTLIB_EA_GESTURE_1_02,
+	BOTLIB_EA_TALK_1_02,
+	BOTLIB_EA_ATTACK_1_02,
+	BOTLIB_EA_ALT_ATTACK_1_02,
+	BOTLIB_EA_FORCEPOWER_1_02,
+	BOTLIB_EA_USE_1_02,
+	BOTLIB_EA_RESPAWN_1_02,
+	BOTLIB_EA_CROUCH_1_02,
+	BOTLIB_EA_MOVE_UP_1_02,
+	BOTLIB_EA_MOVE_DOWN_1_02,
+	BOTLIB_EA_MOVE_FORWARD_1_02,
+	BOTLIB_EA_MOVE_BACK_1_02,
+	BOTLIB_EA_MOVE_LEFT_1_02,
+	BOTLIB_EA_MOVE_RIGHT_1_02,
+
+	BOTLIB_EA_SELECT_WEAPON_1_02,
+	BOTLIB_EA_JUMP_1_02,
+	BOTLIB_EA_DELAYED_JUMP_1_02,
+	BOTLIB_EA_MOVE_1_02,
+	BOTLIB_EA_VIEW_1_02,
+
+	BOTLIB_EA_END_REGULAR_1_02,
+	BOTLIB_EA_GET_INPUT_1_02,
+	BOTLIB_EA_RESET_INPUT_1_02,
+
+
+	BOTLIB_AI_LOAD_CHARACTER_1_02 = 500,
+	BOTLIB_AI_FREE_CHARACTER_1_02,
+	BOTLIB_AI_CHARACTERISTIC_FLOAT_1_02,
+	BOTLIB_AI_CHARACTERISTIC_BFLOAT_1_02,
+	BOTLIB_AI_CHARACTERISTIC_INTEGER_1_02,
+	BOTLIB_AI_CHARACTERISTIC_BINTEGER_1_02,
+	BOTLIB_AI_CHARACTERISTIC_STRING_1_02,
+
+	BOTLIB_AI_ALLOC_CHAT_STATE_1_02,
+	BOTLIB_AI_FREE_CHAT_STATE_1_02,
+	BOTLIB_AI_QUEUE_CONSOLE_MESSAGE_1_02,
+	BOTLIB_AI_REMOVE_CONSOLE_MESSAGE_1_02,
+	BOTLIB_AI_NEXT_CONSOLE_MESSAGE_1_02,
+	BOTLIB_AI_NUM_CONSOLE_MESSAGE_1_02,
+	BOTLIB_AI_INITIAL_CHAT_1_02,
+	BOTLIB_AI_REPLY_CHAT_1_02,
+	BOTLIB_AI_CHAT_LENGTH_1_02,
+	BOTLIB_AI_ENTER_CHAT_1_02,
+	BOTLIB_AI_STRING_CONTAINS_1_02,
+	BOTLIB_AI_FIND_MATCH_1_02,
+	BOTLIB_AI_MATCH_VARIABLE_1_02,
+	BOTLIB_AI_UNIFY_WHITE_SPACES_1_02,
+	BOTLIB_AI_REPLACE_SYNONYMS_1_02,
+	BOTLIB_AI_LOAD_CHAT_FILE_1_02,
+	BOTLIB_AI_SET_CHAT_GENDER_1_02,
+	BOTLIB_AI_SET_CHAT_NAME_1_02,
+
+	BOTLIB_AI_RESET_GOAL_STATE_1_02,
+	BOTLIB_AI_RESET_AVOID_GOALS_1_02,
+	BOTLIB_AI_PUSH_GOAL_1_02,
+	BOTLIB_AI_POP_GOAL_1_02,
+	BOTLIB_AI_EMPTY_GOAL_STACK_1_02,
+	BOTLIB_AI_DUMP_AVOID_GOALS_1_02,
+	BOTLIB_AI_DUMP_GOAL_STACK_1_02,
+	BOTLIB_AI_GOAL_NAME_1_02,
+	BOTLIB_AI_GET_TOP_GOAL_1_02,
+	BOTLIB_AI_GET_SECOND_GOAL_1_02,
+	BOTLIB_AI_CHOOSE_LTG_ITEM_1_02,
+	BOTLIB_AI_CHOOSE_NBG_ITEM_1_02,
+	BOTLIB_AI_TOUCHING_GOAL_1_02,
+	BOTLIB_AI_ITEM_GOAL_IN_VIS_BUT_NOT_VISIBLE_1_02,
+	BOTLIB_AI_GET_LEVEL_ITEM_GOAL_1_02,
+	BOTLIB_AI_AVOID_GOAL_TIME_1_02,
+	BOTLIB_AI_INIT_LEVEL_ITEMS_1_02,
+	BOTLIB_AI_UPDATE_ENTITY_ITEMS_1_02,
+	BOTLIB_AI_LOAD_ITEM_WEIGHTS_1_02,
+	BOTLIB_AI_FREE_ITEM_WEIGHTS_1_02,
+	BOTLIB_AI_SAVE_GOAL_FUZZY_LOGIC_1_02,
+	BOTLIB_AI_ALLOC_GOAL_STATE_1_02,
+	BOTLIB_AI_FREE_GOAL_STATE_1_02,
+
+	BOTLIB_AI_RESET_MOVE_STATE_1_02,
+	BOTLIB_AI_MOVE_TO_GOAL_1_02,
+	BOTLIB_AI_MOVE_IN_DIRECTION_1_02,
+	BOTLIB_AI_RESET_AVOID_REACH_1_02,
+	BOTLIB_AI_RESET_LAST_AVOID_REACH_1_02,
+	BOTLIB_AI_REACHABILITY_AREA_1_02,
+	BOTLIB_AI_MOVEMENT_VIEW_TARGET_1_02,
+	BOTLIB_AI_ALLOC_MOVE_STATE_1_02,
+	BOTLIB_AI_FREE_MOVE_STATE_1_02,
+	BOTLIB_AI_INIT_MOVE_STATE_1_02,
+
+	BOTLIB_AI_CHOOSE_BEST_FIGHT_WEAPON_1_02,
+	BOTLIB_AI_GET_WEAPON_INFO_1_02,
+	BOTLIB_AI_LOAD_WEAPON_WEIGHTS_1_02,
+	BOTLIB_AI_ALLOC_WEAPON_STATE_1_02,
+	BOTLIB_AI_FREE_WEAPON_STATE_1_02,
+	BOTLIB_AI_RESET_WEAPON_STATE_1_02,
+
+	BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION_1_02,
+	BOTLIB_AI_INTERBREED_GOAL_FUZZY_LOGIC_1_02,
+	BOTLIB_AI_MUTATE_GOAL_FUZZY_LOGIC_1_02,
+	BOTLIB_AI_GET_NEXT_CAMP_SPOT_GOAL_1_02,
+	BOTLIB_AI_GET_MAP_LOCATION_GOAL_1_02,
+	BOTLIB_AI_NUM_INITIAL_CHATS_1_02,
+	BOTLIB_AI_GET_CHAT_MESSAGE_1_02,
+	BOTLIB_AI_REMOVE_FROM_AVOID_GOALS_1_02,
+	BOTLIB_AI_PREDICT_VISIBLE_POSITION_1_02,
+
+	BOTLIB_AI_SET_AVOID_GOAL_TIME_1_02,
+	BOTLIB_AI_ADD_AVOID_SPOT_1_02,
+	BOTLIB_AAS_ALTERNATIVE_ROUTE_GOAL_1_02,
+	BOTLIB_AAS_PREDICT_ROUTE_1_02,
+	BOTLIB_AAS_POINT_REACHABILITY_AREA_INDEX_1_02,
+
+	BOTLIB_PC_LOAD_SOURCE_1_02,
+	BOTLIB_PC_FREE_SOURCE_1_02,
+	BOTLIB_PC_READ_TOKEN_1_02,
+	BOTLIB_PC_SOURCE_FILE_AND_LINE_1_02,
+
+	/*
+Ghoul2 Insert Start
+*/
+	G_G2_LISTBONES_1_02,
+	G_G2_LISTSURFACES_1_02,
+	G_G2_HAVEWEGHOULMODELS_1_02,
+	G_G2_SETMODELS_1_02,
+	G_G2_GETBOLT_1_02,
+	G_G2_GETBOLT_NOREC_1_02,
+	G_G2_INITGHOUL2MODEL_1_02,
+	G_G2_ADDBOLT_1_02,
+	G_G2_SETBOLTINFO_1_02,
+	G_G2_ANGLEOVERRIDE_1_02,
+	G_G2_PLAYANIM_1_02,
+	G_G2_GETGLANAME_1_02,
+	G_G2_COPYGHOUL2INSTANCE_1_02,
+	G_G2_COPYSPECIFICGHOUL2MODEL_1_02,
+	G_G2_DUPLICATEGHOUL2INSTANCE_1_02,
+	G_G2_HASGHOUL2MODELONINDEX_1_02,
+	G_G2_REMOVEGHOUL2MODEL_1_02,
+	G_G2_CLEANMODELS_1_02,
+
+/*
+Ghoul2 Insert End
+*/
+
+} gameImport_1_02_t;
+
+
 //
 // functions exported by the game subsystem
 //

@@ -148,11 +148,17 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
+qboolean mvapi = qfalse;
 LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
+	int requestedMvApi = 0;
 
 	switch ( command ) {
 	case CG_INIT:
+		requestedMvApi = MVAPI_Init(arg11);
 		CG_Init( arg0, arg1, arg2 );
+		return requestedMvApi;
+	case MVAPI_AFTER_INIT:
+		MVAPI_AfterInit();
 		return 0;
 	case CG_SHUTDOWN:
 		CG_Shutdown();
@@ -167,7 +173,7 @@ LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int a
 	case CG_LAST_ATTACKER:
 		return CG_LastAttacker();
 	case CG_KEY_EVENT:
-		CG_KeyEvent(arg0, arg1);
+		CG_KeyEvent(Key_GetProtocolKey15(jk2version, arg0), arg1); // JK2MV: 1.02 uses other keycodes...
 		return 0;
 	case CG_MOUSE_EVENT:
 		cgDC.cursorx = cgs.cursorX;
@@ -247,6 +253,36 @@ LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int a
 		break;
 	}
 	return -1;
+}
+
+int MVAPI_Init(int apilevel)
+{
+	char mv_apiEnabledBuffer[80];
+	trap_Cvar_VariableStringBuffer( "mv_apienabled", mv_apiEnabledBuffer, sizeof(mv_apiEnabledBuffer) );
+
+	if (!atoi(mv_apiEnabledBuffer))
+	{
+		CG_Printf("MVAPI is not supported at all or has been disabled.\n");
+		CG_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
+		return 0;
+	}
+
+	if (apilevel < MV_APILEVEL)
+	{
+		CG_Printf("MVAPI level %i not supported.\n", MV_APILEVEL);
+		CG_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
+		return 0;
+	}
+
+	mvapi = qtrue;
+
+	CG_Printf("Using MVAPI level %i (%i supported).\n", MV_APILEVEL, apilevel);
+	return MV_APILEVEL;
+}
+
+void MVAPI_AfterInit(void)
+{
+	// Nothing to do in CGame at the moment.
 }
 
 static int C_PointContents(void)
@@ -2218,9 +2254,9 @@ void CG_LoadHudMenu()
 	cgDC.Font_StrLenChars = &trap_R_Font_StrLenChars;
 	cgDC.Font_HeightPixels = &trap_R_Font_HeightPixels;
 	cgDC.Font_DrawString = &trap_R_Font_DrawString;
-	cgDC.Language_IsAsian = &trap_Language_IsAsian;
-	cgDC.Language_UsesSpaces = &trap_Language_UsesSpaces;
-	cgDC.AnyLanguage_ReadCharFromString = &trap_AnyLanguage_ReadCharFromString;
+	cgDC.Language_IsAsian = trap_Language_IsAsian;
+	cgDC.Language_UsesSpaces = trap_Language_UsesSpaces;
+	cgDC.AnyLanguage_ReadCharFromString = trap_AnyLanguage_ReadCharFromString;
 	cgDC.ownerDrawItem = &CG_OwnerDraw;
 	cgDC.getValue = &CG_GetValue;
 	cgDC.ownerDrawVisible = &CG_OwnerDrawVisible;
@@ -2366,6 +2402,99 @@ Will perform callbacks to make the loading info screen update.
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	const char	*s;
 	int i = 0;
+	
+	// JK2MV: Let's detect which version of the engine we are running in...
+	// In theory CG_ParseServerinfo is the perfect place for this, but as the first thing CG_Init does is trying to get shared memory we have to perform our check even before that...
+	// FIXME: by putting me into an own function or something
+	jk2version = VERSION_UNDEF; // Should be set already, but let's just make sure!
+	if ( mvapi )
+	{ // JK2MV >= 1.1
+		switch ( trap_MV_GetCurrentGameversion() )
+		{
+			case VERSION_1_02:
+				jk2version = VERSION_1_02;
+				CG_Printf ("jk2version [CGame]: 1.02 [via API]\n");
+				break;
+			case VERSION_1_03:
+				jk2version = VERSION_1_03;
+				CG_Printf ("jk2version [CGame]: 1.03 [via API]\n");
+				break;
+			case VERSION_1_04:
+				jk2version = VERSION_1_04;
+				CG_Printf ("jk2version [CGame]: 1.04 [via API]\n");
+				break;
+			default:
+				jk2version = VERSION_UNDEF;
+				CG_Error("JK2MultiVersionMod: Unable to detect jk2version. [via API]\n");
+		}
+	}
+	else
+	{
+		char version[128];
+
+		trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+		
+		if ( strstr(version, "JK2MP") )
+		{ // JK2MP
+			if ( strstr(version, "1.02") )
+			{ //Seems to be "1.02"
+				jk2version = VERSION_1_02;
+				CG_Printf ("jk2version [CGame]: 1.02 [via client-version]\n");
+			}
+			else if ( strstr(version, "1.03") )
+			{ //Seems to be "1.03" - for now treat 1.03 like 1.04...
+				jk2version = VERSION_1_03;
+				CG_Printf ("jk2version [CGame]: 1.03 [via client-version]\n");
+			}
+			else if ( strstr(version, "1.04") )
+			{ //Seems to be "1.04"
+				jk2version = VERSION_1_04;
+				CG_Printf ("jk2version [CGame]: 1.04 [via client-version]\n");
+			}
+		}
+
+		if ( jk2version == VERSION_UNDEF )
+		{ //No valid version found on the client - let's hope the server got the information we need...
+			const char *info;
+			char *version;
+
+			trap_GetGameState( &cgs.gameState );
+
+			info = CG_ConfigString( CS_SERVERINFO );
+			version = Info_ValueForKey( info, "version" );
+		
+			//It might be not the exact versionString, but as some servers have different versionStrings we just check wether the versionNumber is included in the versionString or not...
+			if ( strstr(version, "JK2MP") )
+			{ // JK2MP
+				if ( strstr(version, "1.02") )
+				{ //Seems to be "1.02"
+					jk2version = VERSION_1_02;
+					CG_Printf ("jk2version [CGame]: 1.02 [via server-version]\n");
+				}
+				else if ( strstr(version, "1.03") )
+				{ //Seems to be "1.03" - for now treat 1.03 like 1.04...
+					jk2version = VERSION_1_03;
+					CG_Printf ("jk2version [CGame]: 1.03 [via server-version]\n");
+				}
+				else if ( strstr(version, "1.04") )
+				{ //Seems to be "1.04"
+					jk2version = VERSION_1_04;
+					CG_Printf ("jk2version [CGame]: 1.04 [via server-version]\n");
+				}
+				else
+				{ // Seems to be JK2MP, but nothing from 1.02 to 1.04. Let's hope it is something 1.04 compatible, we're not having a lot more options anyway...
+					jk2version = VERSION_1_04;
+					CG_Printf("JK2MultiVersionMod: Unable to detect jk2mp version, setting to 1.04 compatibility.\n");
+				}
+			}
+			else
+			{ // Forget it, we don't have access to the jk2mv api (jk2mv >= 1.1) and the version cvar of the client and server don't tell us the version - we could guess, but well...
+				jk2version = VERSION_UNDEF;
+				CG_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
+			}
+		}
+	}
+	MV_SetGameVersion(jk2version);
 
 	trap_CG_RegisterSharedMemory(cg.sharedBuffer);
 

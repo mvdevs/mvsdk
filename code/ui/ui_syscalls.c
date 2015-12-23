@@ -132,20 +132,29 @@ void trap_R_Font_DrawString(int ox, int oy, const char *text, const float *rgba,
 	syscall( UI_R_FONT_DRAWSTRING, ox, oy, text, rgba, setIndex, iCharLimit, PASSFLOAT(scale));
 }
 
-qboolean trap_Language_IsAsian(void)
+
+/* 1.04 */
+qboolean trap_Language_IsAsian_1_04(void)
 {
 	return syscall( UI_LANGUAGE_ISASIAN );
 }
 
-qboolean trap_Language_UsesSpaces(void)
+qboolean trap_Language_UsesSpaces_1_04(void)
 {
 	return syscall( UI_LANGUAGE_USESSPACES );
 }
 
-unsigned int trap_AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation )
+unsigned int trap_AnyLanguage_ReadCharFromString_1_04( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation )
 {
 	return syscall( UI_ANYLANGUAGE_READCHARFROMSTRING, psText, piAdvanceCount, pbIsTrailingPunctuation);
 }
+
+/* 1.02 */
+unsigned int trap_AnyLanguage_ReadCharFromString_1_02( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation )
+{
+	return syscall( UI_ANYLANGUAGE_READCHARFROMSTRING_1_02, psText, piAdvanceCount, pbIsTrailingPunctuation);
+}
+
 
 qhandle_t trap_R_RegisterShaderNoMip( const char *name ) {
 	return syscall( UI_R_REGISTERSHADERNOMIP, name );
@@ -179,8 +188,14 @@ void trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float 
 	syscall( UI_R_DRAWSTRETCHPIC, PASSFLOAT(x), PASSFLOAT(y), PASSFLOAT(w), PASSFLOAT(h), PASSFLOAT(s1), PASSFLOAT(t1), PASSFLOAT(s2), PASSFLOAT(t2), hShader );
 }
 
-void	trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
+/* 1.04 */
+void	trap_R_ModelBounds_1_04( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
 	syscall( UI_R_MODELBOUNDS, model, mins, maxs );
+}
+
+/* 1.02 */
+void	trap_R_ModelBounds_1_02( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
+	syscall( UI_R_MODELBOUNDS_1_02, model, mins, maxs );
 }
 
 void trap_UpdateScreen( void ) {
@@ -199,19 +214,19 @@ sfxHandle_t	trap_S_RegisterSound( const char *sample ) {
 	return syscall( UI_S_REGISTERSOUND, sample );
 }
 
-void trap_Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
+void trap_Key_KeynumToStringBuf_real( int keynum, char *buf, int buflen ) {
 	syscall( UI_KEY_KEYNUMTOSTRINGBUF, keynum, buf, buflen );
 }
 
-void trap_Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
+void trap_Key_GetBindingBuf_real( int keynum, char *buf, int buflen ) {
 	syscall( UI_KEY_GETBINDINGBUF, keynum, buf, buflen );
 }
 
-void trap_Key_SetBinding( int keynum, const char *binding ) {
+void trap_Key_SetBinding_real( int keynum, const char *binding ) {
 	syscall( UI_KEY_SETBINDING, keynum, binding );
 }
 
-qboolean trap_Key_IsDown( int keynum ) {
+qboolean trap_Key_IsDown_real( int keynum ) {
 	return syscall( UI_KEY_ISDOWN, keynum );
 }
 
@@ -251,40 +266,77 @@ int trap_GetConfigString( int index, char* buff, int buffsize ) {
 	return syscall( UI_GETCONFIGSTRING, index, buff, buffsize );
 }
 
-int	trap_LAN_GetServerCount( int source ) {
+
+/* 1.04 */
+int	trap_LAN_GetServerCount_1_04( int source ) {
 	return syscall( UI_LAN_GETSERVERCOUNT, source );
 }
 
-void trap_LAN_GetServerAddressString( int source, int n, char *buf, int buflen ) {
+void trap_LAN_GetServerAddressString_1_04( int source, int n, char *buf, int buflen ) {
 	syscall( UI_LAN_GETSERVERADDRESSSTRING, source, n, buf, buflen );
 }
 
-void trap_LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
+void trap_LAN_GetServerInfo_1_04( int source, int n, char *buf, int buflen ) {
 	syscall( UI_LAN_GETSERVERINFO, source, n, buf, buflen );
 }
 
-int trap_LAN_GetServerPing( int source, int n ) {
+int trap_LAN_GetServerPing_1_04( int source, int n ) {
 	return syscall( UI_LAN_GETSERVERPING, source, n );
 }
 
-int trap_LAN_GetPingQueueCount( void ) {
-	return syscall( UI_LAN_GETPINGQUEUECOUNT );
-}
-
-int trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int maxLen ) {
+int trap_LAN_ServerStatus_1_04( const char *serverAddress, char *serverStatus, int maxLen ) {
 	return syscall( UI_LAN_SERVERSTATUS, serverAddress, serverStatus, maxLen );
 }
 
-void trap_LAN_SaveCachedServers() {
+void trap_LAN_SaveCachedServers_1_04() {
 	syscall( UI_LAN_SAVECACHEDSERVERS );
 }
 
-void trap_LAN_LoadCachedServers() {
+void trap_LAN_LoadCachedServers_1_04() {
 	syscall( UI_LAN_LOADCACHEDSERVERS );
 }
 
-void trap_LAN_ResetPings(int n) {
+void trap_LAN_ResetPings_1_04(int n) {
 	syscall( UI_LAN_RESETPINGS, n );
+}
+
+
+/* 1.02 */
+int	trap_LAN_GetServerCount_1_02( int source ) {
+	return syscall( UI_LAN_GETSERVERCOUNT_1_02, source );
+}
+
+void trap_LAN_GetServerAddressString_1_02( int source, int n, char *buf, int buflen ) {
+	syscall( UI_LAN_GETSERVERADDRESSSTRING_1_02, source, n, buf, buflen );
+}
+
+void trap_LAN_GetServerInfo_1_02( int source, int n, char *buf, int buflen ) {
+	syscall( UI_LAN_GETSERVERINFO_1_02, source, n, buf, buflen );
+}
+
+int trap_LAN_GetServerPing_1_02( int source, int n ) {
+	return syscall( UI_LAN_GETSERVERPING_1_02, source, n );
+}
+
+int trap_LAN_ServerStatus_1_02( const char *serverAddress, char *serverStatus, int maxLen ) {
+	return syscall( UI_LAN_SERVERSTATUS_1_02, serverAddress, serverStatus, maxLen );
+}
+
+void trap_LAN_SaveCachedServers_1_02() {
+	syscall( UI_LAN_SAVECACHEDSERVERS_1_02 );
+}
+
+void trap_LAN_LoadCachedServers_1_02() {
+	syscall( UI_LAN_LOADCACHEDSERVERS_1_02 );
+}
+
+void trap_LAN_ResetPings_1_02(int n) {
+	syscall( UI_LAN_RESETPINGS_1_02, n );
+}
+
+
+int trap_LAN_GetPingQueueCount( void ) {
+	return syscall( UI_LAN_GETPINGQUEUECOUNT );
 }
 
 void trap_LAN_ClearPing( int n ) {
@@ -299,29 +351,57 @@ void trap_LAN_GetPingInfo( int n, char *buf, int buflen ) {
 	syscall( UI_LAN_GETPINGINFO, n, buf, buflen );
 }
 
-void trap_LAN_MarkServerVisible( int source, int n, qboolean visible ) {
+
+/* 1.04 */
+void trap_LAN_MarkServerVisible_1_04( int source, int n, qboolean visible ) {
 	syscall( UI_LAN_MARKSERVERVISIBLE, source, n, visible );
 }
 
-int trap_LAN_ServerIsVisible( int source, int n) {
+int trap_LAN_ServerIsVisible_1_04( int source, int n) {
 	return syscall( UI_LAN_SERVERISVISIBLE, source, n );
 }
 
-qboolean trap_LAN_UpdateVisiblePings( int source ) {
+qboolean trap_LAN_UpdateVisiblePings_1_04( int source ) {
 	return syscall( UI_LAN_UPDATEVISIBLEPINGS, source );
 }
 
-int trap_LAN_AddServer(int source, const char *name, const char *addr) {
+int trap_LAN_AddServer_1_04(int source, const char *name, const char *addr) {
 	return syscall( UI_LAN_ADDSERVER, source, name, addr );
 }
 
-void trap_LAN_RemoveServer(int source, const char *addr) {
+void trap_LAN_RemoveServer_1_04(int source, const char *addr) {
 	syscall( UI_LAN_REMOVESERVER, source, addr );
 }
 
-int trap_LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 ) {
+int trap_LAN_CompareServers_1_04( int source, int sortKey, int sortDir, int s1, int s2 ) {
 	return syscall( UI_LAN_COMPARESERVERS, source, sortKey, sortDir, s1, s2 );
 }
+
+/* 1.02 */
+void trap_LAN_MarkServerVisible_1_02( int source, int n, qboolean visible ) {
+	syscall( UI_LAN_MARKSERVERVISIBLE_1_02, source, n, visible );
+}
+
+int trap_LAN_ServerIsVisible_1_02( int source, int n) {
+	return syscall( UI_LAN_SERVERISVISIBLE_1_02, source, n );
+}
+
+qboolean trap_LAN_UpdateVisiblePings_1_02( int source ) {
+	return syscall( UI_LAN_UPDATEVISIBLEPINGS_1_02, source );
+}
+
+int trap_LAN_AddServer_1_02(int source, const char *name, const char *addr) {
+	return syscall( UI_LAN_ADDSERVER_1_02, source, name, addr );
+}
+
+void trap_LAN_RemoveServer_1_02(int source, const char *addr) {
+	syscall( UI_LAN_REMOVESERVER_1_02, source, addr );
+}
+
+int trap_LAN_CompareServers_1_02( int source, int sortKey, int sortDir, int s1, int s2 ) {
+	return syscall( UI_LAN_COMPARESERVERS_1_02, source, sortKey, sortDir, s1, s2 );
+}
+
 
 int trap_MemoryRemaining( void ) {
 	return syscall( UI_MEMORY_REMAINING );
@@ -343,79 +423,151 @@ qboolean trap_VerifyCDKey( const char *key, const char *chksum) {
 
 #endif // USE_CD_KEY
 
-int trap_PC_AddGlobalDefine( char *define ) {
+
+/* 1.04 */
+int trap_PC_AddGlobalDefine_1_04( char *define ) {
 	return syscall( UI_PC_ADD_GLOBAL_DEFINE, define );
 }
 
-int trap_PC_LoadSource( const char *filename ) {
+int trap_PC_LoadSource_1_04( const char *filename ) {
 	return syscall( UI_PC_LOAD_SOURCE, filename );
 }
 
-int trap_PC_FreeSource( int handle ) {
+int trap_PC_FreeSource_1_04( int handle ) {
 	return syscall( UI_PC_FREE_SOURCE, handle );
 }
 
-int trap_PC_ReadToken( int handle, pc_token_t *pc_token ) {
+int trap_PC_ReadToken_1_04( int handle, pc_token_t *pc_token ) {
 	return syscall( UI_PC_READ_TOKEN, handle, pc_token );
 }
 
-int trap_PC_SourceFileAndLine( int handle, char *filename, int *line ) {
+int trap_PC_SourceFileAndLine_1_04( int handle, char *filename, int *line ) {
 	return syscall( UI_PC_SOURCE_FILE_AND_LINE, handle, filename, line );
 }
 
-int trap_PC_LoadGlobalDefines ( const char* filename )
+int trap_PC_LoadGlobalDefines_1_04 ( const char* filename )
 {
 	return syscall ( UI_PC_LOAD_GLOBAL_DEFINES, filename );
 }
 
-void trap_PC_RemoveAllGlobalDefines ( void )
+void trap_PC_RemoveAllGlobalDefines_1_04 ( void )
 {
 	syscall ( UI_PC_REMOVE_ALL_GLOBAL_DEFINES );
 }
 
-void trap_S_StopBackgroundTrack( void ) {
+void trap_S_StopBackgroundTrack_1_04( void ) {
 	syscall( UI_S_STOPBACKGROUNDTRACK );
 }
 
-void trap_S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bReturnWithoutStarting) {
+void trap_S_StartBackgroundTrack_1_04( const char *intro, const char *loop, qboolean bReturnWithoutStarting) {
 	syscall( UI_S_STARTBACKGROUNDTRACK, intro, loop, bReturnWithoutStarting );
 }
 
-int trap_RealTime(qtime_t *qtime) {
+int trap_RealTime_1_04(qtime_t *qtime) {
 	return syscall( UI_REAL_TIME, qtime );
 }
 
 // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to qfalse (do not alter gamestate)
-int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits) {
+int trap_CIN_PlayCinematic_1_04( const char *arg0, int xpos, int ypos, int width, int height, int bits) {
   return syscall(UI_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, bits);
 }
  
 // stops playing the cinematic and ends it.  should always return FMV_EOF
 // cinematics must be stopped in reverse order of when they are started
-e_status trap_CIN_StopCinematic(int handle) {
+e_status trap_CIN_StopCinematic_1_04(int handle) {
   return syscall(UI_CIN_STOPCINEMATIC, handle);
 }
 
 
 // will run a frame of the cinematic but will not draw it.  Will return FMV_EOF if the end of the cinematic has been reached.
-e_status trap_CIN_RunCinematic (int handle) {
+e_status trap_CIN_RunCinematic_1_04 (int handle) {
   return syscall(UI_CIN_RUNCINEMATIC, handle);
 }
- 
 
 // draws the current frame
-void trap_CIN_DrawCinematic (int handle) {
+void trap_CIN_DrawCinematic_1_04 (int handle) {
   syscall(UI_CIN_DRAWCINEMATIC, handle);
 }
- 
 
 // allows you to resize the animation dynamically
-void trap_CIN_SetExtents (int handle, int x, int y, int w, int h) {
+void trap_CIN_SetExtents_1_04 (int handle, int x, int y, int w, int h) {
   syscall(UI_CIN_SETEXTENTS, handle, x, y, w, h);
 }
 
+void	trap_R_RemapShader_1_04( const char *oldShader, const char *newShader, const char *timeOffset ) {
+	syscall( UI_R_REMAP_SHADER, oldShader, newShader, timeOffset );
+}
 
-void	trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset ) {
+/* 1.02 */
+int trap_PC_AddGlobalDefine_1_02( char *define ) {
+	return syscall( UI_PC_ADD_GLOBAL_DEFINE_1_02, define );
+}
+
+int trap_PC_LoadSource_1_02( const char *filename ) {
+	return syscall( UI_PC_LOAD_SOURCE_1_02, filename );
+}
+
+int trap_PC_FreeSource_1_02( int handle ) {
+	return syscall( UI_PC_FREE_SOURCE_1_02, handle );
+}
+
+int trap_PC_ReadToken_1_02( int handle, pc_token_t *pc_token ) {
+	return syscall( UI_PC_READ_TOKEN_1_02, handle, pc_token );
+}
+
+int trap_PC_SourceFileAndLine_1_02( int handle, char *filename, int *line ) {
+	return syscall( UI_PC_SOURCE_FILE_AND_LINE_1_02, handle, filename, line );
+}
+
+int trap_PC_LoadGlobalDefines_1_02 ( const char* filename )
+{
+	return syscall ( UI_PC_LOAD_GLOBAL_DEFINES_1_02, filename );
+}
+
+void trap_PC_RemoveAllGlobalDefines_1_02 ( void )
+{
+	syscall ( UI_PC_REMOVE_ALL_GLOBAL_DEFINES_1_02 );
+}
+
+void trap_S_StopBackgroundTrack_1_02( void ) {
+	syscall( UI_S_STOPBACKGROUNDTRACK_1_02 );
+}
+
+void trap_S_StartBackgroundTrack_1_02( const char *intro, const char *loop, qboolean bReturnWithoutStarting) {
+	syscall( UI_S_STARTBACKGROUNDTRACK_1_02, intro, loop, bReturnWithoutStarting );
+}
+
+int trap_RealTime_1_02(qtime_t *qtime) {
+	return syscall( UI_REAL_TIME_1_02, qtime );
+}
+
+// this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to qfalse (do not alter gamestate)
+int trap_CIN_PlayCinematic_1_02( const char *arg0, int xpos, int ypos, int width, int height, int bits) {
+  return syscall(UI_CIN_PLAYCINEMATIC_1_02, arg0, xpos, ypos, width, height, bits);
+}
+ 
+// stops playing the cinematic and ends it.  should always return FMV_EOF
+// cinematics must be stopped in reverse order of when they are started
+e_status trap_CIN_StopCinematic_1_02(int handle) {
+  return syscall(UI_CIN_STOPCINEMATIC_1_02, handle);
+}
+
+// will run a frame of the cinematic but will not draw it.  Will return FMV_EOF if the end of the cinematic has been reached.
+e_status trap_CIN_RunCinematic_1_02 (int handle) {
+  return syscall(UI_CIN_RUNCINEMATIC_1_02, handle);
+}
+
+// draws the current frame
+void trap_CIN_DrawCinematic_1_02 (int handle) {
+  syscall(UI_CIN_DRAWCINEMATIC_1_02, handle);
+}
+
+// allows you to resize the animation dynamically
+void trap_CIN_SetExtents_1_02 (int handle, int x, int y, int w, int h) {
+  syscall(UI_CIN_SETEXTENTS_1_02, handle, x, y, w, h);
+}
+
+void	trap_R_RemapShader_1_02( const char *oldShader, const char *newShader, const char *timeOffset ) {
 	syscall( UI_R_REMAP_SHADER, oldShader, newShader, timeOffset );
 }
 
@@ -441,3 +593,9 @@ qboolean trap_G2API_SetBoneAngles(void *ghoul2, int modelIndex, const char *bone
 /*
 Ghoul2 Insert End
 */
+
+/* JK2MV Syscalls */
+int trap_MV_GetCurrentGameversion()
+{
+	return syscall(MVAPI_GET_VERSION);
+}

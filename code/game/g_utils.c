@@ -468,8 +468,19 @@ gentity_t *G_Spawn( void ) {
 	level.num_entities++;
 
 	// let the server system know that there are more entities
-	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
-		&level.clients[0].ps, sizeof( level.clients[0] ) );
+	if ( jk2version == VERSION_1_02 )
+	{ // 1.02
+		// initialize all clients for this game
+		memset( g_ps, 0, MAX_CLIENTS * sizeof(g_ps[0]) );
+
+		trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+			(playerState_t*)&g_ps[0], sizeof( g_ps[0] ) );
+	}
+	else
+	{
+		trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+			&level.clients[0].ps, sizeof( level.clients[0] ) );
+	}
 
 	G_InitGentity( e );
 	return e;

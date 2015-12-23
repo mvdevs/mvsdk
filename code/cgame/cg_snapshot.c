@@ -39,6 +39,12 @@ static void CG_TransitionEntity( centity_t *cent ) {
 	cent->currentState = cent->nextState;
 	cent->currentValid = qtrue;
 
+	if ( jk2version == VERSION_1_02 )
+	{ // JK2MV: Version Magic!
+		MV_MapAnimation( &cent->currentState.torsoAnim, qfalse );
+		MV_MapAnimation( &cent->currentState.legsAnim, qfalse );
+	}
+
 	// reset if the entity wasn't in the last frame or was teleported
 	if ( !cent->interpolate ) {
 		CG_ResetEntity( cent );
@@ -94,6 +100,12 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 		//cent->currentState = *state;
 		cent->interpolate = qfalse;
 		cent->currentValid = qtrue;
+
+		if ( jk2version == VERSION_1_02 )
+		{ // JK2MV: Version Magic!
+			MV_MapAnimation( &cent->currentState.torsoAnim, qfalse );
+			MV_MapAnimation( &cent->currentState.legsAnim, qfalse );
+		}
 
 		CG_ResetEntity( cent );
 
@@ -246,6 +258,7 @@ times if the client system fails to return a
 valid snapshot.
 ========================
 */
+snapshot_1_02_t	activeSnapshot_1_02; // JK2MV: Only used to receive the new snapshot. We're copying the content over as soon as we have the new snapshot... // Global variable for the qvm compiler...
 static snapshot_t *CG_ReadNextSnapshot( void ) {
 	qboolean	r;
 	snapshot_t	*dest;
@@ -265,7 +278,15 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 
 		// try to read the snapshot from the client system
 		cgs.processedSnapshotNum++;
-		r = trap_GetSnapshot( cgs.processedSnapshotNum, dest );
+
+		if ( jk2version == VERSION_1_02 )
+		{ // JK2MV: Multiversion magic!
+			r = trap_GetSnapshot( cgs.processedSnapshotNum, (snapshot_t*)&activeSnapshot_1_02 );
+		}
+		else
+		{
+			r = trap_GetSnapshot( cgs.processedSnapshotNum, dest );
+		}
 
 		// FIXME: why would trap_GetSnapshot return a snapshot with the same server time
 		if ( cg.snap && r && dest->serverTime == cg.snap->serverTime ) {
@@ -274,6 +295,31 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 
 		// if it succeeded, return
 		if ( r ) {
+			if ( jk2version == VERSION_1_02 )
+			{ // JK2MV: Multiversion Magic
+				/* Convert the snapshot (mainly because of the playerState) */
+				memcpy( dest, &(activeSnapshot_1_02), (((size_t)&(activeSnapshot_1_02.ps)) - (size_t)&(activeSnapshot_1_02)) ); // Copy everything till ps
+				memcpy( &(dest->ps), &(activeSnapshot_1_02.ps), (((size_t)&(dest->ps.forceRestricted)) - (size_t)&(dest->ps)) ); // Copy everything till ps.forceRestricted
+				memset( &(dest->ps.forceRestricted), 0, ((size_t)&(dest->ps.saberIndex) - (size_t)&(dest->ps.forceRestricted)) ); // 0 everything from ps.forceRestricted till ps.saberIndex
+				memcpy( &(dest->ps.saberIndex), &(activeSnapshot_1_02.ps.saberIndex), ((size_t)&(&(dest->ps))[1] - (size_t)&(dest->ps.saberIndex)) ); // Copy everything starting with ps.saberIndex
+				memcpy( &dest->numEntities, &(activeSnapshot_1_02.numEntities), ((size_t)&(dest)[1] - (size_t)&(dest->numEntities)) ); // Copy everything after ps
+
+				/* Convert the animations */
+				MV_MapAnimation( &dest->ps.legsAnim, qfalse );
+				MV_MapAnimation( &dest->ps.legsAnimExecute, qfalse );
+				MV_MapAnimation( &dest->ps.torsoAnim, qfalse );
+				MV_MapAnimation( &dest->ps.torsoAnimExecute, qfalse );
+
+				/* Only convert forceDodgeAnim if it really is an animation (forceHandExtend being either HANDEXTEND_TAUNT or HANDEXTEND_DODGE) */
+				if ( dest->ps.forceHandExtend == HANDEXTEND_TAUNT || dest->ps.forceHandExtend == HANDEXTEND_DODGE ) MV_MapAnimation( &dest->ps.forceDodgeAnim, qfalse );
+
+				/* The following two seem to be unused, but maybe custom cgames make use of them (well, fullAnimExecute seems to not even be set at least once - could probably just leave that one out) */
+				MV_MapAnimation( &dest->ps.fullAnimExecute, qfalse );
+				MV_MapAnimation( &dest->ps.saberAttackSequence, qfalse );
+
+				/* Convert the saberblocks */
+				MV_MapSaberBlocked( &dest->ps.saberBlocked, qfalse );
+			}
 			CG_AddLagometerSnapshotInfo( dest );
 			return dest;
 		}

@@ -266,7 +266,7 @@ void G_RunObject( gentity_t *ent )
 //			G_Sound( ent, G_SoundIndex( "sound/movers/objects/objectHit.wav" ) );
 		}
 
-		if (ent->s.weapon != WP_SABER)
+		if (ent->s.weapon != WP_SABER || jk2gameplay == VERSION_1_02)
 		{
 			DoImpact( ent, traceEnt, qtrue );
 		}

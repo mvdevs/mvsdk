@@ -8,6 +8,8 @@
 
 #include "../../ui/menudef.h"
 
+#include "../api/mvapi.h"
+
 #define MAX_MENUNAME				32
 #define MAX_ITEMTEXT				64
 #define MAX_ITEMACTION				64
@@ -466,6 +468,7 @@ qboolean UI_OutOfMemory();
 void Controls_GetConfig( void );
 void Controls_SetConfig(qboolean restart);
 
+/*
 int			trap_PC_AddGlobalDefine			( char *define );
 int			trap_PC_LoadSource				( const char *filename );
 int			trap_PC_FreeSource				( int handle );
@@ -473,16 +476,32 @@ int			trap_PC_ReadToken				( int handle, pc_token_t *pc_token );
 int			trap_PC_SourceFileAndLine		( int handle, char *filename, int *line );
 int			trap_PC_LoadGlobalDefines		( const char* filename );
 void		trap_PC_RemoveAllGlobalDefines	( void );
+*/
+extern int			(*trap_PC_AddGlobalDefine)					(char *define);
+extern int			(*trap_PC_LoadSource)						(const char *filename);
+extern int			(*trap_PC_FreeSource)						(int handle);
+extern int			(*trap_PC_ReadToken)						(int handle, pc_token_t *pc_token);
+extern int			(*trap_PC_SourceFileAndLine)				(int handle, char *filename, int *line);
+extern int			(*trap_PC_LoadGlobalDefines)				(const char* filename);
 
 int			trap_R_Font_StrLenPixels(const char *text, const int iFontIndex, const float scale);
 int			trap_R_Font_StrLenChars(const char *text);
 int			trap_R_Font_HeightPixels(const int iFontIndex, const float scale);
 void		trap_R_Font_DrawString(int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale);
+/*
 qboolean	trap_Language_IsAsian(void);
 qboolean	trap_Language_UsesSpaces(void);
 unsigned int trap_AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation );
+*/
+extern qboolean		(*trap_Language_IsAsian)					(void);
+extern qboolean		(*trap_Language_UsesSpaces)					(void);
+extern unsigned int	(*trap_AnyLanguage_ReadCharFromString)		(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation);
 
 qboolean	trap_SP_RegisterServer( const char *package );
 qboolean	trap_SP_Register(char *file );
 int trap_SP_GetStringTextString(const char *text, char *buffer, int bufferLength);
+
+int Key_GetProtocolKey(mvversion_t version, int key16);
+int Key_GetProtocolKey15(mvversion_t version, int key15);
+
 #endif

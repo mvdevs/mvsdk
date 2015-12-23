@@ -2332,6 +2332,130 @@ qboolean CG_InKnockDown( int anim )
 	return qfalse;
 }
 
+void CG_G2ClientSpineAngles_1_02( centity_t *cent, vec3_t viewAngles, const vec3_t angles, vec3_t thoracicAngles, vec3_t ulAngles, vec3_t llAngles )
+{
+	int ang = 0;
+
+	if (cent->isATST || cent->currentState.teamowner)
+	{
+		return;
+	}
+
+	VectorClear(ulAngles);
+	VectorClear(llAngles);
+
+	//cent->pe.torso.pitchAngle = viewAngles[PITCH];
+	viewAngles[YAW] = AngleDelta( cent->lerpAngles[YAW], angles[YAW] );
+	//cent->pe.torso.yawAngle = viewAngles[YAW];
+
+	if ( !BG_FlippingAnim( cent->currentState.legsAnim ) &&
+		!BG_SpinningSaberAnim( cent->currentState.legsAnim ) &&
+		!BG_SpinningSaberAnim( cent->currentState.torsoAnim ) &&
+		!BG_InSpecialJump( cent->currentState.legsAnim ) &&
+		!BG_InSpecialJump( cent->currentState.torsoAnim ) &&
+		!BG_InDeathAnim(cent->currentState.legsAnim) &&
+		!BG_InDeathAnim(cent->currentState.torsoAnim) &&
+		!CG_InRoll(cent) &&
+		!CG_InRollAnim(cent) &&
+		!BG_SaberInSpecial(cent->currentState.saberMove) &&
+		!BG_SaberInSpecialAttack(cent->currentState.torsoAnim) &&
+		!BG_SaberInSpecialAttack(cent->currentState.legsAnim) &&
+
+		!BG_FlippingAnim( cgs.clientinfo[cent->currentState.number].legsAnim ) &&
+		!BG_SpinningSaberAnim( cgs.clientinfo[cent->currentState.number].legsAnim ) &&
+		!BG_SpinningSaberAnim( cgs.clientinfo[cent->currentState.number].torsoAnim ) &&
+		!BG_InSpecialJump( cgs.clientinfo[cent->currentState.number].legsAnim ) &&
+		!BG_InSpecialJump( cgs.clientinfo[cent->currentState.number].torsoAnim ) &&
+		!BG_InDeathAnim(cgs.clientinfo[cent->currentState.number].legsAnim) &&
+		!BG_InDeathAnim(cgs.clientinfo[cent->currentState.number].torsoAnim) &&
+		!BG_SaberInSpecialAttack(cgs.clientinfo[cent->currentState.number].torsoAnim) &&
+		!BG_SaberInSpecialAttack(cgs.clientinfo[cent->currentState.number].legsAnim) &&
+
+		/*
+		!BG_FlippingAnim( cent->rootBone ) &&
+		!BG_SpinningSaberAnim( cent->rootBone ) &&
+		!BG_InSpecialJump( cent->rootBone ) &&
+		!BG_InDeathAnim(cent->rootBone) &&
+		!BG_SaberInSpecialAttack(cent->rootBone) &&
+		*/
+
+		!(cent->currentState.eFlags & EF_DEAD) )
+	{
+		//adjust for motion offset
+		mdxaBone_t	boltMatrix;
+		vec3_t		motionFwd, motionAngles;
+
+		//trap_G2API_GetBoltMatrix( cent->ghoul2, 0, cgs.clientinfo[cent->currentState.number].bolt_motion, &boltMatrix, vec3_origin, cent->lerpOrigin, cg.time, /*cgs.gameModels*/0, cent->modelScale);
+		trap_G2API_GetBoltMatrix_NoReconstruct( cent->ghoul2, 0, cgs.clientinfo[cent->currentState.number].bolt_motion, &boltMatrix, vec3_origin, cent->lerpOrigin, cg.time, /*cgs.gameModels*/0, cent->modelScale);
+	//	trap_G2API_GiveMeVectorFromMatrix( &boltMatrix, POSITIVE_X, motionFwd );
+		//trap_G2API_GiveMeVectorFromMatrix( &boltMatrix, POSITIVE_Y, motionFwd );
+		trap_G2API_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, motionFwd );
+
+		vectoangles( motionFwd, motionAngles );
+		for ( ang = 0; ang < 3; ang++ )
+		{
+			viewAngles[ang] = AngleNormalize180( viewAngles[ang] - AngleNormalize180( motionAngles[ang] ) );
+		}
+
+		//Using NEGATIVE_Y and subtractinging 90 seems to magically fix our horrible contortion issues.
+		//SP actually just uses NEGATIVE_Y without this. Unfortunately we have some sort of worthless
+		//chunk of code in our GBM function that rotates the entire matrix 90 degrees before returning
+		//a "proper" direction. SP does not have this. And I am not even going to consider changing it at
+		//this point to match.
+		//Com_Printf("Comp: %f %f %f\n", viewAngles[0], viewAngles[1], viewAngles[2]);
+
+		if (viewAngles[YAW] < -90)
+		{
+			viewAngles[YAW] += 360;
+		}
+
+		viewAngles[YAW] -= 90;
+	}
+	//distribute the angles differently up the spine
+	//NOTE: each of these distributions must add up to 1.0f
+	thoracicAngles[PITCH] = 0;//viewAngles[PITCH]*0.20f;
+	llAngles[PITCH] = 0;//viewAngles[PITCH]*0.40f;
+	ulAngles[PITCH] = 0;//viewAngles[PITCH]*0.40f;
+
+	thoracicAngles[YAW] = viewAngles[YAW]*0.20f - (viewAngles[PITCH]*(viewAngles[YAW]*.020f));
+	ulAngles[YAW] = viewAngles[YAW]*0.25f - (viewAngles[PITCH]*(viewAngles[YAW]*.0005f));
+	llAngles[YAW] = viewAngles[YAW]*0.25f - (viewAngles[PITCH]*(viewAngles[YAW]*.0005f));
+
+	if (thoracicAngles[YAW] > 20)
+	{
+		thoracicAngles[YAW] = 20;
+	}
+	if (ulAngles[YAW] > 20)
+	{
+		ulAngles[YAW] = 20;
+	}
+	if (llAngles[YAW] > 20)
+	{
+		llAngles[YAW] = 20;
+	}
+
+	thoracicAngles[ROLL] = viewAngles[ROLL]*0.20f;
+	ulAngles[ROLL] = viewAngles[ROLL]*0.35f;
+	llAngles[ROLL] = viewAngles[ROLL]*0.45f;
+	
+	for ( ang = 0; ang < 3; ang++ )
+	{
+		if (ulAngles[ang] < 0)
+		{
+			ulAngles[ang] += 360;
+		}
+	}
+
+	//thoracic is added modified again by neckAngle calculations, so don't set it until then
+//	BG_G2SetBoneAngles( cent, cent->gent, cent->gent->upperLumbarBone, ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.model_draw); 
+//	BG_G2SetBoneAngles( cent, cent->gent, cent->gent->lowerLumbarBone, llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.model_draw); 
+
+//	trap_G2API_SetBoneAngles(cent->ghoul2, 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time); 
+//	trap_G2API_SetBoneAngles(cent->ghoul2, 0, "lower_lumbar", llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time); 
+//	trap_G2API_SetBoneAngles(cent->ghoul2, 0, "thoracic", thoracicAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time); 
+}
+
+
 void CG_G2ClientSpineAngles( centity_t *cent, vec3_t viewAngles, const vec3_t angles, vec3_t thoracicAngles, vec3_t ulAngles, vec3_t llAngles )
 {
 	float legDif = 0;
@@ -2360,10 +2484,13 @@ void CG_G2ClientSpineAngles( centity_t *cent, vec3_t viewAngles, const vec3_t an
 		!BG_SaberInSpecialAttack(cent->currentState.torsoAnim&~ANIM_TOGGLEBIT) &&
 		!BG_SaberInSpecialAttack(cent->currentState.legsAnim&~ANIM_TOGGLEBIT) &&
 
+		((
 		!CG_InKnockDown(cent->currentState.torsoAnim) &&
 		!CG_InKnockDown(cent->currentState.legsAnim) &&
 		!CG_InKnockDown(cgs.clientinfo[cent->currentState.number].torsoAnim) &&
-		!CG_InKnockDown(cgs.clientinfo[cent->currentState.number].legsAnim) &&
+		!CG_InKnockDown(cgs.clientinfo[cent->currentState.number].legsAnim) 
+		) || jk2gameplay == VERSION_1_03)
+		&&
 
 		!BG_FlippingAnim( cgs.clientinfo[cent->currentState.number].legsAnim&~ANIM_TOGGLEBIT ) &&
 		!BG_SpinningSaberAnim( cgs.clientinfo[cent->currentState.number].legsAnim&~ANIM_TOGGLEBIT ) &&
@@ -2664,7 +2791,7 @@ static void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t legsAngle
 	AnglesSubtract( headAngles, torsoAngles, headAngles );
 	AnglesSubtract( torsoAngles, legsAngles, torsoAngles );
 
-	legsAngles[PITCH] = 0;
+	if ( jk2version != VERSION_1_02 ) legsAngles[PITCH] = 0;
 
 	AnglesToAxis( legsAngles, legs );
 	// we assume that model 0 is the player model.
@@ -2689,21 +2816,43 @@ static void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t legsAngle
 	viewAngles[YAW] = viewAngles[ROLL] = 0;
 	viewAngles[PITCH] *= 0.5;
 
-	VectorSet( angles, 0, legsAngles[1], 0 );
-
-	angles[0] = legsAngles[0];
-	if ( angles[0] > 30 )
+	if ( jk2version == VERSION_1_02 )
 	{
-		angles[0] = 30;
+		VectorCopy( cent->lerpAngles, angles );
+		angles[PITCH] = 0;
+
+		CG_G2ClientSpineAngles_1_02(cent, viewAngles, angles, thoracicAngles, ulAngles, llAngles);
+
+		ulAngles[YAW] += torsoAngles[YAW]*0.3;
+		llAngles[YAW] += torsoAngles[YAW]*0.3;
+		thoracicAngles[YAW] += torsoAngles[YAW]*0.4;
+
+		ulAngles[PITCH] = torsoAngles[PITCH]*0.3;
+		llAngles[PITCH] = torsoAngles[PITCH]*0.3;
+		thoracicAngles[PITCH] = torsoAngles[PITCH]*0.4;
+
+		ulAngles[ROLL] += torsoAngles[ROLL]*0.3;
+		llAngles[ROLL] += torsoAngles[ROLL]*0.3;
+		thoracicAngles[ROLL] += torsoAngles[ROLL]*0.4;
 	}
-	else if ( angles[0] < -30 )
+	else
 	{
-		angles[0] = -30;
+		VectorSet( angles, 0, legsAngles[1], 0 );
+
+		angles[0] = legsAngles[0];
+		if ( angles[0] > 30 )
+		{
+			angles[0] = 30;
+		}
+		else if ( angles[0] < -30 )
+		{
+			angles[0] = -30;
+		}
+
+	//	VectorCopy(legsAngles, angles);
+
+		CG_G2ClientSpineAngles(cent, viewAngles, angles, thoracicAngles, ulAngles, llAngles);
 	}
-
-//	VectorCopy(legsAngles, angles);
-
-	CG_G2ClientSpineAngles(cent, viewAngles, angles, thoracicAngles, ulAngles, llAngles);
 
 	if ( cent->currentState.otherEntityNum2 && !(cent->currentState.eFlags & EF_DEAD) )
 	{ //using an emplaced gun
@@ -6275,6 +6424,7 @@ doEssentialTwo:
 	CG_PlayerAnimation( cent, &legs.oldframe, &legs.frame, &legs.backlerp,
 		 &torso.oldframe, &torso.frame, &torso.backlerp );
 
+	// JK2MV: FIXME: TODO: Did not having the correct values cause different behaviour in pre 1.04 jk2?
 	//Need these set because we use them in other functions (cent pointer differs from cg_entities values)
 	cg_entities[cent->currentState.number].pe.torso.frame = cent->pe.torso.frame;
 	cg_entities[cent->currentState.number].pe.legs.frame = cent->pe.legs.frame;
@@ -6468,17 +6618,30 @@ doEssentialTwo:
 				efOrg[1] -= boltDir[1]*4;
 				efOrg[2] -= boltDir[2]*4;
 
-				//efOrg[2] += 8;
-				efOrg[2] -= 4;
+				if ( jk2version == VERSION_1_02 )
+				{
+					efOrg[2] += 8;
+				}
+				else
+				{
+					efOrg[2] -= 4;
+				}
 
 				VectorCopy(efOrg, cent->grip_arm.origin);
 				VectorCopy(cent->grip_arm.origin, cent->grip_arm.lightingOrigin);
 
-				//VectorCopy(cent->lerpAngles, armAng);
-				VectorAdd(vec3_origin, rootAngles, armAng);
-				//armAng[ROLL] = -90;
-				armAng[ROLL] = 0;
-				armAng[PITCH] = 0;
+				if ( jk2version == VERSION_1_02 )
+				{
+					VectorCopy(cent->lerpAngles, armAng);
+					armAng[ROLL] = -90;
+				}
+				else
+				{
+					VectorAdd(vec3_origin, rootAngles, armAng);
+					//armAng[ROLL] = -90;
+					armAng[ROLL] = 0;
+					armAng[PITCH] = 0;
+				}
 				AnglesToAxis(armAng, cent->grip_arm.axis);
 				
 				trap_G2API_DuplicateGhoul2Instance(cent->ghoul2, &cent->grip_arm.ghoul2);
@@ -7328,7 +7491,7 @@ doEssentialThree:
 	}
 	//if (cent->currentState.forcePowersActive & (1 << FP_ABSORB))
 	//Showing only when the power has been active (absorbed something) recently now, instead of always.
-	if (cg_entities[cent->currentState.number].teamPowerEffectTime > cg.time && cg_entities[cent->currentState.number].teamPowerType == 3)
+	if ( (jk2gameplay == VERSION_1_02 && cent->currentState.forcePowersActive & (1 << FP_ABSORB)) || (jk2gameplay != VERSION_1_02 && cg_entities[cent->currentState.number].teamPowerEffectTime > cg.time && cg_entities[cent->currentState.number].teamPowerType == 3) )
 	{ //aborb is represented by blue..
 		legs.shaderRGBA[0] = 0;
 		legs.shaderRGBA[1] = 0;

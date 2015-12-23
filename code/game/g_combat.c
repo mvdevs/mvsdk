@@ -1557,7 +1557,7 @@ int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hit
 	}
 	if ( deathAnim == -1 )
 	{
-		if (self->client)
+		if (self->client && jk2gameplay == VERSION_1_04)
 		{
 			deathAnim = G_CheckSpecialDeathAnim( self, point, damage, mod, hitLoc );
 		}
@@ -2591,28 +2591,31 @@ void G_GetDismemberBolt(gentity_t *self, vec3_t boltPoint, int limbType)
 	boltPoint[1] = boltMatrix.matrix[1][3];
 	boltPoint[2] = boltMatrix.matrix[2][3];
 
-	trap_G2API_GetBoltMatrix(self->client->ghoul2, 1, 0, &boltMatrix, properAngles, properOrigin, level.time, NULL, vec3_origin);
+	if ( jk2gameplay != VERSION_1_02 )
+	{
+		trap_G2API_GetBoltMatrix(self->client->ghoul2, 1, 0, &boltMatrix, properAngles, properOrigin, level.time, NULL, vec3_origin);
 
-	if (self->client && limbType == G2_MODELPART_RHAND)
-	{ //Make some saber hit sparks over the severed wrist area
-		vec3_t boltAngles;
-		gentity_t *te;
+		if (self->client && limbType == G2_MODELPART_RHAND)
+		{ //Make some saber hit sparks over the severed wrist area
+			vec3_t boltAngles;
+			gentity_t *te;
 
-		boltAngles[0] = -boltMatrix.matrix[0][1];
-		boltAngles[1] = -boltMatrix.matrix[1][1];
-		boltAngles[2] = -boltMatrix.matrix[2][1];
+			boltAngles[0] = -boltMatrix.matrix[0][1];
+			boltAngles[1] = -boltMatrix.matrix[1][1];
+			boltAngles[2] = -boltMatrix.matrix[2][1];
 
-		te = G_TempEntity( boltPoint, EV_SABER_HIT );
+			te = G_TempEntity( boltPoint, EV_SABER_HIT );
 
-		VectorCopy(boltPoint, te->s.origin);
-		VectorCopy(boltAngles, te->s.angles);
+			VectorCopy(boltPoint, te->s.origin);
+			VectorCopy(boltAngles, te->s.angles);
 		
-		if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
-		{ //don't let it play with no direction
-			te->s.angles[1] = 1;
-		}
+			if (!te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2])
+			{ //don't let it play with no direction
+				te->s.angles[1] = 1;
+			}
 
-		te->s.eventParm = 16; //lots of sparks
+			te->s.eventParm = 16; //lots of sparks
+		}
 	}
 }
 
@@ -2635,8 +2638,16 @@ void G_Dismember( gentity_t *ent, vec3_t point, int limbType, float limbRollBase
 	limb->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	limb->clipmask = MASK_SOLID;
 	limb->r.contents = CONTENTS_TRIGGER;
-	VectorSet( limb->r.mins, -6.0f, -6.0f, -9.0f );
-	VectorSet( limb->r.maxs, 6.0f, 6.0f, 6.0f );
+	if ( jk2gameplay != VERSION_1_02 )
+	{
+		VectorSet( limb->r.mins, -6.0f, -6.0f, -9.0f );
+		VectorSet( limb->r.maxs, 6.0f, 6.0f, 6.0f );
+	}
+	else
+	{
+		VectorSet( limb->r.mins, -3.0f, -3.0f, -3.0f );
+		VectorSet( limb->r.maxs, 3.0f, 3.0f, 3.0f );
+	}
 //	VectorClear(limb->r.mins);
 //	VectorClear(limb->r.maxs);
 
@@ -2667,8 +2678,8 @@ void G_Dismember( gentity_t *ent, vec3_t point, int limbType, float limbRollBase
 	VectorMA( vel, 100, dir, limb->s.pos.trDelta );
 
 	//add some vertical velocity
-	if (limbType == G2_MODELPART_HEAD ||
-		limbType == G2_MODELPART_WAIST)
+	if ((limbType == G2_MODELPART_HEAD ||
+		limbType == G2_MODELPART_WAIST) && jk2gameplay != VERSION_1_02)
 	{
 		limb->s.pos.trDelta[2] += 100;
 	}
@@ -2694,24 +2705,28 @@ void G_Dismember( gentity_t *ent, vec3_t point, int limbType, float limbRollBase
 
 	VectorClear( limb->s.apos.trDelta );
 
-	/*
-	limb->s.apos.trDelta[0] = Q_irand( -300, 300 );
-	limb->s.apos.trDelta[2] = Q_irand( -300, 300 );
-	limb->s.apos.trDelta[1] = Q_irand( -300, 300 );
-
-	if (limbType == G2_MODELPART_WAIST)
+	if ( jk2gameplay == VERSION_1_02 )
 	{
-		limb->s.apos.trDelta[0] = Q_irand( -60, 60 );
-		limb->s.apos.trDelta[2] = Q_irand( -60, 60 );
-		limb->s.apos.trDelta[1] = Q_irand( -60, 60 );
+		limb->s.apos.trDelta[0] = Q_irand( -300, 300 );
+		limb->s.apos.trDelta[2] = Q_irand( -300, 300 );
+		limb->s.apos.trDelta[1] = Q_irand( -300, 300 );
+
+		if (limbType == G2_MODELPART_WAIST)
+		{
+			limb->s.apos.trDelta[0] = Q_irand( -60, 60 );
+			limb->s.apos.trDelta[2] = Q_irand( -60, 60 );
+			limb->s.apos.trDelta[1] = Q_irand( -60, 60 );
+		}
 	}
-	*/
-	VectorClear(limb->s.apos.trDelta);
+	else
+	{
+		VectorClear(limb->s.apos.trDelta);
+	}
 
 	limb->s.apos.trTime = level.time;
 	limb->s.apos.trType = TR_LINEAR;
 
-	limb->s.modelGhoul2 = limbType;
+	limb->s.modelGhoul2 = /*limbType*/MV_VersionMagic_g2ModelParts(limbType); // JK2MV: As we don't need the "modelGhoul2" of this limb on the serverside anymore we can just convert it to the appropriate value of the jk2version we are running in, without the need to convert it back later...
 	limb->s.g2radius = 200;
 	if (ent->client)
 	{
@@ -2721,7 +2736,8 @@ void G_Dismember( gentity_t *ent, vec3_t point, int limbType, float limbRollBase
 	else
 	{
 		limb->s.modelindex = -1;
-		limb->s.otherEntityNum2 = ent->s.number;
+		if ( jk2version == VERSION_1_04 ) limb->s.otherEntityNum2 = ent->s.number;
+		else							  limb->s.modelindex2 = ent->s.number;
 	}
 
 	trap_LinkEntity( limb );
@@ -3119,7 +3135,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		mass = 200;
 
-		if (mod == MOD_SABER)
+		if (mod == MOD_SABER && jk2gameplay != VERSION_1_02)
 		{
 			VectorScale (dir, (g_knockback.value * (float)knockback / mass)*g_saberDmgVelocityScale.integer, kvel);
 		}
@@ -3137,7 +3153,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 		// set the timer so that the other client can't cancel
 		// out the movement immediately
-		if ( !targ->client->ps.pm_time && (g_saberDmgVelocityScale.integer || mod != MOD_SABER) ) {
+		if ( !targ->client->ps.pm_time && (g_saberDmgVelocityScale.integer || mod != MOD_SABER || jk2gameplay == VERSION_1_02) ) {
 			int		t;
 
 			t = knockback * 2;
@@ -3172,7 +3188,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			case MOD_TRIP_MINE_SPLASH:
 			case MOD_TIMED_MINE_SPLASH:
 			case MOD_DET_PACK_SPLASH:
-				damage *= 0.75;
+				damage *= (jk2gameplay == VERSION_1_04 ? 0.75 : 0.5);
 				break;
 			}
 		}
@@ -3361,10 +3377,15 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			int maxtake = take;
 
 			//G_Sound(targ, CHAN_AUTO, protectHitSound);
-			if (targ->client->forcePowerSoundDebounce < level.time)
+			if (targ->client->forcePowerSoundDebounce < level.time && jk2gameplay != VERSION_1_02)
 			{
 				G_PreDefSound(targ->client->ps.origin, PDSOUND_PROTECTHIT);
 				targ->client->forcePowerSoundDebounce = level.time + 400;
+			}
+
+			if ( jk2gameplay == VERSION_1_02 )
+			{
+				G_PreDefSound(targ->client->ps.origin, PDSOUND_PROTECTHIT);
 			}
 
 			if (targ->client->ps.fd.forcePowerLevel[FP_PROTECT] == FORCE_LEVEL_1)

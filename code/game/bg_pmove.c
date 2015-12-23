@@ -40,7 +40,7 @@ float forceSpeedLevels[4] =
 	1.75
 };
 
-int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] = 
+int forcePowerNeeded_1_04[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] = 
 {
 	{ //nothing should be usable at rank 0..
 		999,//FP_HEAL,//instant
@@ -127,6 +127,96 @@ int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] =
 		//NUM_FORCE_POWERS
 	}
 };
+
+int forcePowerNeeded_1_02[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] = 
+{
+	{ //nothing should be usable at rank 0..
+		999,//FP_HEAL,//instant
+		999,//FP_LEVITATION,//hold/duration
+		999,//FP_SPEED,//duration
+		999,//FP_PUSH,//hold/duration
+		999,//FP_PULL,//hold/duration
+		999,//FP_TELEPATHY,//instant
+		999,//FP_GRIP,//hold/duration
+		999,//FP_LIGHTNING,//hold/duration
+		999,//FP_RAGE,//duration
+		999,//FP_PROTECT,//duration
+		999,//FP_ABSORB,//duration
+		999,//FP_TEAM_HEAL,//instant
+		999,//FP_TEAM_FORCE,//instant
+		999,//FP_DRAIN,//hold/duration
+		999,//FP_SEE,//duration
+		999,//FP_SABERATTACK,
+		999,//FP_SABERDEFEND,
+		999//FP_SABERTHROW,
+		//NUM_FORCE_POWERS
+	},
+	{
+		25,//FP_HEAL,//instant
+		10,//FP_LEVITATION,//hold/duration
+		50,//FP_SPEED,//duration
+		20,//FP_PUSH,//hold/duration
+		20,//FP_PULL,//hold/duration
+		20,//FP_TELEPATHY,//instant
+		30,//FP_GRIP,//hold/duration
+		1,//FP_LIGHTNING,//hold/duration
+		50,//FP_RAGE,//duration
+		50,//FP_PROTECT,//duration
+		50,//FP_ABSORB,//duration
+		50,//FP_TEAM_HEAL,//instant
+		50,//FP_TEAM_FORCE,//instant
+		10,//FP_DRAIN,//hold/duration
+		20,//FP_SEE,//duration
+		0,//FP_SABERATTACK,
+		2,//FP_SABERDEFEND,
+		20//FP_SABERTHROW,
+		//NUM_FORCE_POWERS
+	},
+	{
+		25,//FP_HEAL,//instant
+		10,//FP_LEVITATION,//hold/duration
+		50,//FP_SPEED,//duration
+		20,//FP_PUSH,//hold/duration
+		20,//FP_PULL,//hold/duration
+		20,//FP_TELEPATHY,//instant
+		30,//FP_GRIP,//hold/duration
+		1,//FP_LIGHTNING,//hold/duration
+		50,//FP_RAGE,//duration
+		25,//FP_PROTECT,//duration
+		25,//FP_ABSORB,//duration
+		33,//FP_TEAM_HEAL,//instant
+		33,//FP_TEAM_FORCE,//instant
+		10,//FP_DRAIN,//hold/duration
+		20,//FP_SEE,//duration
+		0,//FP_SABERATTACK,
+		1,//FP_SABERDEFEND,
+		20//FP_SABERTHROW,
+		//NUM_FORCE_POWERS
+	},
+	{
+		25,//FP_HEAL,//instant
+		10,//FP_LEVITATION,//hold/duration
+		50,//FP_SPEED,//duration
+		20,//FP_PUSH,//hold/duration
+		20,//FP_PULL,//hold/duration
+		20,//FP_TELEPATHY,//instant
+		60,//FP_GRIP,//hold/duration
+		1,//FP_LIGHTNING,//hold/duration
+		50,//FP_RAGE,//duration
+		10,//FP_PROTECT,//duration
+		10,//FP_ABSORB,//duration
+		25,//FP_TEAM_HEAL,//instant
+		25,//FP_TEAM_FORCE,//instant
+		10,//FP_DRAIN,//hold/duration
+		20,//FP_SEE,//duration
+		0,//FP_SABERATTACK,
+		0,//FP_SABERDEFEND,
+		20//FP_SABERTHROW,
+		//NUM_FORCE_POWERS
+	}
+};
+
+int (*forcePowerNeeded)[NUM_FORCE_POWERS] = forcePowerNeeded_1_04;
 
 float forceJumpHeight[NUM_FORCE_POWER_LEVELS] = 
 {
@@ -621,7 +711,7 @@ qboolean PM_AdjustAngleForWallRun( playerState_t *ps, usercmd_t *ucmd, qboolean 
 void PM_SetForceJumpZStart(float value)
 {
 	pm->ps->fd.forceJumpZStart = value;
-	if (!pm->ps->fd.forceJumpZStart)
+	if (!pm->ps->fd.forceJumpZStart && jk2gameplay == VERSION_1_04)
 	{
 		pm->ps->fd.forceJumpZStart -= 0.1;
 	}
@@ -717,7 +807,7 @@ static qboolean PM_CheckJump( void )
 				if ( ( curHeight<=forceJumpHeight[0] ||//still below minimum jump height
 						(pm->ps->fd.forcePower&&pm->cmd.upmove>=10) ) &&////still have force power available and still trying to jump up 
 					curHeight < forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]] &&
-					pm->ps->fd.forceJumpZStart)//still below maximum jump height
+					(pm->ps->fd.forceJumpZStart || jk2gameplay != VERSION_1_04))//still below maximum jump height
 				{//can still go up
 					if ( curHeight > forceJumpHeight[0] )
 					{//passed normal jump height  *2?
@@ -866,13 +956,22 @@ static qboolean PM_CheckJump( void )
 				pm->cmd.upmove = 0;
 				return qfalse;
 			}
+			else if ( jk2gameplay == VERSION_1_02 && pm->ps->groundEntityNum == ENTITYNUM_NONE )
+			{
+				int legsAnim = (pm->ps->legsAnim&~ANIM_TOGGLEBIT);
+				if ( legsAnim != BOTH_WALL_RUN_LEFT && legsAnim != BOTH_WALL_RUN_RIGHT )
+				{//special case.. these let you jump off a wall
+					return qfalse;
+				}
+			}
+
 		}
 	}
 
 #endif
 
 	//Not jumping
-	if ( pm->cmd.upmove < 10 && pm->ps->groundEntityNum != ENTITYNUM_NONE) {
+	if ( pm->cmd.upmove < 10 && (pm->ps->groundEntityNum != ENTITYNUM_NONE || jk2gameplay == VERSION_1_02)) {
 		return qfalse;
 	}
 
@@ -937,6 +1036,11 @@ static qboolean PM_CheckJump( void )
 					vertPush = forceJumpStrength[FORCE_LEVEL_2]/2.25f;
 					anim = BOTH_WALL_FLIP_LEFT;
 				}
+			}
+			else if ( jk2gameplay == VERSION_1_02 && pm->cmd.forwardmove > 0 && pm->ps->fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 )
+			{//run up wall, flip backwards
+				vertPush = forceJumpStrength[FORCE_LEVEL_2]/2.25f;
+				anim = BOTH_WALL_FLIP_BACK1;
 			}
 			else if ( pm->cmd.forwardmove < 0 && !(pm->cmd.buttons&BUTTON_ATTACK) )
 			{//backflip
@@ -1129,7 +1233,8 @@ static qboolean PM_CheckJump( void )
 				&& pm->ps->fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1
 				&& pm->ps->velocity[2] > 200
 				&& PM_GroundDistance() <= 80 //unfortunately we do not have a happy ground timer like SP (this would use up more bandwidth if we wanted prediction workign right), so we'll just use the actual ground distance.
-				&& !BG_InSpecialJump(pm->ps->legsAnim))
+				&& !BG_InSpecialJump(pm->ps->legsAnim)
+				&& jk2gameplay != VERSION_1_02)
 			{//run up wall, flip backwards
 				vec3_t fwd, traceto, mins, maxs, fwdAngles;
 				trace_t	trace;
@@ -1217,7 +1322,7 @@ static qboolean PM_CheckJump( void )
 				else if ( pm->ps->fd.saberAnimLevel == FORCE_LEVEL_3 )
 				{//using strong attacks
 					if ( pm->cmd.forwardmove > 0 && //going forward
-						(pm->cmd.buttons & BUTTON_ATTACK) && //must be holding attack still
+						((pm->cmd.buttons & BUTTON_ATTACK) || jk2gameplay == VERSION_1_02) && //must be holding attack still
 						PM_GroundDistance() < 32 &&
 						!BG_InSpecialJump(pm->ps->legsAnim))
 					{//strong attack: jump-hack
@@ -1423,7 +1528,7 @@ static void PM_FlyMove( void ) {
 
 	scale = PM_CmdScale( &pm->cmd );
 	
-	if ( pm->ps->pm_type == PM_SPECTATOR && pm->cmd.buttons & BUTTON_ALT_ATTACK) {
+	if ( jk2gameplay != VERSION_1_02 && pm->ps->pm_type == PM_SPECTATOR && pm->cmd.buttons & BUTTON_ALT_ATTACK) { // JK2MV: FIXME: Should we really disable this in 1.02-mode? Probably going to re-enable it soon anyway...
 		//turbo boost
 		scale *= 10;
 	}
@@ -1434,7 +1539,7 @@ static void PM_FlyMove( void ) {
 	if ( !scale ) {
 		wishvel[0] = 0;
 		wishvel[1] = 0;
-		wishvel[2] = pm->ps->speed * (pm->cmd.upmove/127.0f);
+		wishvel[2] = ( jk2gameplay == VERSION_1_02 ? 0 : pm->ps->speed * (pm->cmd.upmove/127.0f) ); // JK2MV: FIXME: Should we really disable this in 1.02-mode? Probably going to re-enable it soon anyway...
 	} else {
 		for (i=0 ; i<3 ; i++) {
 			wishvel[i] = scale * pml.forward[i]*pm->cmd.forwardmove + scale * pml.right[i]*pm->cmd.rightmove;
@@ -1805,7 +1910,7 @@ static int PM_TryRoll( void )
 
 	if ( BG_SaberInAttack( pm->ps->saberMove ) || BG_SaberInSpecialAttack( pm->ps->torsoAnim ) 
 		|| BG_SpinningSaberAnim( pm->ps->legsAnim ) 
-		|| PM_SaberInStart( pm->ps->saberMove ) )
+		|| (jk2gameplay != VERSION_1_02 && PM_SaberInStart( pm->ps->saberMove )) ) // JK2MV: In 1.02 everyone except client 0 could roll during SaberInStart. In 1.03 and later nobody could roll during SaberInStart. 1.02 people consider client 0 being unable to roll as client 0 bug, so let him roll, too.
 	{//attacking or spinning (or, if player, starting an attack)
 		return 0;
 	}
@@ -1967,7 +2072,7 @@ static void PM_CrashLand( void ) {
 	if ( pm->ps->pm_flags & PMF_DUCKED ) 
 	{
 		if( delta >= 2 && !PM_InOnGroundAnim( pm->ps->legsAnim ) && !PM_InKnockDown( pm->ps ) && !BG_InRoll(pm->ps, pm->ps->legsAnim) &&
-			pm->ps->forceHandExtend == HANDEXTEND_NONE )
+			(pm->ps->forceHandExtend == HANDEXTEND_NONE || jk2gameplay != VERSION_1_04) )
 		{//roll!
 			int anim = PM_TryRoll();
 
@@ -2120,7 +2225,7 @@ static void PM_GroundTraceMissed( void ) {
 
 	//rww - don't want to do this when handextend_choke, because you can be standing on the ground
 	//while still holding your throat.
-	if ( pm->ps->pm_type == PM_FLOAT ) 
+	if ( pm->ps->pm_type == PM_FLOAT && jk2gameplay != VERSION_1_02 )
 	{
 		//we're assuming this is because you're being choked
 		int parts = SETANIM_LEGS;
@@ -2130,7 +2235,7 @@ static void PM_GroundTraceMissed( void ) {
 		PM_SetAnim(parts, BOTH_CHOKE3, SETANIM_FLAG_OVERRIDE, 100);
 	}
 	//If the anim is choke3, act like we just went into the air because we aren't in a float
-	else if ( pm->ps->groundEntityNum != ENTITYNUM_NONE || (pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_CHOKE3 ) 
+	else if ( pm->ps->groundEntityNum != ENTITYNUM_NONE || ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_CHOKE3 && jk2gameplay != VERSION_1_02) )
 	{
 		// we just transitioned into freefall
 		if ( pm->debugLevel ) {
@@ -2490,7 +2595,7 @@ static void PM_Footsteps( void ) {
 	qboolean	footstep;
 	int			setAnimFlags = 0;
 
-	if ( (PM_InSaberAnim( (pm->ps->legsAnim&~ANIM_TOGGLEBIT) ) && !BG_SpinningSaberAnim( (pm->ps->legsAnim&~ANIM_TOGGLEBIT) )) 
+	if ( ((PM_InSaberAnim( (pm->ps->legsAnim&~ANIM_TOGGLEBIT) ) && !BG_SpinningSaberAnim( (pm->ps->legsAnim&~ANIM_TOGGLEBIT) )) 
 		|| (pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_STAND1 
 		|| (pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_STAND1TO2 
 		|| (pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_STAND2TO1 
@@ -2501,6 +2606,7 @@ static void PM_Footsteps( void ) {
 		|| (pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_BUTTON_RELEASE
 		|| PM_LandingAnim( (pm->ps->legsAnim&~ANIM_TOGGLEBIT) ) 
 		|| PM_PainAnim( (pm->ps->legsAnim&~ANIM_TOGGLEBIT) ))
+		&& jk2gameplay != VERSION_1_02 )
 	{//legs are in a saber anim, and not spinning, be sure to override it
 		setAnimFlags |= SETANIM_FLAG_OVERRIDE;
 	}
@@ -2516,7 +2622,7 @@ static void PM_Footsteps( void ) {
 
 		// airborne leaves position in cycle intact, but doesn't advance
 		if ( pm->waterlevel > 1 )
-		{
+		{ // JK2MV: Swimming is broken in 1.02, but let's NOT port the brokeness back in here for 1.02-gameplay. Most 1.02 mods apply the 1.04 behaviour anyway.
 			if (pm->xyspeed > 60)
 			{
 				PM_ContinueLegsAnim( BOTH_SWIMFORWARD );
@@ -2534,7 +2640,7 @@ static void PM_Footsteps( void ) {
 		if (  pm->xyspeed < 5 ) {
 			pm->ps->bobCycle = 0;	// start at beginning of cycle again
 			if ( (pm->ps->pm_flags & PMF_DUCKED) || (pm->ps->pm_flags & PMF_ROLLING) ) {
-				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_CROUCH1IDLE)
+				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_CROUCH1IDLE && jk2gameplay != VERSION_1_02)
 				{
 					PM_SetAnim(SETANIM_LEGS, BOTH_CROUCH1IDLE, setAnimFlags, 100);
 				}
@@ -2579,7 +2685,7 @@ static void PM_Footsteps( void ) {
 		if ( !rolled )
 		{ //if the roll failed or didn't attempt, do standard crouching anim stuff.
 			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
-				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_CROUCH1WALKBACK)
+				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_CROUCH1WALKBACK && jk2gameplay != VERSION_1_02)
 				{
 					PM_SetAnim(SETANIM_LEGS, BOTH_CROUCH1WALKBACK, setAnimFlags, 100);
 				}
@@ -2589,7 +2695,7 @@ static void PM_Footsteps( void ) {
 				}
 			}
 			else {
-				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_CROUCH1WALK)
+				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_CROUCH1WALK && jk2gameplay != VERSION_1_02)
 				{
 					PM_SetAnim(SETANIM_LEGS, BOTH_CROUCH1WALK, setAnimFlags, 100);
 				}
@@ -2618,7 +2724,7 @@ static void PM_Footsteps( void ) {
 
 		if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
 		{
-			if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_CROUCH1WALKBACK)
+			if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_CROUCH1WALKBACK && jk2gameplay != VERSION_1_02)
 			{
 				PM_SetAnim(SETANIM_LEGS, BOTH_CROUCH1WALKBACK, setAnimFlags, 100);
 			}
@@ -2629,7 +2735,7 @@ static void PM_Footsteps( void ) {
 		}
 		else
 		{
-			if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_CROUCH1WALK)
+			if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_CROUCH1WALK && jk2gameplay != VERSION_1_02)
 			{
 				PM_SetAnim(SETANIM_LEGS, BOTH_CROUCH1WALK, setAnimFlags, 100);
 			}
@@ -2644,7 +2750,7 @@ static void PM_Footsteps( void ) {
 		if ( !( pm->cmd.buttons & BUTTON_WALKING ) ) {
 			bobmove = 0.4f;	// faster speeds bob faster
 			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
-				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_RUNBACK1)
+				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_RUNBACK1 && jk2gameplay != VERSION_1_02)
 				{
 					PM_SetAnim(SETANIM_LEGS, BOTH_RUNBACK1, setAnimFlags, 100);
 				}
@@ -2654,7 +2760,7 @@ static void PM_Footsteps( void ) {
 				}
 			}
 			else {
-				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_RUN1)
+				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_RUN1 && jk2gameplay != VERSION_1_02)
 				{
 					PM_SetAnim(SETANIM_LEGS, BOTH_RUN1, setAnimFlags, 100);
 				}
@@ -2667,7 +2773,7 @@ static void PM_Footsteps( void ) {
 		} else {
 			bobmove = 0.2f;	// walking bobs slow
 			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
-				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_WALKBACK1)
+				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_WALKBACK1 && jk2gameplay != VERSION_1_02)
 				{
 					PM_SetAnim(SETANIM_LEGS, BOTH_WALKBACK1, setAnimFlags, 100);
 				}
@@ -2677,7 +2783,7 @@ static void PM_Footsteps( void ) {
 				}
 			}
 			else {
-				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_WALK1)
+				if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) != BOTH_WALK1 && jk2gameplay != VERSION_1_02)
 				{
 					PM_SetAnim(SETANIM_LEGS, BOTH_WALK1, setAnimFlags, 100);
 				}
@@ -3075,7 +3181,7 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 		return 0;
 	}
 
-	if (ps->duelInProgress)
+	if (ps->duelInProgress && jk2gameplay == VERSION_1_04)
 	{ //not allowed to use holdables while in a private duel.
 		return 0;
 	}
@@ -3291,7 +3397,7 @@ static void PM_Weapon( void )
 		case HANDEXTEND_KNOCKDOWN:
 			if (pm->ps->forceDodgeAnim)
 			{
-				if (pm->ps->forceDodgeAnim > 4)
+				if (pm->ps->forceDodgeAnim > 4 && jk2gameplay == VERSION_1_04) // JK2MV: This should be enough to have the "seperateOnTorso" behaviour only with 1.04 gameplay
 				{ //this means that we want to play a sepereate anim on the torso
 					int originalDAnim = pm->ps->forceDodgeAnim-8; //-8 is the original legs anim
 					if (originalDAnim == 2)
@@ -3358,7 +3464,7 @@ static void PM_Weapon( void )
 		}
 
 		if (pm->ps->forceHandExtend == HANDEXTEND_DODGE || pm->ps->forceHandExtend == HANDEXTEND_KNOCKDOWN ||
-			(pm->ps->forceHandExtend == HANDEXTEND_CHOKE && pm->ps->groundEntityNum == ENTITYNUM_NONE) )
+			((pm->ps->forceHandExtend == HANDEXTEND_CHOKE && pm->ps->groundEntityNum == ENTITYNUM_NONE) && jk2gameplay != VERSION_1_02) )
 		{ //special case, play dodge anim on whole body, choke anim too if off ground
 			if (seperateOnTorso)
 			{
@@ -3769,7 +3875,7 @@ PM_Animate
 static void PM_Animate( void ) {
 	if ( pm->cmd.buttons & BUTTON_GESTURE ) {
 		if ( pm->ps->torsoTimer < 1 && pm->ps->forceHandExtend == HANDEXTEND_NONE &&
-			pm->ps->legsTimer < 1 && pm->ps->weaponTime < 1 && pm->ps->saberLockTime < pm->cmd.serverTime) {
+			pm->ps->legsTimer < 1 && pm->ps->weaponTime < 1 && (pm->ps->saberLockTime < pm->cmd.serverTime || jk2gameplay == VERSION_1_02)) {
 
 			pm->ps->forceHandExtend = HANDEXTEND_TAUNT;
 
@@ -4150,12 +4256,12 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 				| BOTH_RUN1;
 		}
 	}
-	else if ( cmd->forwardmove < 0 && !(cmd->buttons&BUTTON_WALKING) && pm->ps->groundEntityNum != ENTITYNUM_NONE )
+	else if ( cmd->forwardmove < 0 && !(cmd->buttons&BUTTON_WALKING) && pm->ps->groundEntityNum != ENTITYNUM_NONE && jk2gameplay == VERSION_1_04 )
 	{//running backwards is slower than running forwards (like SP)
 		ps->speed *= 0.75;
 	}
 
-	if (ps->fd.forcePowersActive & (1 << FP_GRIP))
+	if (ps->fd.forcePowersActive & (1 << FP_GRIP) && jk2gameplay != VERSION_1_02)
 	{
 		ps->speed *= 0.4;
 	}
@@ -4218,7 +4324,7 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 	}
 	else if ( BG_SpinningSaberAnim( ps->legsAnim ) )
 	{
-		if (ps->fd.saberAnimLevel == FORCE_LEVEL_3)
+		if (ps->fd.saberAnimLevel == FORCE_LEVEL_3 && jk2gameplay != VERSION_1_02)
 		{
 			ps->speed *= 0.3f;
 		}
@@ -4235,14 +4341,14 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 			ps->speed *= 0.85f;
 			break;
 		case FORCE_LEVEL_3:
-			ps->speed *= 0.55f;
+			ps->speed *= (jk2gameplay == VERSION_1_02 ? 0.70f : 0.55f);
 			break;
 		default:
 			break;
 		}
 	}
 	else if (ps->weapon == WP_SABER && ps->fd.saberAnimLevel == FORCE_LEVEL_3 &&
-		PM_SaberInTransition(ps->saberMove))
+		PM_SaberInTransition(ps->saberMove) && jk2gameplay != VERSION_1_02)
 	{ //Now, we want to even slow down in transitions for level 3 (since it has chains and stuff now)
 		if (cmd->forwardmove < 0)
 		{
@@ -4353,8 +4459,8 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->cmd.upmove = 0;
 	}
 
-	if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSER1LOOP ||
-		(pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSEE1LOOP)
+	if (((pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSER1LOOP ||
+		(pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSEE1LOOP) && jk2gameplay == VERSION_1_04)
 	{
 		pm->cmd.forwardmove = 0;
 		pm->cmd.rightmove = 0;
@@ -4417,7 +4523,7 @@ void PmoveSingle (pmove_t *pmove) {
 	// if talk button is down, dissallow all other input
 	// this is to prevent any possible intercept proxy from
 	// adding fake talk balloons
-	if ( pmove->cmd.buttons & BUTTON_TALK ) {
+	if ( pmove->cmd.buttons & BUTTON_TALK && jk2version != VERSION_1_02 ) { // JK2MV: 1.02 people are used to walk around with open console, 1.03 and 1.04 can't do that. Let's make this depending on the actual version we're running, not the gameplay...
 		// keep the talk button set tho for when the cmd.serverTime > 66 msec
 		// and the same cmd is used multiple times in Pmove
 		pmove->cmd.buttons = BUTTON_TALK;
@@ -4448,15 +4554,15 @@ void PmoveSingle (pmove_t *pmove) {
 
 	PM_AdjustAngleForWallRun(pm->ps, &pm->cmd, qtrue);
 
-	if (pm->ps->saberMove == LS_A_JUMP_T__B_ || pm->ps->saberMove == LS_A_LUNGE ||
-		pm->ps->saberMove == LS_A_BACK_CR || pm->ps->saberMove == LS_A_BACK ||
-		pm->ps->saberMove == LS_A_BACKSTAB)
+	if ((pm->ps->saberMove == LS_A_JUMP_T__B_ || pm->ps->saberMove == LS_A_LUNGE ||
+		((pm->ps->saberMove == LS_A_BACK_CR || pm->ps->saberMove == LS_A_BACK ||
+		pm->ps->saberMove == LS_A_BACKSTAB) && jk2gameplay == VERSION_1_04)) && jk2gameplay != VERSION_1_02) // JK2MV: One of the place where 1.02, 1.03 and 1.04 are all different!
 	{
 		PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
 	}
 
-	if ((pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSER1LOOP ||
-		(pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSEE1LOOP)
+	if (((pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSER1LOOP ||
+		(pm->ps->legsAnim&~ANIM_TOGGLEBIT) == BOTH_KISSEE1LOOP) && jk2gameplay == VERSION_1_04)
 	{
 		pm->ps->viewangles[PITCH] = 0;
 		PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);

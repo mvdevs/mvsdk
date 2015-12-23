@@ -5,7 +5,7 @@
 del /q vm
 if not exist vm\nul mkdir vm
 cd vm
-set cc=..\..\..\bin\lcc -A -DQ3_VM -DMISSIONPACK -S -Wf-target=bytecode -Wf-g -I..\..\cgame -I..\..\game -I..\..\ui %1
+set cc=..\..\..\bin\lcc -A -DQAGAME -DJK2_GAME -DQ3_VM -DMISSIONPACK -S -Wf-target=bytecode -Wf-g -I..\..\cgame -I..\..\game -I..\..\ui %1
 
 %cc%  ../g_main.c
 @if errorlevel 1 goto quit
@@ -87,6 +87,13 @@ set cc=..\..\..\bin\lcc -A -DQ3_VM -DMISSIONPACK -S -Wf-target=bytecode -Wf-g -I
 %cc%  ../w_force.c
 @if errorlevel 1 goto quit
 %cc%  ../w_saber.c
+@if errorlevel 1 goto quit
+
+%cc% ../g_multiversion.c
+@if errorlevel 1 goto quit
+%cc% ../g_multiversion_syscalls.c
+@if errorlevel 1 goto quit
+%cc% ../bg_multiversion.c
 @if errorlevel 1 goto quit
 
 ..\..\..\bin\q3asm -f ../game

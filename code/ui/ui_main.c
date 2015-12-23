@@ -26,6 +26,7 @@ This is the only way control passes into the module.
 */
 vmCvar_t  ui_debug;
 vmCvar_t  ui_initialized;
+qboolean mvapi = qfalse;
 
 void _UI_Init( qboolean );
 void _UI_Shutdown( void );
@@ -34,12 +35,18 @@ void _UI_MouseEvent( int dx, int dy );
 void _UI_Refresh( int realtime );
 qboolean _UI_IsFullscreen( void );
 LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
+  int requestedMvApi = 0;
   switch ( command ) {
 	  case UI_GETAPIVERSION:
-		  return UI_API_VERSION;
+		  return /*UI_API_VERSION*/MV_UiDetectVersion();
 
 	  case UI_INIT:
+		  requestedMvApi = MVAPI_Init(arg11);
 		  _UI_Init(arg0);
+		  return requestedMvApi;
+
+	  case MVAPI_AFTER_INIT:
+		  MVAPI_AfterInit();
 		  return 0;
 
 	  case UI_SHUTDOWN:
@@ -47,7 +54,7 @@ LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int a
 		  return 0;
 
 	  case UI_KEY_EVENT:
-		  _UI_KeyEvent( arg0, arg1 );
+		  _UI_KeyEvent( Key_GetProtocolKey15(jk2version, arg0), arg1 );
 		  return 0;
 
 	  case UI_MOUSE_EVENT:
@@ -77,6 +84,106 @@ LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int a
 	}
 
 	return -1;
+}
+
+int MVAPI_Init(int apilevel)
+{
+	if (!trap_Cvar_VariableValue("mv_apienabled"))
+	{
+		Com_Printf("MVAPI is not supported at all or has been disabled.\n");
+		Com_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
+		return 0;
+	}
+
+	if (apilevel < MV_APILEVEL)
+	{
+		Com_Printf("MVAPI level %i not supported.\n", MV_APILEVEL);
+		Com_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
+		return 0;
+	}
+
+	mvapi = qtrue;
+
+	Com_Printf("Using MVAPI level %i (%i supported).\n", MV_APILEVEL, apilevel);
+	return MV_APILEVEL;
+}
+
+void MVAPI_AfterInit(void)
+{
+	// Nothing to do in UI at the moment.
+}
+
+int MV_UiDetectVersion( void )
+{
+	char buffer[80];
+	// JK2MV: Let's detect which version of the engine we are running in...
+	jk2version = VERSION_UNDEF; // Should be set already, but let's just make sure!
+
+	trap_Cvar_VariableStringBuffer( "mv_apienabled", buffer, sizeof(buffer) );
+	if ( strlen(buffer) && atoi(buffer) > 0 )
+	{ // JK2MV >= 1.1
+		switch ( trap_MV_GetCurrentGameversion() )
+		{
+			case VERSION_1_02:
+				jk2version = VERSION_1_02;
+				Com_Printf ("jk2version [UI]: 1.02 [via API]\n");
+				break;
+			case VERSION_1_03:
+				jk2version = VERSION_1_03;
+				Com_Printf ("jk2version [UI]: 1.03 [via API]\n");
+				break;
+			case VERSION_1_04:
+				jk2version = VERSION_1_04;
+				Com_Printf ("jk2version [UI]: 1.04 [via API]\n");
+				break;
+			default:
+				jk2version = VERSION_UNDEF;
+				trap_Error("JK2MultiVersionMod: Unable to detect jk2version. [via API]\n");
+		}
+	}
+	else
+	{
+		char version[128];
+
+		trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+		
+		if ( strstr(version, "JK2MP") )
+		{ // JK2MP
+			if ( strstr(version, "1.02") )
+			{ //Seems to be "1.02"
+				jk2version = VERSION_1_02;
+				Com_Printf ("jk2version [UI]: 1.02 [via client-version]\n");
+			}
+			else if ( strstr(version, "1.03") )
+			{ //Seems to be "1.03" - for now treat 1.03 like 1.04...
+				jk2version = VERSION_1_03;
+				Com_Printf ("jk2version [UI]: 1.03 [via client-version]\n");
+			}
+			else if ( strstr(version, "1.04") )
+			{ //Seems to be "1.04"
+				jk2version = VERSION_1_04;
+				Com_Printf ("jk2version [UI]: 1.04 [via client-version]\n");
+			}
+		}
+
+		if ( jk2version == VERSION_UNDEF )
+		{ 
+			// Forget it, we don't have access to the jk2mv api (jk2mv >= 1.1) and the version cvar of the client doen't tell us the version - we could guess, but well...
+			jk2version = VERSION_UNDEF;
+			trap_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
+		}
+	}
+	MV_SetGameVersion(jk2version); // Set the GameVersion...
+
+	switch( jk2version )
+	{
+		case VERSION_1_02:
+			return UI_API_VERSION_1_02;
+		case VERSION_1_03:
+		case VERSION_1_04:
+		default:
+			return UI_API_VERSION;
+	}
 }
 
 menuDef_t *Menus_FindByName(const char *p);
@@ -6446,7 +6553,7 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.uiDC.textWidth = &Text_Width;
 	uiInfo.uiDC.textHeight = &Text_Height;
 	uiInfo.uiDC.registerModel = &trap_R_RegisterModel;
-	uiInfo.uiDC.modelBounds = &trap_R_ModelBounds;
+	uiInfo.uiDC.modelBounds = trap_R_ModelBounds;
 	uiInfo.uiDC.fillRect = &UI_FillRect;
 	uiInfo.uiDC.drawRect = &_UI_DrawRect;
 	uiInfo.uiDC.drawSides = &_UI_DrawSides;
@@ -6490,8 +6597,8 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.uiDC.Pause = &UI_Pause;
 	uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
 	uiInfo.uiDC.registerSound = &trap_S_RegisterSound;
-	uiInfo.uiDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
-	uiInfo.uiDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
+	uiInfo.uiDC.startBackgroundTrack = trap_S_StartBackgroundTrack;
+	uiInfo.uiDC.stopBackgroundTrack = trap_S_StopBackgroundTrack;
 	uiInfo.uiDC.playCinematic = &UI_PlayCinematic;
 	uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
 	uiInfo.uiDC.drawCinematic = &UI_DrawCinematic;

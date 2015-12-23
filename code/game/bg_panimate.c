@@ -114,7 +114,7 @@ qboolean BG_SaberInIdle( int move )
 
 qboolean BG_FlippingAnim( int anim )
 {
-	switch ( anim&~ANIM_TOGGLEBIT )
+	switch ( (jk2gameplay == VERSION_1_02 ? anim : anim&~ANIM_TOGGLEBIT) )
 	{
 	case BOTH_FLIP_F:			//# Flip forward
 	case BOTH_FLIP_B:			//# Flip backwards
@@ -151,7 +151,7 @@ qboolean BG_FlippingAnim( int anim )
 
 qboolean BG_SpinningSaberAnim( int anim )
 {
-	switch ( anim&~ANIM_TOGGLEBIT )
+	switch ( (jk2gameplay == VERSION_1_02 ? anim : anim&~ANIM_TOGGLEBIT) )
 	{
 	//level 1 - FIXME: level 1 will have *no* spins
 	case BOTH_T1_BR_BL:
@@ -1048,7 +1048,7 @@ void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,
 {
 	animation_t *animations = pm->animations;
 
-	float editAnimSpeed = 1;
+	float editAnimSpeed = (jk2gameplay == VERSION_1_02 ? 0 : 1);
 
 	if (!animations)
 	{
@@ -1083,9 +1083,18 @@ void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,
 				int dur;
 				int speedDif;
 				
-				dur = (animations[anim].numFrames-1) * fabs(animations[anim].frameLerp);
-				speedDif = dur - (dur * editAnimSpeed);
-				dur += speedDif;
+				if ( jk2gameplay == VERSION_1_02 )
+				{
+					dur = (animations[anim].numFrames ) * fabs(animations[anim].frameLerp);
+					//dur = ((int)(dur/50.0)) * 50 / timeScaleMod;
+					dur -= blendTime+fabs(animations[anim].frameLerp)*2;
+				}
+				else
+				{
+					dur = (animations[anim].numFrames-1) * fabs(animations[anim].frameLerp);
+					speedDif = dur - (dur * editAnimSpeed);
+					dur += speedDif;
+				}
 				if (dur > 1)
 				{
 					pm->ps->torsoTimer = dur-1;
@@ -1103,6 +1112,11 @@ void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,
 			if (pm->ps->fd.forcePowersActive & (1 << FP_RAGE))
 			{
 				pm->ps->torsoTimer /= 1.7;
+			}
+
+			if (editAnimSpeed && jk2gameplay == VERSION_1_02)
+			{
+				pm->ps->torsoTimer /= editAnimSpeed;
 			}
 		}
 	}
@@ -1131,9 +1145,18 @@ setAnimLegs:
 				int dur;
 				int speedDif;
 				
-				dur = (animations[anim].numFrames-1) * fabs(animations[anim].frameLerp);
-				speedDif = dur - (dur * editAnimSpeed);
-				dur += speedDif;
+				if ( jk2gameplay == VERSION_1_02 )
+				{
+					dur = (animations[anim].numFrames -1) * fabs(animations[anim].frameLerp);
+					//dur = ((int)(dur/50.0)) * 50 / timeScaleMod;
+					dur -= blendTime+fabs(animations[anim].frameLerp)*2;
+				}
+				else
+				{
+					dur = (animations[anim].numFrames-1) * fabs(animations[anim].frameLerp);
+					speedDif = dur - (dur * editAnimSpeed);
+					dur += speedDif;
+				}
 				if (dur > 1)
 				{
 					pm->ps->legsTimer = dur-1;

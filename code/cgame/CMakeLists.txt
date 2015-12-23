@@ -78,6 +78,16 @@ set(MVCGAMEFILES
 	"${SRCDir}/ui/ui_shared.c"
 	
 #	"${SRCDir}/cgame/JK2_cgame.def"
+
+	"${SRCDir}/api/mvapi.h"
+
+	"${SRCDir}/cgame/cg_multiversion.c"
+	"${SRCDir}/cgame/cg_multiversion.h"
+	
+	"${SRCDir}/game/bg_multiversion.c"
+	"${SRCDir}/game/bg_multiversion.h"
+
+	"${SRCDir}/game/animMappingTable.c"
 )
 add_library(${MVCGAME} SHARED ${MVCGAMEFILES})
 

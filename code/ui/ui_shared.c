@@ -2,6 +2,8 @@
 // string allocation/managment
 
 #include "ui_shared.h"
+#include "../game/bg_multiversion.h"
+#include "../api/mvapi.h"
 
 #define SCROLL_TIME_START					500
 #define SCROLL_TIME_ADJUST				150
@@ -6426,204 +6428,206 @@ qboolean Item_Parse(int handle, itemDef_t *item) {
 
 static void Item_TextScroll_BuildLines ( itemDef_t* item )
 {
-#if 1
-	// new asian-aware line breaker...  (pasted from elsewhere late @ night, hence aliasing-vars ;-)
-	//
-	textScrollDef_t* scrollPtr = (textScrollDef_t*) item->typeData;
-	const char *psText = item->text;	// for copy/paste ease
-	int iBoxWidth = item->window.rect.w - SCROLLBAR_SIZE - 10;
-
-	// this could probably be simplified now, but it was converted from something else I didn't originally write, 
-	//	and it works anyway so wtf...
-	//
-	const char *psCurrentTextReadPos = psText;
-	const char *psReadPosAtLineStart = psCurrentTextReadPos;	
-	const char *psBestLineBreakSrcPos = psCurrentTextReadPos;
-	const char *psLastGood_s;	// needed if we get a full screen of chars with no punctuation or space (see usage notes)
-	qboolean bIsTrailingPunctuation;
-	unsigned int uiLetter;
-
-	scrollPtr->iLineCount = 0;
-	memset((char*)scrollPtr->pLines,0,sizeof(scrollPtr->pLines));
-
-	while (*psCurrentTextReadPos && (scrollPtr->iLineCount < MAX_TEXTSCROLL_LINES) )
+	if ( jk2version != VERSION_1_02 )
 	{
-		char sLineForDisplay[2048];	// ott
-
-		// construct a line...
+		// new asian-aware line breaker...  (pasted from elsewhere late @ night, hence aliasing-vars ;-)
 		//
-		psCurrentTextReadPos = psReadPosAtLineStart;
-		sLineForDisplay[0] = '\0';
-		while ( *psCurrentTextReadPos )
+		textScrollDef_t* scrollPtr = (textScrollDef_t*) item->typeData;
+		const char *psText = item->text;	// for copy/paste ease
+		int iBoxWidth = item->window.rect.w - SCROLLBAR_SIZE - 10;
+
+		// this could probably be simplified now, but it was converted from something else I didn't originally write, 
+		//	and it works anyway so wtf...
+		//
+		const char *psCurrentTextReadPos = psText;
+		const char *psReadPosAtLineStart = psCurrentTextReadPos;	
+		const char *psBestLineBreakSrcPos = psCurrentTextReadPos;
+		const char *psLastGood_s;	// needed if we get a full screen of chars with no punctuation or space (see usage notes)
+		qboolean bIsTrailingPunctuation;
+		unsigned int uiLetter;
+
+		scrollPtr->iLineCount = 0;
+		memset((char*)scrollPtr->pLines,0,sizeof(scrollPtr->pLines));
+
+		while (*psCurrentTextReadPos && (scrollPtr->iLineCount < MAX_TEXTSCROLL_LINES) )
 		{
-			int iAdvanceCount;
-			psLastGood_s = psCurrentTextReadPos;
+			char sLineForDisplay[2048];	// ott
 
-			// read letter...
+			// construct a line...
 			//
-			uiLetter = trap_AnyLanguage_ReadCharFromString(psCurrentTextReadPos, &iAdvanceCount, &bIsTrailingPunctuation);
-			psCurrentTextReadPos += iAdvanceCount;
+			psCurrentTextReadPos = psReadPosAtLineStart;
+			sLineForDisplay[0] = '\0';
+			while ( *psCurrentTextReadPos )
+			{
+				int iAdvanceCount;
+				psLastGood_s = psCurrentTextReadPos;
 
-			// concat onto string so far...
-			//
-			if (uiLetter == 32 && sLineForDisplay[0] == '\0')
-			{
-				psReadPosAtLineStart++;
-				continue;	// unless it's a space at the start of a line, in which case ignore it.
-			}
-
-			if (uiLetter > 255)
-			{
-				Q_strcat(sLineForDisplay, sizeof(sLineForDisplay),va("%c%c",uiLetter >> 8, uiLetter & 0xFF));
-			}
-			else
-			{
-				Q_strcat(sLineForDisplay, sizeof(sLineForDisplay),va("%c",uiLetter & 0xFF));
-			}
-
-			if (uiLetter == '\n')
-			{
-				// explicit new line...
+				// read letter...
 				//
-				sLineForDisplay[ strlen(sLineForDisplay)-1 ] = '\0';	// kill the CR
-				psReadPosAtLineStart = psCurrentTextReadPos;
-				psBestLineBreakSrcPos = psCurrentTextReadPos;
+				uiLetter = trap_AnyLanguage_ReadCharFromString(psCurrentTextReadPos, &iAdvanceCount, &bIsTrailingPunctuation);
+				psCurrentTextReadPos += iAdvanceCount;
 
-				// hack it to fit in with this code...
+				// concat onto string so far...
 				//
-				scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc ( sLineForDisplay );
-				break;	// print this line
-			}
-			else 
-			if ( DC->textWidth( sLineForDisplay, item->textscale, item->iMenuFont ) >= iBoxWidth )
-			{					
-				// reached screen edge, so cap off string at bytepos after last good position...
-				//
-				if (uiLetter > 255 && bIsTrailingPunctuation && !trap_Language_UsesSpaces())
+				if (uiLetter == 32 && sLineForDisplay[0] == '\0')
 				{
-					// Special case, don't consider line breaking if you're on an asian punctuation char of
-					//	a language that doesn't use spaces...
-					//
-					uiLetter = uiLetter;	// breakpoint line only
+					psReadPosAtLineStart++;
+					continue;	// unless it's a space at the start of a line, in which case ignore it.
+				}
+
+				if (uiLetter > 255)
+				{
+					Q_strcat(sLineForDisplay, sizeof(sLineForDisplay),va("%c%c",uiLetter >> 8, uiLetter & 0xFF));
 				}
 				else
 				{
-					if (psBestLineBreakSrcPos == psReadPosAtLineStart)
-					{
-						//  aarrrggh!!!!!   we'll only get here is someone has fed in a (probably) garbage string,
-						//		since it doesn't have a single space or punctuation mark right the way across one line
-						//		of the screen.  So far, this has only happened in testing when I hardwired a taiwanese 
-						//		string into this function while the game was running in english (which should NEVER happen 
-						//		normally).  On the other hand I suppose it's entirely possible that some taiwanese string 
-						//		might have no punctuation at all, so...
-						//
-						psBestLineBreakSrcPos = psLastGood_s;	// force a break after last good letter
-					}
+					Q_strcat(sLineForDisplay, sizeof(sLineForDisplay),va("%c",uiLetter & 0xFF));
+				}
 
-					sLineForDisplay[ psBestLineBreakSrcPos - psReadPosAtLineStart ] = '\0';
-					psReadPosAtLineStart = psCurrentTextReadPos = psBestLineBreakSrcPos;
+				if (uiLetter == '\n')
+				{
+					// explicit new line...
+					//
+					sLineForDisplay[ strlen(sLineForDisplay)-1 ] = '\0';	// kill the CR
+					psReadPosAtLineStart = psCurrentTextReadPos;
+					psBestLineBreakSrcPos = psCurrentTextReadPos;
 
 					// hack it to fit in with this code...
 					//
-					scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc( sLineForDisplay );
+					scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc ( sLineForDisplay );
 					break;	// print this line
+				}
+				else 
+				if ( DC->textWidth( sLineForDisplay, item->textscale, item->iMenuFont ) >= iBoxWidth )
+				{					
+					// reached screen edge, so cap off string at bytepos after last good position...
+					//
+					if (uiLetter > 255 && bIsTrailingPunctuation && !trap_Language_UsesSpaces())
+					{
+						// Special case, don't consider line breaking if you're on an asian punctuation char of
+						//	a language that doesn't use spaces...
+						//
+						uiLetter = uiLetter;	// breakpoint line only
+					}
+					else
+					{
+						if (psBestLineBreakSrcPos == psReadPosAtLineStart)
+						{
+							//  aarrrggh!!!!!   we'll only get here is someone has fed in a (probably) garbage string,
+							//		since it doesn't have a single space or punctuation mark right the way across one line
+							//		of the screen.  So far, this has only happened in testing when I hardwired a taiwanese 
+							//		string into this function while the game was running in english (which should NEVER happen 
+							//		normally).  On the other hand I suppose it's entirely possible that some taiwanese string 
+							//		might have no punctuation at all, so...
+							//
+							psBestLineBreakSrcPos = psLastGood_s;	// force a break after last good letter
+						}
+
+						sLineForDisplay[ psBestLineBreakSrcPos - psReadPosAtLineStart ] = '\0';
+						psReadPosAtLineStart = psCurrentTextReadPos = psBestLineBreakSrcPos;
+
+						// hack it to fit in with this code...
+						//
+						scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc( sLineForDisplay );
+						break;	// print this line
+					}
+				}
+
+				// record last-good linebreak pos...  (ie if we've just concat'd a punctuation point (western or asian) or space)
+				//
+				if (bIsTrailingPunctuation || uiLetter == ' ' || (uiLetter > 255 && !trap_Language_UsesSpaces()))
+				{
+					psBestLineBreakSrcPos = psCurrentTextReadPos;
 				}
 			}
 
-			// record last-good linebreak pos...  (ie if we've just concat'd a punctuation point (western or asian) or space)
+			/// arrgghh, this is gettng horrible now...
 			//
-			if (bIsTrailingPunctuation || uiLetter == ' ' || (uiLetter > 255 && !trap_Language_UsesSpaces()))
+			if (scrollPtr->pLines[ scrollPtr->iLineCount ] == NULL && strlen(sLineForDisplay))
 			{
-				psBestLineBreakSrcPos = psCurrentTextReadPos;
+				// then this is the last line and we've just run out of text, no CR, no overflow etc...
+				//
+				scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc( sLineForDisplay );
 			}
-		}
-
-		/// arrgghh, this is gettng horrible now...
-		//
-		if (scrollPtr->pLines[ scrollPtr->iLineCount ] == NULL && strlen(sLineForDisplay))
-		{
-			// then this is the last line and we've just run out of text, no CR, no overflow etc...
-			//
-			scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc( sLineForDisplay );
-		}
 			
-		scrollPtr->iLineCount++;
+			scrollPtr->iLineCount++;
+		}
 	}
-	
-#else
-	// old version...
-	//
-	int				 width;
-	char*			 lineStart;
-	char*			 lineEnd;
-	float			 w;
-	float			 cw;
-
-	textScrollDef_t* scrollPtr = (textScrollDef_t*) item->typeData;
-
-	scrollPtr->iLineCount = 0;
-	width = scrollPtr->maxLineChars;
-	lineStart = (char*)item->text;
-	lineEnd   = lineStart;
-	w		  = 0;
-
-	// Keep going as long as there are more lines
-	while ( scrollPtr->iLineCount < MAX_TEXTSCROLL_LINES )
+	else
 	{
-		// End of the road
-		if ( *lineEnd == '\0')
+		// old version...
+		//
+		int				 width;
+		char*			 lineStart;
+		char*			 lineEnd;
+		float			 w;
+		float			 cw;
+
+		textScrollDef_t* scrollPtr = (textScrollDef_t*) item->typeData;
+
+		scrollPtr->iLineCount = 0;
+		width = scrollPtr->maxLineChars;
+		lineStart = (char*)item->text;
+		lineEnd   = lineStart;
+		w		  = 0;
+
+		// Keep going as long as there are more lines
+		while ( scrollPtr->iLineCount < MAX_TEXTSCROLL_LINES )
 		{
-			if ( lineStart < lineEnd )
+			// End of the road
+			if ( *lineEnd == '\0')
 			{
-				scrollPtr->pLines[ scrollPtr->iLineCount++ ] = lineStart;
+				if ( lineStart < lineEnd )
+				{
+					scrollPtr->pLines[ scrollPtr->iLineCount++ ] = lineStart;
+				}
+
+				break;
 			}
 
-			break;
-		}
-
-		// Force a line end if its a '\n'
-		else if ( *lineEnd == '\n' )
-		{
-			*lineEnd = '\0';
-			scrollPtr->pLines[ scrollPtr->iLineCount++ ] = lineStart;
-			lineStart = lineEnd + 1;
-			lineEnd   = lineStart;
-			w = 0;
-			continue;
-		}
-
-		// Get the current character width 
-		cw = DC->textWidth ( va("%c", *lineEnd), item->textscale, item->iMenuFont );
-
-		// Past the end of the boundary?
-		if ( w + cw > (item->window.rect.w - SCROLLBAR_SIZE - 10) )
-		{
-			// Past the end so backtrack to the word boundary
-			while ( *lineEnd != ' ' && *lineEnd != '\t' && lineEnd > lineStart )
+			// Force a line end if its a '\n'
+			else if ( *lineEnd == '\n' )
 			{
-				lineEnd--;
-			}					
+				*lineEnd = '\0';
+				scrollPtr->pLines[ scrollPtr->iLineCount++ ] = lineStart;
+				lineStart = lineEnd + 1;
+				lineEnd   = lineStart;
+				w = 0;
+				continue;
+			}
 
-			*lineEnd = '\0';
-			scrollPtr->pLines[ scrollPtr->iLineCount++ ] = lineStart;
+			// Get the current character width 
+			cw = DC->textWidth ( va("%c", *lineEnd), item->textscale, item->iMenuFont );
 
-			// Skip any whitespaces
-			lineEnd++;
-			while ( (*lineEnd == ' ' || *lineEnd == '\t') && *lineEnd )
+			// Past the end of the boundary?
+			if ( w + cw > (item->window.rect.w - SCROLLBAR_SIZE - 10) )
 			{
+				// Past the end so backtrack to the word boundary
+				while ( *lineEnd != ' ' && *lineEnd != '\t' && lineEnd > lineStart )
+				{
+					lineEnd--;
+				}					
+
+				*lineEnd = '\0';
+				scrollPtr->pLines[ scrollPtr->iLineCount++ ] = lineStart;
+
+				// Skip any whitespaces
+				lineEnd++;
+				while ( (*lineEnd == ' ' || *lineEnd == '\t') && *lineEnd )
+				{
+					lineEnd++;
+				}
+
+				lineStart = lineEnd;
+				w = 0;
+			}
+			else
+			{
+				w += cw;
 				lineEnd++;
 			}
-
-			lineStart = lineEnd;
-			w = 0;
-		}
-		else
-		{
-			w += cw;
-			lineEnd++;
 		}
 	}
-#endif
 }
 
 // Item_InitControls
@@ -7339,4 +7343,534 @@ static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y) {
 		}
 	}
 	return qfalse;
+}
+
+// JK2MV: Multiversion Keys...
+int Key_GetProtocolKey(mvversion_t version, int key16) {
+	if (version != VERSION_1_02)
+		return key16;
+
+	switch (key16) {
+	case A_TAB:
+		return K_TAB;
+	case A_ENTER:
+		return K_ENTER;
+	case A_ESCAPE:
+		return K_ESCAPE;
+	case A_SPACE:
+		return K_SPACE;
+
+	case A_BACKSPACE:
+		return K_BACKSPACE;
+
+		/*
+	case A_COMMAND:
+		return K_COMMAND;
+	case A_CAPSLOCK:
+		return K_CAPSLOCK;
+	case A_POWER:
+		return K_POWER;
+		*/
+	case A_PAUSE:
+		return K_PAUSE;
+
+		/*
+	case A_UPARROW:
+		return K_UPARROW;
+	case A_DOWNARROW:
+		return K_DOWNARROW;
+	case A_LEFTARROW:
+		return K_LEFTARROW;
+	case A_RIGHTARROW:
+		return K_RIGHTARROW;
+		*/
+
+	case A_ALT:
+		return K_ALT;
+	case A_CTRL:
+		return K_CTRL;
+	case A_SHIFT:
+		return K_SHIFT;
+	case A_INSERT:
+		return K_INS;
+	case A_DELETE:
+		return K_DEL;
+	case A_PAGE_DOWN:
+		return K_PGDN;
+	case A_PAGE_UP:
+		return K_PGUP;
+	case A_HOME:
+		return K_HOME;
+	case A_END:
+		return K_END;
+
+	case A_F1:
+		return K_F1;
+	case A_F2:
+		return K_F2;
+	case A_F3:
+		return K_F3;
+	case A_F4:
+		return K_F4;
+	case A_F5:
+		return K_F5;
+	case A_F6:
+		return K_F6;
+	case A_F7:
+		return K_F7;
+	case A_F8:
+		return K_F8;
+	case A_F9:
+		return K_F9;
+	case A_F10:
+		return K_F10;
+	case A_F11:
+		return K_F11;
+	case A_F12:
+		return K_F12;
+		/*
+	case A_F13:
+		return K_F13;
+	case A_F14:
+		return K_F14;
+	case A_F15:
+		return K_F15;
+		*/
+
+		/*
+	case A_KP_HOME:
+		return K_KP_HOME;
+	case A_KP_UPARROW:
+		return K_KP_UPARROW;
+	case A_KP_PGUP:
+		return K_KP_PGUP;
+	case A_KP_LEFTARROW:
+		return K_KP_LEFTARROW;
+		*/
+	case A_KP_5:
+		return K_KP_5;
+		/*
+	case A_KP_RIGHTARROW:
+		return K_KP_RIGHTARROW;
+	case A_KP_END:
+		return K_KP_END;
+	case A_KP_DOWNARROW:
+		return K_KP_DOWNARROW;
+	case A_KP_PGDN:
+		return K_KP_PGDN;
+		*/
+	case A_KP_ENTER:
+		return K_KP_ENTER;
+		/*
+	case A_KP_INS:
+		return K_KP_INS;
+	case A_KP_DEL:
+		return K_KP_DEL;
+		*/
+	case A_DIVIDE:
+		return K_KP_SLASH;
+	case A_KP_MINUS:
+		return K_KP_MINUS;
+	case A_KP_PLUS:
+		return K_KP_PLUS;
+		/*
+	case A_KP_NUMBLOCK:
+		return K_KP_NUMLOCK;
+		*/
+	case A_MULTIPLY:
+		return K_KP_STAR;
+		/*
+	case A_KP_EQUALS:
+		return K_KP_EQUALS;
+		*/
+
+	case A_MOUSE1:
+		return K_MOUSE1;
+	case A_MOUSE2:
+		return K_MOUSE2;
+	case A_MOUSE3:
+		return K_MOUSE3;
+	case A_MOUSE4:
+		return K_MOUSE4;
+	case A_MOUSE5:
+		return K_MOUSE5;
+
+	case A_MWHEELDOWN:
+		return K_MWHEELDOWN;
+	case A_MWHEELUP:
+		return K_MWHEELUP;
+
+	case A_JOY0:
+		return K_JOY1;
+	case A_JOY1:
+		return K_JOY2;
+	case A_JOY2:
+		return K_JOY3;
+	case A_JOY3:
+		return K_JOY4;
+	case A_JOY4:
+		return K_JOY5;
+	case A_JOY5:
+		return K_JOY6;
+	case A_JOY6:
+		return K_JOY7;
+	case A_JOY7:
+		return K_JOY8;
+	case A_JOY8:
+		return K_JOY9;
+	case A_JOY9:
+		return K_JOY10;
+	case A_JOY10:
+		return K_JOY11;
+	case A_JOY11:
+		return K_JOY12;
+	case A_JOY12:
+		return K_JOY13;
+	case A_JOY13:
+		return K_JOY14;
+	case A_JOY14:
+		return K_JOY15;
+	case A_JOY15:
+		return K_JOY16;
+	case A_JOY16:
+		return K_JOY17;
+	case A_JOY17:
+		return K_JOY18;
+	case A_JOY18:
+		return K_JOY19;
+	case A_JOY19:
+		return K_JOY20;
+	case A_JOY20:
+		return K_JOY21;
+	case A_JOY21:
+		return K_JOY22;
+	case A_JOY22:
+		return K_JOY23;
+	case A_JOY23:
+		return K_JOY24;
+	case A_JOY24:
+		return K_JOY25;
+	case A_JOY25:
+		return K_JOY26;
+	case A_JOY26:
+		return K_JOY27;
+	case A_JOY27:
+		return K_JOY28;
+	case A_JOY28:
+		return K_JOY29;
+	case A_JOY29:
+		return K_JOY30;
+	case A_JOY30:
+		return K_JOY31;
+	case A_JOY31:
+		return K_JOY32;
+
+	case A_AUX1:
+		return K_AUX1;
+	case A_AUX2:
+		return K_AUX2;
+	case A_AUX3:
+		return K_AUX3;
+	case A_AUX4:
+		return K_AUX4;
+	case A_AUX5:
+		return K_AUX5;
+	case A_AUX6:
+		return K_AUX6;
+	case A_AUX7:
+		return K_AUX7;
+	case A_AUX8:
+		return K_AUX8;
+	case A_AUX9:
+		return K_AUX9;
+	case A_AUX10:
+		return K_AUX10;
+	case A_AUX11:
+		return K_AUX11;
+	case A_AUX12:
+		return K_AUX12;
+	case A_AUX13:
+		return K_AUX13;
+	case A_AUX14:
+		return K_AUX14;
+	case A_AUX15:
+		return K_AUX15;
+	case A_AUX16:
+		return K_AUX16;
+
+	case MAX_KEYS:
+		return K_LAST_KEY;
+	}
+
+	// Prevent double entries for 1.02 (Example: if 1.02 asks for K_CTRL it will be as if it asked for A_CTRL, if 1.02 asks for something that has the same number as A_CTRL it will count as A_CTRL, too: the CTRL key is handled twice. Solution: check if key15 would get altered by the inverse replacement).
+	// -> Other way round when we are inside the qvm - Key_GetProtocolKey has to check for Key_GetProtocolKey15, NOT the other way round.
+	if ( Key_GetProtocolKey15(version, key16) != key16 ) return -1;
+	if ( key16 >= K_LAST_KEY ) return -1;
+
+	return key16;
+}
+
+int Key_GetProtocolKey15(mvversion_t version, int key15) {
+	if (version != VERSION_1_02)
+		return key15;
+
+	switch (key15) {
+	case K_TAB:
+		return A_TAB;
+	case K_ENTER:
+		return A_ENTER;
+	case K_ESCAPE:
+		return A_ESCAPE;
+	case K_SPACE:
+		return A_SPACE;
+
+	case K_BACKSPACE:
+		return A_BACKSPACE;
+
+		/*
+	case K_COMMAND:
+		return A_COMMAND;
+	case K_CAPSLOCK:
+		return A_CAPSLOCK;
+	case K_POWER:
+		return A_POWER;
+		*/
+	case K_PAUSE:
+		return A_PAUSE;
+
+		/*
+	case K_UPARROW:
+		return A_UPARROW;
+	case K_DOWNARROW:
+		return A_DOWNARROW;
+	case K_LEFTARROW:
+		return A_LEFTARROW;
+	case K_RIGHTARROW:
+		return A_RIGHTARROW;
+		*/
+
+	case K_ALT:
+		return A_ALT;
+	case K_CTRL:
+		return A_CTRL;
+	case K_SHIFT:
+		return A_SHIFT;
+	case K_INS:
+		return A_INSERT;
+	case K_DEL:
+		return A_DELETE;
+	case K_PGDN:
+		return A_PAGE_DOWN;
+	case K_PGUP:
+		return A_PAGE_UP;
+	case K_HOME:
+		return A_HOME;
+	case K_END:
+		return A_END;
+
+	case K_F1:
+		return A_F1;
+	case K_F2:
+		return A_F2;
+	case K_F3:
+		return A_F3;
+	case K_F4:
+		return A_F4;
+	case K_F5:
+		return A_F5;
+	case K_F6:
+		return A_F6;
+	case K_F7:
+		return A_F7;
+	case K_F8:
+		return A_F8;
+	case K_F9:
+		return A_F9;
+	case K_F10:
+		return A_F10;
+	case K_F11:
+		return A_F11;
+	case K_F12:
+		return A_F12;
+		/*
+	case K_F13:
+		return A_F13;
+	case K_F14:
+		return A_F14;
+	case K_F15:
+		return A_F15;
+		*/
+
+		/*
+	case K_KP_HOME:
+		return A_KP_HOME;
+	case K_KP_UPARROW:
+		return A_KP_UPARROW;
+	case K_KP_PGUP:
+		return A_KP_PGUP;
+	case K_KP_LEFTARROW:
+		return A_KP_LEFTARROW;
+		*/
+	case K_KP_5:
+		return A_KP_5;
+		/*
+	case K_KP_RIGHTARROW:
+		return A_KP_RIGHTARROW;
+	case K_KP_END:
+		return A_KP_END;
+	case K_KP_DOWNARROW:
+		return A_KP_DOWNARROW;
+	case K_KP_PGDN:
+		return A_KP_PGDN;
+		*/
+	case K_KP_ENTER:
+		return A_KP_ENTER;
+		/*
+	case K_KP_INS:
+		return A_KP_INS;
+	case K_KP_DEL:
+		return A_KP_DEL;
+		*/
+	case K_KP_SLASH:
+		return A_DIVIDE;
+	case K_KP_MINUS:
+		return A_KP_MINUS;
+	case K_KP_PLUS:
+		return A_KP_PLUS;
+		/*
+	case K_KP_NUMBLOCK:
+		return A_KP_NUMLOCK;
+		*/
+	case K_KP_STAR:
+		return A_MULTIPLY;
+		/*
+	case K_KP_EQUALS:
+		return A_KP_EQUALS;
+		*/
+
+	case K_MOUSE1:
+		return A_MOUSE1;
+	case K_MOUSE2:
+		return A_MOUSE2;
+	case K_MOUSE3:
+		return A_MOUSE3;
+	case K_MOUSE4:
+		return A_MOUSE4;
+	case K_MOUSE5:
+		return A_MOUSE5;
+
+	case K_MWHEELDOWN:
+		return A_MWHEELDOWN;
+	case K_MWHEELUP:
+		return A_MWHEELUP;
+
+	case K_JOY1:
+		return A_JOY0;
+	case K_JOY2:
+		return A_JOY1;
+	case K_JOY3:
+		return A_JOY2;
+	case K_JOY4:
+		return A_JOY3;
+	case K_JOY5:
+		return A_JOY4;
+	case K_JOY6:
+		return A_JOY5;
+	case K_JOY7:
+		return A_JOY6;
+	case K_JOY8:
+		return A_JOY7;
+	case K_JOY9:
+		return A_JOY8;
+	case K_JOY10:
+		return A_JOY9;
+	case K_JOY11:
+		return A_JOY10;
+	case K_JOY12:
+		return A_JOY11;
+	case K_JOY13:
+		return A_JOY12;
+	case K_JOY14:
+		return A_JOY13;
+	case K_JOY15:
+		return A_JOY14;
+	case K_JOY16:
+		return A_JOY15;
+	case K_JOY17:
+		return A_JOY16;
+	case K_JOY18:
+		return A_JOY17;
+	case K_JOY19:
+		return A_JOY18;
+	case K_JOY20:
+		return A_JOY19;
+	case K_JOY21:
+		return A_JOY20;
+	case K_JOY22:
+		return A_JOY21;
+	case K_JOY23:
+		return A_JOY22;
+	case K_JOY24:
+		return A_JOY23;
+	case K_JOY25:
+		return A_JOY24;
+	case K_JOY26:
+		return A_JOY25;
+	case K_JOY27:
+		return A_JOY26;
+	case K_JOY28:
+		return A_JOY27;
+	case K_JOY29:
+		return A_JOY28;
+	case K_JOY30:
+		return A_JOY29;
+	case K_JOY31:
+		return A_JOY30;
+	case K_JOY32:
+		return A_JOY31;
+
+	case K_AUX1:
+		return A_AUX1;
+	case K_AUX2:
+		return A_AUX2;
+	case K_AUX3:
+		return A_AUX3;
+	case K_AUX4:
+		return A_AUX4;
+	case K_AUX5:
+		return A_AUX5;
+	case K_AUX6:
+		return A_AUX6;
+	case K_AUX7:
+		return A_AUX7;
+	case K_AUX8:
+		return A_AUX8;
+	case K_AUX9:
+		return A_AUX9;
+	case K_AUX10:
+		return A_AUX10;
+	case K_AUX11:
+		return A_AUX11;
+	case K_AUX12:
+		return A_AUX12;
+	case K_AUX13:
+		return A_AUX13;
+	case K_AUX14:
+		return A_AUX14;
+	case K_AUX15:
+		return A_AUX15;
+	case K_AUX16:
+		return A_AUX16;
+
+	case K_LAST_KEY:
+		return MAX_KEYS;
+	}
+
+	// Prevent double entries for 1.02 (Example: if 1.02 asks for K_CTRL it will be as if it asked for A_CTRL, if 1.02 asks for something that has the same number as A_CTRL it will count as A_CTRL, too: the CTRL key is handled twice. Solution: check if key15 would get altered by the inverse replacement).
+	// -> Other way round when we are inside the qvm - Key_GetProtocolKey has to check for Key_GetProtocolKey15, NOT the other way round.
+	//if ( Key_GetProtocolKey(version, key15) != key15 ) return -1;
+
+	if ( key15 >= K_LAST_KEY ) return -1;
+
+	return key15;
 }

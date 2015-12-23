@@ -51,7 +51,9 @@ extern	float	pm_flightfriction;
 
 extern	int		c_pmove;
 
-extern int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS];
+extern int forcePowerNeeded_1_02[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS];
+extern int forcePowerNeeded_1_04[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS];
+extern int (*forcePowerNeeded)[NUM_FORCE_POWERS];
 
 // Had to add these here because there was no file access within the BG right now.
 int		trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );

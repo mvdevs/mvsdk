@@ -427,12 +427,15 @@ void WP_InitForcePowers( gentity_t *ent )
 		}
 	}
 
-	while (i < NUM_FORCE_POWERS)
+	if ( jk2gameplay != VERSION_1_02 )
 	{
-		ent->client->ps.fd.forcePowerBaseLevel[i] = ent->client->ps.fd.forcePowerLevel[i];
-		i++;
+		while (i < NUM_FORCE_POWERS)
+		{
+			ent->client->ps.fd.forcePowerBaseLevel[i] = ent->client->ps.fd.forcePowerLevel[i];
+			i++;
+		}
+		ent->client->ps.fd.forceUsingAdded = 0;
 	}
-	ent->client->ps.fd.forceUsingAdded = 0;
 }
 
 void WP_SpawnInitForcePowers( gentity_t *ent )
@@ -505,6 +508,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 	}
 
 	ent->client->ps.fd.forcePowerRegenDebounceTime = 0;
+	if ( jk2gameplay == VERSION_1_02 ) ent->client->ps.fd.forceUsingAdded = 0;
 	ent->client->ps.fd.forceJumpZStart = 0;
 	ent->client->ps.fd.forceJumpCharge = 0;
 	ent->client->ps.fd.forceJumpSound = 0;
@@ -702,12 +706,17 @@ int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacke
 	}
 
 	//play sound indicating that attack was absorbed
-	if (attacked->client->forcePowerSoundDebounce < level.time)
+	if (attacked->client->forcePowerSoundDebounce < level.time && jk2gameplay != VERSION_1_02)
 	{
 		abSound = G_PreDefSound(attacked->client->ps.origin, PDSOUND_ABSORBHIT);
 		abSound->s.trickedentindex = attacked->s.number;
 
 		attacked->client->forcePowerSoundDebounce = level.time + 400;
+	}
+
+	if ( jk2gameplay == VERSION_1_02 )
+	{
+		G_PreDefSound(attacker->client->ps.origin, PDSOUND_ABSORBHIT);
 	}
 
 	return getLevel;
@@ -961,7 +970,7 @@ void ForceHeal( gentity_t *self )
 
 	if (self->client->ps.fd.forcePowerLevel[FP_HEAL] == FORCE_LEVEL_3)
 	{
-		self->health += 25; //This was 50, but that angered the Balance God.
+		self->health += (jk2gameplay == VERSION_1_02 ? 50 : 25); //This was 50, but that angered the Balance God.
 		
 		if (self->health > self->client->ps.stats[STAT_MAX_HEALTH])
 		{
@@ -971,7 +980,7 @@ void ForceHeal( gentity_t *self )
 	}
 	else if (self->client->ps.fd.forcePowerLevel[FP_HEAL] == FORCE_LEVEL_2)
 	{
-		self->health += 10;
+		self->health += (jk2gameplay == VERSION_1_02 ? 25 : 10);
 		
 		if (self->health > self->client->ps.stats[STAT_MAX_HEALTH])
 		{
@@ -981,7 +990,7 @@ void ForceHeal( gentity_t *self )
 	}
 	else
 	{
-		self->health += 5;
+		self->health += (jk2gameplay == VERSION_1_02 ? 10 : 5);
 		
 		if (self->health > self->client->ps.stats[STAT_MAX_HEALTH])
 		{
@@ -1823,13 +1832,13 @@ void ForceDrainDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t 
 				//	traceEnt->client->ps.powerups[PW_DISINT_1] = level.time + 500;
 				}
 
-				if (traceEnt->client->forcePowerSoundDebounce < level.time)
+				if (traceEnt->client->forcePowerSoundDebounce < level.time || jk2gameplay == VERSION_1_02)
 				{
 					tent = G_TempEntity( impactPoint, EV_FORCE_DRAINED);
 					tent->s.eventParm = DirToByte(dir);
 					tent->s.owner = traceEnt->s.number;
 
-					traceEnt->client->forcePowerSoundDebounce = level.time + 400;
+					if ( jk2gameplay != VERSION_1_02 ) traceEnt->client->forcePowerSoundDebounce = level.time + 400;
 				}
 			}
 		}
@@ -1962,7 +1971,7 @@ int ForceShootDrain( gentity_t *self )
 
 	self->client->ps.activeForcePass = self->client->ps.fd.forcePowerLevel[FP_DRAIN] + FORCE_LEVEL_3;
 
-	BG_ForcePowerDrain( &self->client->ps, FP_DRAIN, 5 ); //used to be 1, but this did, too, anger the God of Balance.
+	BG_ForcePowerDrain( &self->client->ps, FP_DRAIN, (jk2gameplay == VERSION_1_02 ? 1 : 5) ); //used to be 1, but this did, too, anger the God of Balance.
 
 	self->client->ps.fd.forcePowerRegenDebounceTime = level.time + 500;
 
@@ -2549,7 +2558,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 
 	visionArc = 0;
 
-	if (self->client->ps.forceHandExtend != HANDEXTEND_NONE && (self->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN || !G_InGetUpAnim(&self->client->ps)))
+	if (self->client->ps.forceHandExtend != HANDEXTEND_NONE && ((self->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN || !G_InGetUpAnim(&self->client->ps)) || jk2gameplay != VERSION_1_04))
 	{
 		return;
 	}
@@ -2603,17 +2612,17 @@ void ForceThrow( gentity_t *self, qboolean pull )
 	if ( pull )
 	{
 		G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/weapons/force/pull.wav" ) );
-		if (self->client->ps.forceHandExtend == HANDEXTEND_NONE)
+		if (self->client->ps.forceHandExtend == HANDEXTEND_NONE || jk2gameplay != VERSION_1_04)
 		{
 			self->client->ps.forceHandExtend = HANDEXTEND_FORCEPULL;
 			self->client->ps.forceHandExtendTime = level.time + 400;
 		}
-		self->client->ps.powerups[PW_DISINT_4] = self->client->ps.forceHandExtendTime + 200;
+		if ( jk2gameplay == VERSION_1_04 ) self->client->ps.powerups[PW_DISINT_4] = self->client->ps.forceHandExtendTime + 200;
 	}
 	else
 	{
 		G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/weapons/force/push.wav" ) );
-		if (self->client->ps.forceHandExtend == HANDEXTEND_NONE)
+		if (self->client->ps.forceHandExtend == HANDEXTEND_NONE || jk2gameplay != VERSION_1_04)
 		{
 			self->client->ps.forceHandExtend = HANDEXTEND_FORCEPUSH;
 			self->client->ps.forceHandExtendTime = level.time + 1000;
@@ -2626,8 +2635,9 @@ void ForceThrow( gentity_t *self, qboolean pull )
 			}
 			self->client->ps.forceDodgeAnim += 8; //special case, play push on upper torso, but keep playing current knockdown anim on legs
 		}
-		self->client->ps.powerups[PW_DISINT_4] = level.time + 1100;
+		if ( jk2gameplay == VERSION_1_04 ) self->client->ps.powerups[PW_DISINT_4] = level.time + 1100;
 	}
+	if ( jk2gameplay != VERSION_1_04 ) self->client->ps.powerups[PW_DISINT_4] = self->client->ps.forceHandExtendTime + 200;
 
 	VectorCopy( self->client->ps.viewangles, fwdangles );
 	AngleVectors( fwdangles, forward, right, NULL );
@@ -3030,10 +3040,12 @@ void ForceThrow( gentity_t *self, qboolean pull )
 					{
 						dirLen = VectorLength(pushDir);
 
-						if (dirLen <= (64*((modPowerLevel - otherPushPower)-1)))
+						if ( (dirLen <= (64*((modPowerLevel - otherPushPower)-1)) && jk2gameplay == VERSION_1_04)
+							|| (dirLen <= 128 && jk2gameplay != VERSION_1_04))
 						{ //can only do a knockdown if fairly close
 							push_list[x]->client->ps.forceHandExtend = HANDEXTEND_KNOCKDOWN;
-							push_list[x]->client->ps.forceHandExtendTime = level.time + 700;
+							if ( jk2gameplay == VERSION_1_04 ) push_list[x]->client->ps.forceHandExtendTime = level.time + 700;
+							else							   push_list[x]->client->ps.forceHandExtendTime = level.time + 1100;
 							push_list[x]->client->ps.forceDodgeAnim = 0; //this toggles between 1 and 0, when it's 1 we should play the get up anim
 							push_list[x]->client->ps.quickerGetup = qtrue;
 						}
@@ -3684,16 +3696,19 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 			break;
 		}
 
-		if (self->client->ps.fd.forcePowerDebounce[FP_PULL] < level.time)
-		{ //This is sort of not ideal. Using the debounce value reserved for pull for this because pull doesn't need it.
-			BG_ForcePowerDrain( &self->client->ps, forcePower, 1 );
-			self->client->ps.fd.forcePowerDebounce[FP_PULL] = level.time + 100;
-		}
-
-		if (self->client->ps.fd.forcePower < 1)
+		if ( jk2gameplay != VERSION_1_02 )
 		{
-			WP_ForcePowerStop(self, FP_GRIP);
-			break;
+			if (self->client->ps.fd.forcePowerDebounce[FP_PULL] < level.time)
+			{ //This is sort of not ideal. Using the debounce value reserved for pull for this because pull doesn't need it.
+				BG_ForcePowerDrain( &self->client->ps, forcePower, 1 );
+				self->client->ps.fd.forcePowerDebounce[FP_PULL] = level.time + 100;
+			}
+
+			if (self->client->ps.fd.forcePower < 1)
+			{
+				WP_ForcePowerStop(self, FP_GRIP);
+				break;
+			}
 		}
 
 		DoGripAction(self, forcePower);
@@ -3818,7 +3833,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 				WP_ForcePowerStop(self, forcePower);
 			}
 
-			self->client->ps.fd.forcePowerDebounce[forcePower] = level.time + 600;
+			self->client->ps.fd.forcePowerDebounce[forcePower] = level.time + (jk2gameplay == VERSION_1_02 ? 300 : 600);
 		}
 		break;
 	default:
@@ -4429,42 +4444,82 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		self->client->ps.zoomTime = 0;
 	}
 
-	if (self->client->ps.forceHandExtend == HANDEXTEND_KNOCKDOWN &&
-		self->client->ps.forceHandExtendTime >= level.time)
-	{
-		self->client->ps.saberMove = 0;
-		self->client->ps.saberBlocking = 0;
-		self->client->ps.saberBlocked = 0;
-		self->client->ps.weaponTime = 0;
-	}
-	else if (self->client->ps.forceHandExtend != HANDEXTEND_NONE &&
-		self->client->ps.forceHandExtendTime < level.time)
+	if ( jk2gameplay == VERSION_1_04 )
 	{
 		if (self->client->ps.forceHandExtend == HANDEXTEND_KNOCKDOWN &&
-			!self->client->ps.forceDodgeAnim)
+			self->client->ps.forceHandExtendTime >= level.time)
 		{
-			if (self->health < 1 || (self->client->ps.eFlags & EF_DEAD))
+			self->client->ps.saberMove = 0;
+			self->client->ps.saberBlocking = 0;
+			self->client->ps.saberBlocked = 0;
+			self->client->ps.weaponTime = 0;
+		}
+		else if (self->client->ps.forceHandExtend != HANDEXTEND_NONE &&
+			self->client->ps.forceHandExtendTime < level.time)
+		{
+			if (self->client->ps.forceHandExtend == HANDEXTEND_KNOCKDOWN &&
+				!self->client->ps.forceDodgeAnim)
 			{
-				self->client->ps.forceHandExtend = HANDEXTEND_NONE;
+				if (self->health < 1 || (self->client->ps.eFlags & EF_DEAD))
+				{
+					self->client->ps.forceHandExtend = HANDEXTEND_NONE;
+				}
+				else
+				{
+					if (self->client->pers.cmd.upmove &&
+						self->client->ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1)
+					{ //force getup
+						G_PreDefSound(self->client->ps.origin, PDSOUND_FORCEJUMP);
+						self->client->ps.forceDodgeAnim = 2;
+						self->client->ps.forceHandExtendTime = level.time + 500;
+
+						self->client->ps.velocity[2] = 400;
+					}
+					else if (self->client->ps.quickerGetup)
+					{
+						self->client->ps.quickerGetup = qfalse;
+						G_EntitySound( self, CHAN_VOICE, G_SoundIndex("*jump1.wav") );
+						self->client->ps.forceDodgeAnim = 3;
+						self->client->ps.forceHandExtendTime = level.time + 500;
+						self->client->ps.velocity[2] = 300;
+					}
+					else
+					{
+						self->client->ps.forceDodgeAnim = 1;
+						self->client->ps.forceHandExtendTime = level.time + 1000;
+					}
+				}
 			}
 			else
+			{
+				self->client->ps.forceHandExtend = HANDEXTEND_WEAPONREADY;
+			}
+		}
+	}
+	else
+	{
+		if (self->client->ps.forceHandExtend != HANDEXTEND_NONE &&
+			self->client->ps.forceHandExtendTime < level.time)
+		{
+			if (self->client->ps.forceHandExtend == HANDEXTEND_KNOCKDOWN &&
+				!self->client->ps.forceDodgeAnim)
 			{
 				if (self->client->pers.cmd.upmove &&
 					self->client->ps.fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1)
 				{ //force getup
 					G_PreDefSound(self->client->ps.origin, PDSOUND_FORCEJUMP);
 					self->client->ps.forceDodgeAnim = 2;
-					self->client->ps.forceHandExtendTime = level.time + 500;
+					self->client->ps.forceHandExtendTime = level.time + 800;//1000;
 
-					self->client->ps.velocity[2] = 400;
+					self->client->ps.velocity[2] = 300;
 				}
 				else if (self->client->ps.quickerGetup)
 				{
 					self->client->ps.quickerGetup = qfalse;
 					G_EntitySound( self, CHAN_VOICE, G_SoundIndex("*jump1.wav") );
 					self->client->ps.forceDodgeAnim = 3;
-					self->client->ps.forceHandExtendTime = level.time + 500;
-					self->client->ps.velocity[2] = 300;
+					self->client->ps.forceHandExtendTime = level.time + 600;
+					self->client->ps.velocity[2] = 200;
 				}
 				else
 				{
@@ -4472,10 +4527,10 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 					self->client->ps.forceHandExtendTime = level.time + 1000;
 				}
 			}
-		}
-		else
-		{
-			self->client->ps.forceHandExtend = HANDEXTEND_WEAPONREADY;
+			else
+			{
+				self->client->ps.forceHandExtend = HANDEXTEND_WEAPONREADY;
+			}
 		}
 	}
 

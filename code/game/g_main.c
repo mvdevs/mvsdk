@@ -122,6 +122,8 @@ vmCvar_t	g_saberDebugPrint;
 
 vmCvar_t	g_austrian;
 
+vmCvar_t	mv_gameplay;
+
 int gDuelist1 = -1;
 int gDuelist2 = -1;
 
@@ -267,6 +269,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_saberDebugPrint, "g_saberDebugPrint", "0", CVAR_CHEAT, 0, qfalse  },
 
 	{ &g_austrian, "g_austrian", "0", CVAR_ARCHIVE, 0, qfalse  },
+
+	{ &mv_gameplay, "mv_gameplay", "4", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse }, // For simple communication with the server only. Changed by the "gameplay" command.
 };
 
 // bk001129 - made static to avoid aliasing
@@ -288,11 +292,24 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
+qboolean mvapi = qfalse;
+int JK2_vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  );
+LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  )
+{ // Wrapper for vmMain, to apply version-specifc adjustments at the beginning and the end of every VM_Call without compleltly changing the vmMain function.
+	int retValue;
+	
+	MV_VersionMagic( qfalse );
+	retValue = JK2_vmMain( command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11 );
+	MV_VersionMagic( qtrue );
+	return retValue;
+}
+int JK2_vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
+int requestedMvApi = 0;
 	switch ( command ) {
 	case GAME_INIT:
+		requestedMvApi = MVAPI_Init(arg11);
 		G_InitGame( arg0, arg1, arg2 );
-		return 0;
+		return requestedMvApi;
 	case GAME_SHUTDOWN:
 		G_ShutdownGame( arg0 );
 		return 0;
@@ -348,6 +365,33 @@ void QDECL G_Error( const char *fmt, ... ) {
 	va_end (argptr);
 
 	trap_Error( text );
+}
+
+int MVAPI_Init(int apilevel)
+{
+	if (!trap_Cvar_VariableIntegerValue("mv_apienabled"))
+	{
+		G_Printf("MVAPI is not supported at all or has been disabled.\n");
+		G_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
+		return 0;
+	}
+
+	if (apilevel < MV_APILEVEL)
+	{
+		G_Printf("MVAPI level %i not supported.\n", MV_APILEVEL);
+		G_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
+		return 0;
+	}
+
+	mvapi = qtrue;
+
+	G_Printf("Using MVAPI level %i (%i supported).\n", MV_APILEVEL, apilevel);
+	return MV_APILEVEL;
+}
+
+void MVAPI_AfterInit(void)
+{
+	// Nothing to do in Game at the moment.
 }
 
 /*
@@ -503,6 +547,111 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_Printf ("------- Game Initialization -------\n");
 	G_Printf ("gamename: %s\n", GAMEVERSION);
 	G_Printf ("gamedate: %s\n", __DATE__);
+	
+	// JK2MV: Let's detect which version of the engine we are running in...
+	if ( !jk2version )
+	{ //We don't know the version of the server, yet...
+		char version[128];
+
+		trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+
+		//It might be not the exact versionString, but as some servers have different versionStrings we just check wether the versionNumber is included in the versionString or not...
+		if ( strstr(version, "JK2MP") )
+		{ // Seems to be JK2MP
+			if ( strstr(version, "1.02") )
+			{ //Seems to be "1.02"
+				jk2version = VERSION_1_02;
+				G_Printf ("jk2version [Game]: 1.02 [via JK2MP version-cvar]\n");
+			}
+			else if ( strstr(version, "1.03") )
+			{ //Seems to be "1.03" - for now treat 1.03 like 1.04...
+				jk2version = VERSION_1_03;
+				G_Printf ("jk2version [Game]: 1.03 [via JK2MP version-cvar]\n");
+			}
+			else if ( strstr(version, "1.04") )
+			{ //Seems to be "1.04"
+				jk2version = VERSION_1_04;
+				G_Printf ("jk2version [Game]: 1.04 [via JK2MP version-cvar]\n");
+			}
+			else
+			{
+				jk2version = VERSION_1_04;
+				G_Printf("JK2MultiVersionMod: Unable to detect jk2mp version, setting to 1.04 compatibility.\n");
+			}
+		}
+		else if ( strstr(version, "JK2MV") )
+		{ // Seems to be jk2mv, but an old version, try to find the version by reading the mv_serverversion cvar
+			trap_Cvar_VariableStringBuffer("mv_serverversion", version, sizeof(version));
+			if ( !Q_stricmp(version, "1.02") )
+			{ //Seems to be "1.02"
+				jk2version = VERSION_1_02;
+				G_Printf ("jk2version [Game]: 1.02 [via JK2MV version-cvar]\n");
+			}
+			else if ( !Q_stricmp(version, "1.03") )
+			{ //Seems to be "1.03" - for now treat 1.03 like 1.04...
+				jk2version = VERSION_1_03;
+				G_Printf ("jk2version [Game]: 1.03 [via JK2MV version-cvar]\n");
+			}
+			else if ( !Q_stricmp(version, "1.04") )
+			{ //Seems to be "1.04"
+				jk2version = VERSION_1_04;
+				G_Printf ("jk2version [Game]: 1.04 [via JK2MV version-cvar]\n");
+			}
+			else if ( mvapi )
+			{ // Uuuh. This should not happen, as jk2mv > 1.1 sets its "version" cvar according to the original jk2mp's version-string and still uses the mv_serverversion cvar like the old versions did...
+				switch ( trap_MV_GetCurrentGameversion() )
+				{
+					case VERSION_1_02:
+						jk2version = trap_MV_GetCurrentGameversion();
+						G_Printf ("jk2version [Game]: 1.02 [via API]\n");
+						break;
+					case VERSION_1_03:
+						jk2version = trap_MV_GetCurrentGameversion();
+						G_Printf ("jk2version [Game]: 1.03 [via API]\n");
+						break;
+					case VERSION_1_04:
+						jk2version = trap_MV_GetCurrentGameversion();
+						G_Printf ("jk2version [Game]: 1.04 [via API]\n");
+						break;
+					default:
+						jk2version = VERSION_UNDEF;
+						G_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
+				}
+			}
+			else
+			{
+				jk2version = VERSION_UNDEF;
+				G_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
+			}
+		}
+		else if ( mvapi )
+		{ // This shouldn't happen as well, because jk2mv > 1.1 sets its version cvar according to the original jk2mp's version-string, but you never know...
+			switch ( trap_MV_GetCurrentGameversion() )
+			{
+				case VERSION_1_02:
+					jk2version = trap_MV_GetCurrentGameversion();
+					G_Printf ("jk2version [Game]: 1.02 [via API]\n");
+					break;
+				case VERSION_1_03:
+					jk2version = trap_MV_GetCurrentGameversion();
+					G_Printf ("jk2version [Game]: 1.03 [via API]\n");
+					break;
+				case VERSION_1_04:
+					jk2version = trap_MV_GetCurrentGameversion();
+					G_Printf ("jk2version [Game]: 1.04 [via API]\n");
+					break;
+				default:
+					jk2version = VERSION_UNDEF;
+					G_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
+			}
+		}
+		else
+		{
+			jk2version = VERSION_UNDEF;
+			G_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
+		}
+		MV_SetGameVersion(jk2version);
+	}
 
 	srand( randomSeed );
 	mysrand( randomSeed ); // On linux rand() behaves different than on Winodws or in a qvm, ...
@@ -566,8 +715,19 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.num_entities = MAX_CLIENTS;
 
 	// let the server system know where the entites are
-	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
-		&level.clients[0].ps, sizeof( level.clients[0] ) );
+	if ( jk2version == VERSION_1_02 )
+	{ // 1.02
+		// initialize all clients for this game
+		memset( g_ps, 0, MAX_CLIENTS * sizeof(g_ps[0]) );
+
+		trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+			(playerState_t*)&g_ps[0], sizeof( g_ps[0] ) );
+	}
+	else
+	{
+		trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+			&level.clients[0].ps, sizeof( level.clients[0] ) );
+	}
 
 	// reserve some spots for dead player bodies
 	InitBodyQue();

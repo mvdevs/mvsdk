@@ -400,7 +400,7 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 		case LS_A_R2L:
 		case LS_A_TR2BL:
 		case LS_A_T2B:
-			if ( newmove == curmove )
+			if ( newmove == curmove && jk2gameplay != VERSION_1_02 )
 			{
 				//going into an attack
 				if ( PM_SaberKataDone( curmove, newmove ) )
@@ -421,13 +421,6 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 				switch ( curmove )
 				{
 				//transitioning from an attack
-				case LS_A_TL2BR:
-				case LS_A_L2R:
-				case LS_A_BL2TR:
-				case LS_A_BR2TL:
-				case LS_A_R2L:
-				case LS_A_TR2BL:
-				case LS_A_T2B:
 				case LS_D1_BR:
 				case LS_D1__R:
 				case LS_D1_TR:
@@ -436,6 +429,14 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 				case LS_D1__L:
 				case LS_D1_BL:
 				case LS_D1_B_:
+					if ( jk2gameplay == VERSION_1_02 ) break;
+				case LS_A_TL2BR:
+				case LS_A_L2R:
+				case LS_A_BL2TR:
+				case LS_A_BR2TL:
+				case LS_A_R2L:
+				case LS_A_TR2BL:
+				case LS_A_T2B:
 					retmove = transitionMove[saberMoveData[curmove].endQuad][saberMoveData[newmove].startQuad];
 					break;
 				//transitioning from a return
@@ -465,16 +466,6 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 				case LS_BOUNCE_LL:
 				*/
 				//transitioning from a parry/reflection/knockaway/broken parry
-				case LS_PARRY_UP:
-				case LS_PARRY_UR:
-				case LS_PARRY_UL:
-				case LS_PARRY_LR:
-				case LS_PARRY_LL:
-				case LS_REFLECT_UP:
-				case LS_REFLECT_UR:
-				case LS_REFLECT_UL:
-				case LS_REFLECT_LR:
-				case LS_REFLECT_LL:
 				case LS_K1_T_:
 				case LS_K1_TR:
 				case LS_K1_TL:
@@ -493,6 +484,17 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 				case LS_H1_TL:
 				case LS_H1_BR:
 				case LS_H1_BL:
+					if ( jk2gameplay == VERSION_1_02 ) break;
+				case LS_PARRY_UP:
+				case LS_PARRY_UR:
+				case LS_PARRY_UL:
+				case LS_PARRY_LR:
+				case LS_PARRY_LL:
+				case LS_REFLECT_UP:
+				case LS_REFLECT_UR:
+				case LS_REFLECT_UL:
+				case LS_REFLECT_LR:
+				case LS_REFLECT_LL:
 					retmove = transitionMove[saberMoveData[curmove].endQuad][saberMoveData[newmove].startQuad];
 					break;
 				//NB: transitioning from transitions is fine
@@ -658,6 +660,16 @@ int PM_SaberAttackChainAngle( int move1, int move2 )
 		return -1;
 	}
 	return saberMoveTransitionAngle[saberMoveData[move1].endQuad][saberMoveData[move2].startQuad];
+}
+
+qboolean PM_SaberKataDone_1_02( void )
+{
+	if ( (pm->ps->fd.saberAnimLevel >= FORCE_LEVEL_3 && pm->ps->saberAttackChainCount > PM_irand_timesync( 0, 1 )) ||
+		( pm->ps->fd.saberAnimLevel == FORCE_LEVEL_2 && pm->ps->saberAttackChainCount > PM_irand_timesync( 2, 5 ) ) )
+	{
+		return qtrue;
+	}
+	return qfalse;
 }
 
 qboolean PM_SaberKataDone(int curmove, int newmove)
@@ -858,7 +870,7 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory )
 	}
 	else
 	{
-		if ( PM_irand_timesync( 0, 1 ) )
+		if ( (jk2gameplay == VERSION_1_02 ? Q_irand( 0, 1 ) : PM_irand_timesync( 0, 1 )) )
 		{
 			BG_AddPredictableEventToPlayerstate(EV_JUMP, PM_irand_timesync( 0, 75 ), genemy);
 		}
@@ -948,7 +960,7 @@ void PM_SaberLocked( void )
 						remaining = anim->firstFrame+anim->numFrames-curFrame;
 					}
 				}
-				if ( !PM_irand_timesync( 0, 2 ) )
+				if ( !(jk2gameplay == VERSION_1_02 ? Q_irand( 0, 2 ) : PM_irand_timesync( 0, 2 )) )
 				{
 					PM_AddEvent( EV_JUMP );
 				}
@@ -963,7 +975,7 @@ void PM_SaberLocked( void )
 			if ( (genemy->torsoAnim&~ANIM_TOGGLEBIT) == BOTH_CWCIRCLELOCK ||
 				(genemy->torsoAnim&~ANIM_TOGGLEBIT) == BOTH_BF1LOCK )
 			{
-				if ( !PM_irand_timesync( 0, 2 ) )
+				if ( !(jk2gameplay == VERSION_1_02 ? Q_irand( 0, 2 ) : PM_irand_timesync( 0, 2 )) )
 				{
 					BG_AddPredictableEventToPlayerstate(EV_PAIN, floor((float)80/100*100.0f), genemy);
 				}
@@ -983,7 +995,7 @@ void PM_SaberLocked( void )
 
 qboolean PM_SaberInBrokenParry( int move )
 {
-	if ( move >= LS_V1_BR && move <= LS_V1_B_ )
+	if ( move >= LS_V1_BR && move <= LS_V1_B_ && jk2gameplay == VERSION_1_02)
 	{
 		return qtrue;
 	}
@@ -1095,7 +1107,7 @@ saberMoveName_t PM_SaberFlipOverAttackMove(trace_t *tr)
 	pm->ps->fd.forceJumpSound = 1;
 	pm->cmd.upmove = 0;
 
-	if ( PM_irand_timesync( 0, 1 ) )
+	if ( (jk2gameplay == VERSION_1_02 ? Q_irand( 0, 1 ) : PM_irand_timesync( 0, 1 )) )
 	{
 		return LS_A_FLIP_STAB;
 	}
@@ -1223,7 +1235,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				pm->ps->velocity[2] > 100 &&
 				PM_GroundDistance() < 32 &&
 				!BG_InSpecialJump(pm->ps->legsAnim) &&
-				!BG_SaberInSpecialAttack(pm->ps->torsoAnim))
+				(!BG_SaberInSpecialAttack(pm->ps->torsoAnim) || jk2gameplay != VERSION_1_04))
 			{ //FLIP AND DOWNWARD ATTACK
 				trace_t tr;
 
@@ -1233,10 +1245,10 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				}
 			}
 			else if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_1 &&
-				pm->ps->groundEntityNum != ENTITYNUM_NONE &&
+				(pm->ps->groundEntityNum != ENTITYNUM_NONE || jk2gameplay != VERSION_1_04) &&
 				(pm->ps->pm_flags & PMF_DUCKED) &&
 				pm->ps->weaponTime <= 0 &&
-				!BG_SaberInSpecialAttack(pm->ps->torsoAnim))
+				(!BG_SaberInSpecialAttack(pm->ps->torsoAnim) || jk2gameplay != VERSION_1_04))
 			{ //LUNGE (weak)
 				newmove = PM_SaberLungeAttackMove();
 			}
@@ -1247,7 +1259,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		}
 		else if ( pm->cmd.forwardmove < 0 )
 		{//backward= T2B slash//B2T uppercut?
-			if (PM_CanBackstab() && !BG_SaberInSpecialAttack(pm->ps->torsoAnim))
+			if (PM_CanBackstab() && (!BG_SaberInSpecialAttack(pm->ps->torsoAnim) || jk2gameplay != VERSION_1_04))
 			{ //BACKSTAB (attack varies by level)
 				if (pm->ps->fd.saberAnimLevel >= FORCE_LEVEL_2)
 				{//medium and higher attacks
@@ -1272,9 +1284,9 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		}
 		else if ( PM_SaberInBounce( curmove ) )
 		{//bounces should go to their default attack if you don't specify a direction but are attacking
-			newmove = saberMoveData[curmove].chain_attack;
+			if ( jk2gameplay != VERSION_1_02 ) newmove = saberMoveData[curmove].chain_attack;
 
-			if ( PM_SaberKataDone(curmove, newmove) )
+			if ( (PM_SaberKataDone(curmove, newmove) && jk2gameplay != VERSION_1_02) || (PM_SaberKataDone_1_02() && jk2gameplay == VERSION_1_02) )
 			{
 				newmove = saberMoveData[curmove].chain_idle;
 			}
@@ -1290,8 +1302,9 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 			//rww - If we don't seed with a "common" value, the client and server will get mismatched
 			//prediction values. Under laggy conditions this will cause the appearance of rapid swing
 			//sequence changes.
-
-			newmove = LS_A_T2B; //decided we don't like random attacks when idle, use an overhead instead.
+			
+			if ( jk2gameplay == VERSION_1_02 ) newmove = PM_irand_timesync(LS_A_TL2BR, LS_A_T2B);
+			else							   newmove = LS_A_T2B; //decided we don't like random attacks when idle, use an overhead instead.
 		}
 	}
 
@@ -1420,11 +1433,9 @@ void PM_WeaponLightsaber(void)
 
    // don't allow attack until all buttons are up
 	//This is bad. It freezes the attack state and the animations if you hold the button after respawning, and it looks strange.
-	/*
-	if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
+	if ( pm->ps->pm_flags & PMF_RESPAWNED && jk2gameplay == VERSION_1_02 ) {
 		return;
 	}
-	*/
 
 	// check for dead player
 	if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
@@ -1477,6 +1488,7 @@ void PM_WeaponLightsaber(void)
 		switch ( pm->ps->saberBlocked )
 		{
 			case BLOCKED_BOUNCE_MOVE:
+				if ( jk2gameplay != VERSION_1_02 )
 				{ //act as a bounceMove and reset the saberMove instead of using a seperate value for it
 					PM_SetSaberMove( pm->ps->saberMove );
 					pm->ps->weaponTime = pm->ps->torsoTimer;
@@ -1501,7 +1513,7 @@ void PM_WeaponLightsaber(void)
 						PM_SetSaberMove( nextMove );
 						pm->ps->weaponTime = pm->ps->torsoTimer;
 					}
-					else
+					else if ( jk2gameplay != VERSION_1_02 )
 					{//Maybe in a knockaway?
 						if (pm->ps->weaponTime <= 0)
 						{
@@ -1771,27 +1783,45 @@ weapChecks:
 				{//started a swing, must continue from here
 					newmove = LS_A_TL2BR + (curmove-LS_S_TL2BR);
 				}
-				else if ( PM_SaberInBrokenParry( curmove ) )
+				else if ( PM_SaberInBrokenParry( curmove ) && jk2gameplay != VERSION_1_02 )
 				{//broken parries must always return to ready
 					newmove = LS_READY;
 				}
 				else//if ( pm->cmd.buttons&BUTTON_ATTACK && !(pm->ps->pm_flags&PMF_ATTACK_HELD) )//only do this if just pressed attack button?
 				{//get attack move from movement command
-					saberMoveName_t checkMove = PM_SaberAttackForMovement(curmove);
-					if (checkMove != -1)
+					if ( jk2gameplay != VERSION_1_02 )
 					{
-						newmove = checkMove;
-					}
+						saberMoveName_t checkMove = PM_SaberAttackForMovement(curmove);
+						if (checkMove != -1)
+						{
+							newmove = checkMove;
+						}
 
-					if ( (PM_SaberInBounce( curmove )||PM_SaberInBrokenParry( curmove ))
-						&& saberMoveData[newmove].startQuad == saberMoveData[curmove].endQuad )
-					{//this attack would be a repeat of the last (which was blocked), so don't actually use it, use the default chain attack for this bounce
-						newmove = saberMoveData[curmove].chain_attack;
-					}
+						if ( (PM_SaberInBounce( curmove )||PM_SaberInBrokenParry( curmove ))
+							&& saberMoveData[newmove].startQuad == saberMoveData[curmove].endQuad )
+						{//this attack would be a repeat of the last (which was blocked), so don't actually use it, use the default chain attack for this bounce
+							newmove = saberMoveData[curmove].chain_attack;
+						}
 
-					if ( PM_SaberKataDone(curmove, newmove) )
-					{//we came from a bounce and cannot chain to another attack because our kata is done
-						newmove = saberMoveData[curmove].chain_idle;
+						if ( PM_SaberKataDone(curmove, newmove) )
+						{//we came from a bounce and cannot chain to another attack because our kata is done
+							newmove = saberMoveData[curmove].chain_idle;
+						}
+					}
+					else
+					{
+						if ( PM_SaberKataDone_1_02() )
+						{//we came from a bounce and cannot chain to another attack because our kata is done
+							newmove = saberMoveData[curmove].chain_idle;
+						}
+						else
+						{
+							saberMoveName_t checkMove = PM_SaberAttackForMovement(curmove);
+							if (checkMove != -1)
+							{
+								newmove = checkMove;
+							}
+						}
 					}
 				}
 
@@ -1840,7 +1870,7 @@ weapChecks:
 					anim = PM_GetSaberStance();
 				}
 
-				if (anim == BOTH_RUN2 && !pm->cmd.forwardmove && !pm->cmd.rightmove)
+				if (anim == BOTH_RUN2 && !pm->cmd.forwardmove && !pm->cmd.rightmove && jk2gameplay != VERSION_1_02)
 				{ //semi-hacky (if not moving on x-y and still playing the running anim, force the player out of it)
 					anim = PM_GetSaberStance();
 				}
@@ -1888,7 +1918,7 @@ void PM_SetSaberMove(short newMove)
 	int	anim = saberMoveData[newMove].animToUse;
 	int parts = SETANIM_TORSO;
 	
-	if ( newMove == LS_READY || newMove == LS_A_FLIP_STAB || newMove == LS_A_FLIP_SLASH )
+	if ( newMove == LS_READY || ((newMove == LS_A_FLIP_STAB || newMove == LS_A_FLIP_SLASH) && jk2gameplay != VERSION_1_02) )
 	{//finished with a kata (or in a special move) reset attack counter
 		pm->ps->saberAttackChainCount = 0;
 	}
@@ -1903,10 +1933,20 @@ void PM_SetSaberMove(short newMove)
 	}
 
 	if ( pm->ps->fd.saberAnimLevel > FORCE_LEVEL_1 &&
-		 !BG_SaberInIdle( newMove ) && !PM_SaberInParry( newMove ) && !PM_SaberInKnockaway( newMove ) && !PM_SaberInBrokenParry( newMove ) && !PM_SaberInReflect( newMove ) && !BG_SaberInSpecial(newMove))
+		 !BG_SaberInIdle( newMove ) && !PM_SaberInParry( newMove ) && !PM_SaberInKnockaway( newMove ) && !PM_SaberInBrokenParry( newMove ) && !PM_SaberInReflect( newMove ) && !BG_SaberInSpecial(newMove) && jk2gameplay != VERSION_1_02)
 	{//readies, parries and reflections have only 1 level 
 		//increment the anim to the next level of saber anims
 		anim += (pm->ps->fd.saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+	}
+	
+	if ( pm->ps->fd.saberAnimLevel > FORCE_LEVEL_1 &&
+		 !BG_SaberInIdle( newMove ) && !PM_SaberInParry( newMove ) && !PM_SaberInReflect( newMove ) && !BG_SaberInSpecial(newMove) && jk2gameplay == VERSION_1_02)
+	{//readies, parries and reflections have only 1 level 
+		//increment the anim to the next level of saber anims
+		if ( !PM_SaberInTransition( newMove ) )
+		{//FIXME: only have level 1 transitions for now
+			anim += (pm->ps->fd.saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+		}
 	}
 
 	// If the move does the same animation as the last one, we need to force a restart...
@@ -1922,7 +1962,8 @@ void PM_SetSaberMove(short newMove)
 		|| newMove == LS_A_BACK
 		|| newMove == LS_A_BACK_CR
 		|| newMove == LS_A_FLIP_STAB
-		|| newMove == LS_A_FLIP_SLASH )
+		|| newMove == LS_A_FLIP_SLASH
+		|| jk2gameplay == VERSION_1_02 )
 	{
 		setflags |= SETANIM_FLAG_OVERRIDE;
 	}
@@ -1964,7 +2005,7 @@ void PM_SetSaberMove(short newMove)
 	{//spins must be played on entire body
 		parts = SETANIM_BOTH;
 	}
-	else if ( (!pm->cmd.forwardmove&&!pm->cmd.rightmove&&!pm->cmd.upmove))
+	else if ( (!pm->cmd.forwardmove&&!pm->cmd.rightmove&&!pm->cmd.upmove) && jk2gameplay != VERSION_1_02 )
 	{//not trying to run, duck or jump
 		if ( !BG_FlippingAnim( pm->ps->legsAnim ) && 
 			!BG_InRoll( pm->ps, pm->ps->legsAnim ) && 
@@ -1979,7 +2020,7 @@ void PM_SetSaberMove(short newMove)
 		}
 	}
 
-	PM_SetAnim(parts, anim, setflags, saberMoveData[newMove].blendTime);
+	PM_SetAnim(parts, anim, (jk2gameplay == VERSION_1_02 ? (setflags|SETANIM_FLAG_HOLD) : setflags), saberMoveData[newMove].blendTime);
 
 	if ( (pm->ps->torsoAnim&~ANIM_TOGGLEBIT) == anim )
 	{//successfully changed anims

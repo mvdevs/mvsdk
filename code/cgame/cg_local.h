@@ -1974,9 +1974,11 @@ int			trap_R_Font_StrLenPixels(const char *text, const int iFontIndex, const flo
 int			trap_R_Font_StrLenChars(const char *text);
 int			trap_R_Font_HeightPixels(const int iFontIndex, const float scale);
 void		trap_R_Font_DrawString(int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale);
+/*
 qboolean	trap_Language_IsAsian(void);
 qboolean	trap_Language_UsesSpaces(void);
-unsigned	trap_AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/ );
+unsigned	trap_AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation );
+*/
 
 
 // a scene is built up by calls to R_ClearScene and the various R_Add functions.
@@ -2115,7 +2117,9 @@ void trap_FX_AddSprite( addspriteArgStruct_t *p );
 void trap_SP_Print(const unsigned ID, byte *Data);
 int trap_SP_GetStringTextString(const char *text, char *buffer, int bufferLength);
 
+/*
 void		trap_CG_RegisterSharedMemory(char *memory);
+*/
 
 qboolean	trap_ROFF_Clean( void );
 void		trap_ROFF_UpdateEntities( void );
@@ -2183,7 +2187,9 @@ void FX_BlasterWeaponHitWall( vec3_t origin, vec3_t normal );
 void FX_BlasterWeaponHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid );
 
 
+/*
 void		trap_G2API_CollisionDetect		( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position,int frameNumber, int entNum, const vec3_t rayStart, const vec3_t rayEnd, const vec3_t scale, int traceFlags, int useLod, float fRadius );
+*/
 
 
 /*
@@ -2198,12 +2204,15 @@ qboolean	trap_G2API_GetBoltMatrix(void *ghoul2, const int modelIndex, const int 
 								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale);
 qboolean	trap_G2API_GetBoltMatrix_NoReconstruct(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
 								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale);
+/*
 qboolean	trap_G2API_GetBoltMatrix_NoRecNoRot(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
 								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale);
 int			trap_G2API_InitGhoul2Model(void **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin,
 						  qhandle_t customShader, int modelFlags, int lodBias);
+*/
 
 void		trap_G2API_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, int flags, vec3_t vec);
+/*
 int			trap_G2API_CopyGhoul2Instance(void *g2From, void *g2To, int modelIndex);
 void		trap_G2API_CopySpecificGhoul2Model(void *g2From, int modelFrom, void *g2To, int modelTo);
 void		trap_G2API_DuplicateGhoul2Instance(void *g2From, void **g2To);
@@ -2224,6 +2233,7 @@ qboolean	trap_G2API_SetBoneAnim(void *ghoul2, const int modelIndex, const char *
 qboolean	trap_G2API_SetRootSurface(void *ghoul2, const int modelIndex, const char *surfaceName);
 qboolean	trap_G2API_SetSurfaceOnOff(void *ghoul2, const char *surfaceName, const int flags);
 qboolean	trap_G2API_SetNewOrigin(void *ghoul2, const int boltIndex);
+*/
 
 void		CG_Init_CG(void);
 void		CG_Init_CGents(void);
@@ -2241,3 +2251,13 @@ extern void *g2WeaponInstances[MAX_WEAPONS];
 /*
 Ghoul2 Insert End
 */
+
+extern qboolean mvapi;
+
+int MVAPI_Init(int apilevel);
+void MVAPI_AfterInit(void);
+
+int trap_MV_GetCurrentGameversion( void );
+
+#include "../api/mvapi.h"
+#include "cg_multiversion.h"

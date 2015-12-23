@@ -1612,9 +1612,10 @@ void ClientThink_real( gentity_t *ent ) {
 
 				G_Damage( faceKicked, ent, ent, oppDir, client->ps.origin, strength, DAMAGE_NO_ARMOR, MOD_MELEE );
 
-				if ( faceKicked->client->ps.weapon != WP_SABER ||
+				if ( (faceKicked->client->ps.weapon != WP_SABER ||
 					 faceKicked->client->ps.fd.saberAnimLevel < FORCE_LEVEL_3 ||
-					 (!BG_SaberInAttack(faceKicked->client->ps.saberMove) && !PM_SaberInStart(faceKicked->client->ps.saberMove) && !PM_SaberInReturn(faceKicked->client->ps.saberMove) && !PM_SaberInTransition(faceKicked->client->ps.saberMove)) )
+					 (!BG_SaberInAttack(faceKicked->client->ps.saberMove) && !PM_SaberInStart(faceKicked->client->ps.saberMove) && !PM_SaberInReturn(faceKicked->client->ps.saberMove) && !PM_SaberInTransition(faceKicked->client->ps.saberMove)))
+					 || jk2gameplay == VERSION_1_02 )
 				{
 					if (faceKicked->health > 0 &&
 						faceKicked->client->ps.stats[STAT_HEALTH] > 0 &&

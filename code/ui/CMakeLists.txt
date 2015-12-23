@@ -25,6 +25,17 @@ set(MVUIFILES
 	"${SRCDir}/game/q_shared.c"
 	
 #	"${SRCDir}/ui/ui.def"
+
+	"${SRCDir}/api/mvapi.h"
+
+	"${SRCDir}/ui/ui_multiversion.c"
+	"${SRCDir}/ui/ui_multiversion.h"
+
+	"${SRCDir}/ui/ui_multiversion_syscalls.c"
+	"${SRCDir}/ui/ui_multiversion_syscalls.h"
+	
+	"${SRCDir}/game/bg_multiversion.c"
+	"${SRCDir}/game/bg_multiversion.h"
 )
 add_library(${MVUI} SHARED ${MVUIFILES})
 
