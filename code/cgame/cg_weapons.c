@@ -2220,7 +2220,7 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent)
 		return;
 	}
 
-	if (cent->ghoul2 && cent->ghoul2weapon != g2WeaponInstances[ps->weapon] &&
+	if (cent->ghoul2 && ps && cent->ghoul2weapon != g2WeaponInstances[ps->weapon] &&
 		ps->clientNum == cent->currentState.number) //don't want spectator mode forcing one client's weapon instance over another's
 	{
 		CG_CopyG2WeaponInstance(ps->weapon, cent->ghoul2);

@@ -38,6 +38,9 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 	vec3_t		endVelocity;
 	vec3_t		endClipVelocity;
 	
+	VectorClear( endVelocity );
+	VectorClear( endClipVelocity );
+
 	numbumps = 4;
 
 	VectorCopy (pm->ps->velocity, primal_velocity);

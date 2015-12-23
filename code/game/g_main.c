@@ -505,6 +505,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_Printf ("gamedate: %s\n", __DATE__);
 
 	srand( randomSeed );
+	mysrand( randomSeed ); // On linux rand() behaves different than on Winodws or in a qvm, ...
 
 	G_RegisterCvars();
 
@@ -999,7 +1000,7 @@ void CalculateRanks( void ) {
 	level.numNonSpectatorClients = 0;
 	level.numPlayingClients = 0;
 	level.numVotingClients = 0;		// don't count bots
-	for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
+	for ( i = 0; i < /*TEAM_NUM_TEAMS*/2; i++ ) { // TEAM_NUM_TEAMS is 4, numteamVotingClients has a size of [2]
 		level.numteamVotingClients[i] = 0;
 	}
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
@@ -2238,6 +2239,7 @@ void G_RunThink (gentity_t *ent) {
 	ent->nextthink = 0;
 	if (!ent->think) {
 		G_Error ( "NULL ent->think");
+		return;
 	}
 	ent->think (ent);
 }
@@ -2489,5 +2491,16 @@ const char *G_GetStripEdString(char *refSection, char *refName)
 	static char text[1024]={0};
 	Com_sprintf(text, sizeof(text), "@@@%s", refName);
 	return text;
+}
+
+// On linux rand() behaves different than on Winodws or in a qvm, ...
+static int myRandSeed = 0;
+void	mysrand( unsigned seed ) {
+	myRandSeed = seed;
+}
+
+int		myrand( void ) {
+	myRandSeed = (69069 * myRandSeed + 1);
+	return myRandSeed & 0x7fff;
 }
 

@@ -350,6 +350,7 @@ void TransferWPData(int from, int to)
 	if (!gWPArray[to])
 	{
 		G_Printf(S_COLOR_RED "FATAL ERROR: Could not allocated memory for waypoint\n");
+		return; // I guess it makes no sense to go on if we didn't get the memory...
 	}
 
 	gWPArray[to]->flags = gWPArray[from]->flags;
@@ -378,6 +379,7 @@ void CreateNewWP(vec3_t origin, int flags)
 	if (!gWPArray[gWPNum])
 	{
 		G_Printf(S_COLOR_RED "ERROR: Could not allocated memory for waypoint\n");
+		return; // I guess it makes no sense to go on if we didn't get the memory...
 	}
 
 	gWPArray[gWPNum]->flags = flags;
@@ -408,6 +410,7 @@ void CreateNewWP_FromObject(wpobject_t *wp)
 	if (!gWPArray[gWPNum])
 	{
 		G_Printf(S_COLOR_RED "ERROR: Could not allocated memory for waypoint\n");
+		return; // I guess it makes no sense to go on if we didn't get the memory...
 	}
 
 	gWPArray[gWPNum]->flags = wp->flags;
@@ -591,6 +594,12 @@ int CreateNewWP_InTrail(vec3_t origin, int flags, int afterindex)
 		else if (gWPArray[i] && gWPArray[i]->inuse && gWPArray[i]->index == foundindex)
 		{
 			i++;
+
+			if ( i >= MAX_WPARRAY_SIZE )
+			{ // Not sure if this ever happens, but let's add a check anyway...
+				G_Printf(S_COLOR_YELLOW "CreateNewWP_InTrail: i hit the waypoint limit hit (%i)\n", MAX_WPARRAY_SIZE);
+				return 0;
+			}
 
 			if (!gWPArray[i])
 			{
@@ -1598,7 +1607,7 @@ void CalculateJumpRoutes(void)
 
 				gWPArray[i]->forceJumpTo = 0;
 
-				if (gWPArray[i-1] && gWPArray[i-1]->inuse && (gWPArray[i-1]->origin[2]+16) < gWPArray[i]->origin[2])
+				if (i > 0 && gWPArray[i-1] && gWPArray[i-1]->inuse && (gWPArray[i-1]->origin[2]+16) < gWPArray[i]->origin[2])
 				{
 					nheightdif = (gWPArray[i]->origin[2] - gWPArray[i-1]->origin[2]);
 				}
@@ -2080,6 +2089,7 @@ int SavePathData(const char *filename)
 
 	while (i < gWPNum)
 	{
+		if ( !gWPArray[i] ) continue; // Not sure if this can happen, but let's be safe...
 		//sprintf(fileString, "%s%i %i %f (%f %f %f) { ", fileString, gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 		Com_sprintf(storeString, 4096, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 

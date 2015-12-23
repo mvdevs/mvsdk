@@ -35,6 +35,8 @@
 #define min(x,y) ((x)<(y)?(x):(y))
 #define max(x,y) ((x)>(y)?(x):(y))
 
+#define LIBEXPORT
+
 #else
 
 #include <assert.h>
@@ -435,7 +437,7 @@ typedef enum
 	FORCE_LEVEL_2,
 	FORCE_LEVEL_3,
 	NUM_FORCE_POWER_LEVELS
-};
+} forceLevels_t;
 
 #define ATST_HEADSIZE		90
 #define ATST_MINS0			-40
@@ -2009,7 +2011,7 @@ typedef enum Eorientations
 	NEGATIVE_X,
 	NEGATIVE_Z,
 	NEGATIVE_Y
-};
+} Eorientations_t;
 /*
 Ghoul2 Insert End
 */

@@ -5,18 +5,16 @@
 #include "q_shared.h"
 #include "bg_public.h"
 
-#ifdef QAGAME
+#ifdef JK2_GAME
 #include "g_local.h"
 #endif
 
-#ifdef UI_EXPORTS
+#ifdef JK2_UI
 #include "../ui/ui_local.h"
 #endif
 
-#ifndef UI_EXPORTS
-#ifndef QAGAME
+#ifdef JK2_CGAME
 #include "../cgame/cg_local.h"
-#endif
 #endif
 
 //rww - not putting @ in front of these because
@@ -188,6 +186,8 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	int final_Side;
 	int final_Powers[NUM_FORCE_POWERS];
 
+//	for ( i = 0; i < NUM_FORCE_POWERS; i++ ) final_Powers[i] = 0;
+
 	if (powerLen >= 128)
 	{ //This should not happen. If it does, this is obviously a bogus string.
 		//They can have this string. Because I said so.
@@ -249,7 +249,8 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 
 	//final_Powers now contains all the stuff from the string
 	//Set the maximum allowed points used based on the max rank level, and count the points actually used.
-	allowedPoints = forceMasteryPoints[maxRank];
+	if ( maxRank < 0 || maxRank >= NUM_FORCE_MASTERY_LEVELS ) allowedPoints = /*Q3_INFINITE*/16777216; // Some servers set their "maxRank" to 200 to allow players to use all force powers (of one side). That is actually an invalid read - a memory bug. Let's fix that...
+	else													  allowedPoints = forceMasteryPoints[maxRank];
 
 	i = 0;
 	while (i < NUM_FORCE_POWERS)
@@ -1460,7 +1461,7 @@ void BG_CycleForce(playerState_t *ps, int direction)
 	int presel = i;
 	int foundnext = -1;
 
-	if (!ps->fd.forcePowersKnown & (1 << x) ||
+	if (!(ps->fd.forcePowersKnown & (1 << x)) ||
 		x >= NUM_FORCE_POWERS ||
 		x == -1)
 	{ //apparently we have no valid force powers

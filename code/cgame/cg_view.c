@@ -272,7 +272,7 @@ static void CG_CalcIdealThirdPersonViewTarget(void)
 	}
 
 	// Add in the new viewheight
-	cameraFocusLoc[2] += cg.snap->ps.viewheight;
+	if ( cg.snap ) cameraFocusLoc[2] += cg.snap->ps.viewheight;
 
 	// Add in a vertical offset from the viewpoint, which puts the actual target above the head, regardless of angle.
 //	VectorMA(cameraFocusLoc, thirdPersonVertOffset, cameraup, cameraIdealTarget);
@@ -988,7 +988,7 @@ static int CG_CalcFov( void ) {
 				}
 				else
 				{	// Still zooming
-					static zoomSoundTime = 0;
+					static int zoomSoundTime = 0;
 
 					if (zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000)
 					{

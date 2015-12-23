@@ -737,6 +737,8 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 
 	client = ent->client;
 
+	if ( !client ) return;
+
 	if ( oldEventSequence < client->ps.eventSequence - MAX_PS_EVENTS ) {
 		oldEventSequence = client->ps.eventSequence - MAX_PS_EVENTS;
 	}
@@ -1003,6 +1005,8 @@ void ClientThink_real( gentity_t *ent ) {
 	usercmd_t	*ucmd;
 
 	client = ent->client;
+
+	if ( !ent || !ent->client ) return;
 
 	// don't think if the client is not yet connected (and thus not yet spawned in)
 	if (client->pers.connected != CON_CONNECTED) {

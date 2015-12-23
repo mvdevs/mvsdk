@@ -38,7 +38,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator ) {
 
 	if (ent->spawnflags & 1)
 	{
-		if (!activator->client)
+		if (!activator || !activator->client)
 		{
 			return;
 		}
@@ -54,7 +54,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator ) {
 		return;		// can't retrigger until the wait is over
 	}
 
-	if ( activator->client ) {
+	if ( activator && activator->client ) {
 		if ( ( ent->spawnflags & 2 ) &&
 			activator->client->sess.sessionTeam != TEAM_RED ) {
 			return;

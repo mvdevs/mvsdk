@@ -120,12 +120,12 @@ void UseSagaTarget(gentity_t *other, gentity_t *en, char *target)
 		}
 		else
 		{
-			if ( t->use )
+			if ( t && t->use )
 			{
 				t->use (t, ent, ent);
 			}
 		}
-		if ( !ent->inuse )
+		if ( ent && !ent->inuse )
 		{
 			G_Printf("entity was removed while using targets\n");
 			return;

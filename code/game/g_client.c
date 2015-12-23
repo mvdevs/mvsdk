@@ -478,11 +478,17 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 	if (!numSpots) {
 		spot = G_Find( NULL, FOFS(classname), "info_player_deathmatch");
 		if (!spot)
+		{
 			G_Error( "Couldn't find a spawn point" );
-		VectorCopy (spot->s.origin, origin);
-		origin[2] += 9;
-		VectorCopy (spot->s.angles, angles);
-		return spot;
+			return NULL;
+		}
+		else
+		{
+			VectorCopy (spot->s.origin, origin);
+			origin[2] += 9;
+			VectorCopy (spot->s.angles, angles);
+			return spot;
+		}
 	}
 
 	// select a random spot from the spawn points furthest away
@@ -648,6 +654,8 @@ void CopyToBodyQue( gentity_t *ent ) {
 	{
 		return;
 	}
+
+	if ( !ent || !ent->client ) return;
 
 	trap_UnlinkEntity (ent);
 

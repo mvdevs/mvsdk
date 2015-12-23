@@ -288,7 +288,7 @@ void CG_DrawInformation( void ) {
 
 		trap_SP_GetStringTextString("INGAMETEXT_MAXFORCERANK",fmStr, sizeof(fmStr));
 
-		UI_DrawProportionalString( 320, y, va( "%s %s", fmStr, CG_GetStripEdString("INGAMETEXT", forceMasteryLevels[value]) ),
+		UI_DrawProportionalString( 320, y, va( "%s %s", fmStr, (value < ((sizeof(forceMasteryLevels) / sizeof(forceMasteryLevels[0]))) ? CG_GetStripEdString("INGAMETEXT", forceMasteryLevels[value]) : va("%i", value)) ),
 			UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 	}

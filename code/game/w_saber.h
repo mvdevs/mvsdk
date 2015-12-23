@@ -13,7 +13,7 @@ typedef enum
 	FJ_RIGHT,
 	FJ_LEFT,
 	FJ_UP
-};
+} FJ_t;
 
 extern vmCvar_t g_MaxHolocronCarry;
 extern int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS];

@@ -83,7 +83,7 @@ typedef enum
 	HL_GENERIC5,
 	HL_GENERIC6,
 	HL_MAX
-};
+} HL_t;
 
 //============================================================================
 
@@ -804,6 +804,10 @@ void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
 const char *G_GetStripEdString(char *refSection, char *refName);
+
+// On linux rand() behaves different than on Winodws or in a qvm, ...
+void mysrand( unsigned seed );
+int myrand( void );
 
 //
 // g_client.c

@@ -21,7 +21,7 @@ qboolean PM_SaberInBrokenParry( int move );
 qboolean PM_SaberInBounce( int move );
 
 float RandFloat(float min, float max) {
-	return ((rand() * (max - min)) / 32768.0F) + min;
+	return ((myrand() * (max - min)) / 32768.0F) + min; // On linux rand() behaves different than on Winodws or in a qvm, ...
 }
 
 //#define DEBUG_SABER_BOX
@@ -2190,7 +2190,7 @@ qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *saberOwner, gen
 		return qfalse;
 	}
 
-	if (ent && ent->client && ent->inuse && ent->s.number != saberOwner->s.number &&
+	if (ent && ent->client && ent->inuse && saberOwner && ent->s.number != saberOwner->s.number &&
 		ent->health > 0 && ent->takedamage &&
 		trap_InPVS(ent->client->ps.origin, saberent->r.currentOrigin) &&
 		ent->client->sess.sessionTeam != TEAM_SPECTATOR &&
@@ -2204,6 +2204,7 @@ qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *saberOwner, gen
 		}
 
 		if (ent->inuse && ent->client &&
+			saberOwner->client &&
 			saberOwner->client->ps.duelInProgress &&
 			saberOwner->client->ps.duelIndex != ent->s.number)
 		{
@@ -2221,7 +2222,7 @@ qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *saberOwner, gen
 
 			if (tr.fraction == 1 || tr.entityNum == ent->s.number)
 			{ //Slice them
-				if (!saberOwner->client->ps.isJediMaster && WP_SaberCanBlock(ent, tr.endpos, 0, MOD_SABER, qfalse, 8))
+				if (saberOwner->client && !saberOwner->client->ps.isJediMaster && WP_SaberCanBlock(ent, tr.endpos, 0, MOD_SABER, qfalse, 8))
 				{ //they blocked it
 					WP_SaberBlockNonRandom(ent, tr.endpos, qfalse);
 
@@ -2254,7 +2255,7 @@ qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *saberOwner, gen
 						dir[1] = 1;
 					}
 
-					if (saberOwner->client->ps.isJediMaster)
+					if (saberOwner->client && saberOwner->client->ps.isJediMaster)
 					{ //2x damage for the Jedi Master
 						G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, saberent->damage*2, 0, MOD_SABER);
 					}
@@ -2279,11 +2280,11 @@ qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *saberOwner, gen
 					}
 				}
 
-				saberOwner->client->ps.saberAttackWound = level.time + 500;
+				if ( saberOwner->client ) saberOwner->client->ps.saberAttackWound = level.time + 500;
 			}
 		}
 	}
-	else if (ent && !ent->client && ent->inuse && ent->takedamage && ent->health > 0 && ent->s.number != saberOwner->s.number &&
+	else if (ent && !ent->client && ent->inuse && ent->takedamage && ent->health > 0 && saberOwner && ent->s.number != saberOwner->s.number &&
 		ent->s.number != saberent->s.number && trap_InPVS(ent->r.currentOrigin, saberent->r.currentOrigin))
 	{ //hit a non-client
 		VectorSubtract(saberent->r.currentOrigin, ent->r.currentOrigin, vecsub);
@@ -2326,7 +2327,7 @@ qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *saberOwner, gen
 					thrownSaberTouch(saberent, saberent, NULL);
 				}
 
-				saberOwner->client->ps.saberAttackWound = level.time + 500;
+				if ( saberOwner && saberOwner->client ) saberOwner->client->ps.saberAttackWound = level.time + 500;
 			}
 		}
 	}
@@ -3137,6 +3138,9 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 				qboolean clientUnlinked[MAX_CLIENTS];
 				qboolean skipSaberTrace = qfalse;
 				
+				int i;
+				for ( i = 0; i < MAX_CLIENTS; i++ ) clientUnlinked[i] = qfalse;
+
 				if (!g_saberTraceSaberFirst.integer)
 				{
 					skipSaberTrace = qtrue;

@@ -43,9 +43,10 @@ qboolean	G_SpawnInt( const char *key, const char *defaultString, int *out ) {
 qboolean	G_SpawnVector( const char *key, const char *defaultString, float *out ) {
 	char		*s;
 	qboolean	present;
+	int			read;
 
 	present = G_SpawnString( key, defaultString, &s );
-	sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] );
+	read = sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] );
 	return present;
 }
 
@@ -379,6 +380,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 	byte	*b;
 	float	v;
 	vec3_t	vec;
+	int read;
 
 	for ( f=fields ; f->name ; f++ ) {
 		if ( !Q_stricmp(f->name, key) ) {
@@ -390,7 +392,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 				*(char **)(b+f->ofs) = G_NewString (value);
 				break;
 			case F_VECTOR:
-				sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
+				read = sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
 				((float *)(b+f->ofs))[0] = vec[0];
 				((float *)(b+f->ofs))[1] = vec[1];
 				((float *)(b+f->ofs))[2] = vec[2];

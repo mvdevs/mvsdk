@@ -807,6 +807,12 @@ int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean resta
 		return qfalse;
 	}
 
+	if ( !bs )
+	{
+		BotAI_Print(PRT_FATAL, "BotAISetupClient: client %d has no bot_state\n", client);
+		return qfalse;
+	}
+
 	memcpy(&bs->settings, settings, sizeof(bot_settings_t));
 
 	bs->client = client; //need to know the client number before doing personality stuff
@@ -3028,7 +3034,7 @@ void Saga_DefendFromAttackers(bot_state_t *bs)
 	{
 		ent = &g_entities[i];
 
-		if (ent && ent->client && ent->client->sess.sessionTeam != g_entities[bs->client].client->sess.sessionTeam &&
+		if (ent && ent->client && &g_entities[bs->client] && g_entities[bs->client].client && ent->client->sess.sessionTeam != g_entities[bs->client].client->sess.sessionTeam &&
 			ent->health > 0 && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
 		{
 			VectorSubtract(ent->client->ps.origin, bs->origin, a);
@@ -3071,7 +3077,7 @@ int Saga_CountDefenders(bot_state_t *bs)
 		ent = &g_entities[i];
 		bot = botstates[i];
 
-		if (ent && ent->client && bot)
+		if (ent && ent->client && bot && &g_entities[bs->client] && g_entities[bs->client].client)
 		{
 			if (bot->sagaState == SAGASTATE_DEFENDER &&
 				ent->client->sess.sessionTeam == g_entities[bs->client].client->sess.sessionTeam)
@@ -3096,7 +3102,7 @@ int Saga_CountTeammates(bot_state_t *bs)
 	{
 		ent = &g_entities[i];
 
-		if (ent && ent->client)
+		if (ent && ent->client && &g_entities[bs->client] && g_entities[bs->client].client)
 		{
 			if (ent->client->sess.sessionTeam == g_entities[bs->client].client->sess.sessionTeam)
 			{
@@ -4329,7 +4335,7 @@ void SaberCombatHandling(bot_state_t *bs)
 			bs->beStill = level.time + Q_irand(500, 1000);
 			bs->saberSTime = level.time + Q_irand(1200, 1800);
 		}
-		else if (bs->currentEnemy->client->ps.weapon == WP_SABER && bs->frame_Enemy_Len < 80 && (Q_irand(1, 10) < 8 && bs->saberBFTime < level.time) || bs->saberBTime > level.time)
+		else if (bs->currentEnemy->client && bs->currentEnemy->client->ps.weapon == WP_SABER && bs->frame_Enemy_Len < 80 && (Q_irand(1, 10) < 8 && bs->saberBFTime < level.time) || bs->saberBTime > level.time)
 		{
 			vec3_t vs;
 			vec3_t groundcheck;
@@ -4358,7 +4364,7 @@ void SaberCombatHandling(bot_state_t *bs)
 				VectorCopy(usethisvec, bs->goalPosition);
 			}
 		}
-		else if (bs->currentEnemy->client->ps.weapon == WP_SABER && bs->frame_Enemy_Len >= 75)
+		else if (bs->currentEnemy->client && bs->currentEnemy->client->ps.weapon == WP_SABER && bs->frame_Enemy_Len >= 75)
 		{
 			bs->saberBFTime = level.time + Q_irand(700, 1300);
 			bs->saberBTime = 0;

@@ -210,7 +210,7 @@ typedef enum {
 	FORCE_MASTERY_JEDI_KNIGHT,
 	FORCE_MASTERY_JEDI_MASTER,
 	NUM_FORCE_MASTERY_LEVELS
-};
+} forceMastery_t;
 extern char *forceMasteryLevels[NUM_FORCE_MASTERY_LEVELS];
 extern int forceMasteryPoints[NUM_FORCE_MASTERY_LEVELS];
 

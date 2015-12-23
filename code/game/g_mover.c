@@ -835,6 +835,8 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 	vec3_t		mins, maxs;
 	int			i, best;
 
+	if ( !ent ) return;
+
 	// set all of the slaves as shootable
 	if (ent->takedamage)
 	{

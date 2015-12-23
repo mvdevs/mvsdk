@@ -1803,6 +1803,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	char		*killerName, *obit;
 	qboolean	wasJediMaster = qfalse;
 
+	if ( !self || !self->client ) return;
+
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;
 	}
@@ -2276,6 +2278,7 @@ void G_ApplyKnockback( gentity_t *targ, vec3_t newDir, float knockback )
 	vec3_t	kvel;
 	float	mass;
 
+	if ( !targ ) return;
 	if (targ && targ->client && targ->client->ps.usingATST)
 	{
 		return;
@@ -3010,6 +3013,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	float		famt = 0;
 	float		hamt = 0;
 	float		shieldAbsorbed = 0;
+
+	if ( !targ ) return;
 
 	if (targ && targ->damageRedirect)
 	{

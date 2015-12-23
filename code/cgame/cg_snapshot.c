@@ -117,9 +117,11 @@ static void CG_TransitionSnapshot( void ) {
 
 	if ( !cg.snap ) {
 		CG_Error( "CG_TransitionSnapshot: NULL cg.snap" );
+		return;
 	}
 	if ( !cg.nextSnap ) {
 		CG_Error( "CG_TransitionSnapshot: NULL cg.nextSnap" );
+		return;
 	}
 
 	// execute any server string commands before transitioning entities
@@ -363,6 +365,7 @@ void CG_ProcessSnapshots( void ) {
 			// if time went backwards, we have a level restart
 			if ( cg.nextSnap->serverTime < cg.snap->serverTime ) {
 				CG_Error( "CG_ProcessSnapshots: Server time went backwards" );
+				return;
 			}
 		}
 
