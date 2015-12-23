@@ -8,7 +8,7 @@
 static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
 
 
-void dllEntry( int (QDECL *syscallptr)( int arg,... ) ) {
+LIBEXPORT void dllEntry( int (QDECL *syscallptr)( int arg,... ) ) {
 	syscall = syscallptr;
 }
 

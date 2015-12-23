@@ -1,0 +1,42 @@
+# Make sure the user is not executing this script directly
+if(NOT InMV)
+	message(FATAL_ERROR "Use the top-level cmake script!")
+endif(NOT InMV)
+
+set(MVUIFILES
+	"${SRCDir}/ui/keycodes.h"
+	"${SRCDir}/ui/ui_force.h"
+	"${SRCDir}/ui/ui_local.h"
+	"${SRCDir}/ui/ui_public.h"
+	"${SRCDir}/ui/ui_shared.h"
+	"${SRCDir}/game/bg_weapons.h"
+	"${SRCDir}/game/q_shared.h"
+
+	"${SRCDir}/ui/ui_atoms.c"
+	"${SRCDir}/ui/ui_force.c"
+	"${SRCDir}/ui/ui_gameinfo.c"
+	"${SRCDir}/ui/ui_main.c"
+	"${SRCDir}/ui/ui_shared.c"
+	"${SRCDir}/ui/ui_syscalls.c"
+	
+	"${SRCDir}/game/bg_misc.c"
+	"${SRCDir}/game/bg_weapons.c"
+	"${SRCDir}/game/q_math.c"
+	"${SRCDir}/game/q_shared.c"
+	
+#	"${SRCDir}/ui/ui.def"
+)
+add_library(${MVUI} SHARED ${MVUIFILES})
+
+# Defines
+set(MVUIDefines ${MVUIDefines} "JK2_UI")
+set(MVUIIncludeDirs ${MVGLOBALIncludeDirs})
+
+if(NOT WIN32)
+	set_target_properties(${MVUI} PROPERTIES PREFIX "") # remove "lib" prefix for .so/.dylib files
+endif()
+
+set_target_properties(${MVUI} PROPERTIES COMPILE_DEFINITIONS_RELEASE "${GlobalDefines};${MVUIDefines};${ReleaseDefines}")
+set_target_properties(${MVUI} PROPERTIES COMPILE_DEFINITIONS_DEBUG "${GlobalDefines};${MVUIDefines};${DebugDefines}")
+set_target_properties(${MVUI} PROPERTIES INCLUDE_DIRECTORIES "${MVUIIncludeDirs}")
+set_target_properties(${MVUI} PROPERTIES PROJECT_LABEL "JK2MV - UI Module")

@@ -47,6 +47,16 @@
 #include <ctype.h>
 #include <limits.h>
 
+#ifdef GAME_EXPORTS
+	#ifdef WIN32
+		#define LIBEXPORT __declspec(dllexport)
+	#else
+		#define LIBEXPORT __attribute__((visibility("default")))
+	#endif
+#else
+	#define LIBEXPORT
+#endif
+
 #endif
 
 #ifdef _WIN32
@@ -745,7 +755,7 @@ float Q_rsqrt( float f );		// reciprocal square root
 signed char ClampChar( int i );
 signed short ClampShort( int i );
 
-float powf ( float x, int y );
+float JK2_powf ( float x, int y );
 
 // this isn't a real cheap function to call!
 int DirToByte( vec3_t dir );
