@@ -7,6 +7,10 @@
 #include "bg_public.h"
 #include "bg_local.h"
 
+#ifdef JK2_GAME
+#include "g_local.h"
+#endif
+
 #define MAX_WEAPON_CHARGE_TIME 5000
 
 pmove_t		*pm;
@@ -2878,6 +2882,14 @@ void PM_BeginWeaponChange( int weapon ) {
 		pm->ps->zoomTime = pm->ps->commandTime;
 	}
 
+	// If the player still got the rocket launcher locked on a target remove the lock.
+	if ( pm->ps->rocketLockIndex != MAX_CLIENTS )
+	{
+		pm->ps->rocketLockIndex = MAX_CLIENTS;
+		pm->ps->rocketLockTime = 0;
+		pm->ps->rocketTargetTime = 0;
+	}
+
 	PM_AddEvent( EV_CHANGE_WEAPON );
 	pm->ps->weaponstate = WEAPON_DROPPING;
 	pm->ps->weaponTime += 200;
@@ -4571,7 +4583,21 @@ void PmoveSingle (pmove_t *pmove) {
 	// update the viewangles
 	PM_UpdateViewAngles( pm->ps, &pm->cmd );
 
+#ifdef JK2_GAME
+	if ( mv_blockspeedhack.integer )
+	{
+		float oldRoll = pm->ps->viewangles[ROLL];
+		pm->ps->viewangles[ROLL] = 0;
+		AngleVectors (pm->ps->viewangles, pml.forward, pml.right, pml.up);
+		pm->ps->viewangles[ROLL] = oldRoll;
+	}
+	else
+	{
+#endif
 	AngleVectors (pm->ps->viewangles, pml.forward, pml.right, pml.up);
+#ifdef JK2_GAME
+	}
+#endif
 
 	if ( pm->cmd.upmove < 10 ) {
 		// not holding jump

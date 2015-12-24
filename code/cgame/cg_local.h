@@ -2254,10 +2254,13 @@ Ghoul2 Insert End
 
 extern qboolean mvapi;
 
-int MVAPI_Init(int apilevel);
-void MVAPI_AfterInit(void);
+// JK2MV API Functions
+int MVAPI_Init( int apilevel );
+void MVAPI_AfterInit( void );
 
-int trap_MV_GetCurrentGameversion( void );
+// JK2MV Syscalls
+int trap_MVAPI_GetCurrentGameversion( void );
+qboolean trap_MVAPI_ControlFixes( mvfix_t fixes );
 
 #include "../api/mvapi.h"
 #include "cg_multiversion.h"

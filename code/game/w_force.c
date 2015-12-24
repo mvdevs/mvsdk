@@ -229,6 +229,64 @@ void WP_InitForcePowers( gentity_t *ent )
 	{ //if it's a bot just copy the info directly from its personality
 		Com_sprintf(forcePowers, sizeof(forcePowers), "%s\0", botstates[ent->s.number]->forceinfo);
 	}
+	
+	// ForceCrashFix
+	if (!strlen(forcePowers))
+	{ // Empty forcePowers
+		Q_strncpyz( forcePowers, "7-1-032330000000001333", sizeof(forcePowers) );
+		G_LogPrintf( "WP_InitForcePowers: client %i (%s) has no force powers.\n", ent->client->ps.clientNum, ent->client->pers.netname );
+			
+		Info_RemoveKey(userinfo, "forcepowers");
+		Info_SetValueForKey(userinfo, "forcepowers", forcePowers);
+		trap_SetUserinfo(ent->s.number, userinfo);
+	}
+	else
+	{ // Got forcePowers, let's check if they're valid
+		qboolean	validForcePowers = qtrue;
+		int		step = 0;
+		int		count = 0;
+
+		// Check if the forcePowers follow this layout: '####-#-##################', with '####' being any amount of numbers
+		for ( i = 0; i < strlen(forcePowers); i++ )
+		{
+			if ( forcePowers[i] >= '0' && forcePowers[i] <= '9' )
+			{
+				count++;
+				if ( step == 1 && count > 1 ) validForcePowers = qfalse;
+				if ( step == 2 && count == NUM_FORCE_POWERS && strlen(forcePowers)-1 > i )
+				{ // We seem to have a too long forceString, but the beginning is valid so cut off the rest
+					forcePowers[i+i] = 0;
+					break;
+				}
+				if ( step == 2 && count > NUM_FORCE_POWERS ) validForcePowers = qfalse;
+			}
+			else if ( forcePowers[i] == '-' )
+			{
+				count = 0;
+				step++;
+
+				if ( step > 2 ) validForcePowers = qfalse;
+			}
+			else
+			{
+				validForcePowers = qfalse;
+			}
+
+			if ( !validForcePowers ) break;
+		}
+		if ( step != 2 ) validForcePowers = qfalse;
+		if ( count < NUM_FORCE_POWERS ) validForcePowers = qfalse;
+
+		if ( !validForcePowers )
+		{
+			G_LogPrintf( "WP_InitForcePowers: client %i (%s) has invalid force powers (%s).\n", ent->client->ps.clientNum, ent->client->pers.netname, forcePowers );
+			Q_strncpyz( forcePowers, "7-1-032330000000001333", sizeof(forcePowers) );
+			
+			Info_RemoveKey(userinfo, "forcepowers");
+			Info_SetValueForKey(userinfo, "forcepowers", forcePowers);
+			trap_SetUserinfo(ent->s.number, userinfo);
+		}
+	}
 
 	//rww - parse through the string manually and eat out all the appropriate data
 	i = 0;
@@ -1981,6 +2039,11 @@ int ForceShootDrain( gentity_t *self )
 void ForceJumpCharge( gentity_t *self, usercmd_t *ucmd )
 { //I guess this is unused now. Was used for the "charge" jump type.
 	float forceJumpChargeInterval = forceJumpStrength[0] / (FORCE_JUMP_CHARGE_TIME/FRAMETIME);
+	
+	if ( mv_blockchargejump.integer )
+	{
+		return;
+	}
 
 	if ( self->health <= 0 )
 	{
@@ -2128,6 +2191,10 @@ void ForceJump( gentity_t *self, usercmd_t *ucmd )
 	float forceJumpChargeInterval;
 	vec3_t	jumpVel;
 
+	if ( mv_blockchargejump.integer )
+	{
+		return;
+	}
 	if ( self->client->ps.fd.forcePowerDuration[FP_LEVITATION] > level.time )
 	{
 		return;

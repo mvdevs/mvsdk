@@ -40,6 +40,16 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	var = va( "session%i", client - level.clients );
 
 	trap_Cvar_Set( var, s );
+
+	s = va("%i %i %i %i %i",
+		mv_clientSessions[client-g_clients].clientIP[0],
+		mv_clientSessions[client-g_clients].clientIP[1],
+		mv_clientSessions[client-g_clients].clientIP[2],
+		mv_clientSessions[client-g_clients].clientIP[3],
+		mv_clientSessions[client-g_clients].localClient
+		);
+	var = va( "sessionmv%i", client-g_clients );
+	trap_Cvar_Set( var, s );
 }
 
 /*
@@ -82,6 +92,31 @@ void G_ReadSessionData( gclient_t *client ) {
 
 	client->ps.fd.saberAnimLevel = client->sess.saberLevel;
 	client->ps.fd.forcePowerSelected = client->sess.selectedFP;
+}
+
+/*
+==================
+MV_ReadSessionData
+
+Called on a reconnect
+==================
+*/
+void MV_ReadSessionData( int clientNum )
+{
+	char	s[MAX_STRING_CHARS];
+	const char	*var;
+	int read;
+
+	var = va( "sessionmv%i", clientNum );
+	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
+	read = sscanf( s, "%i %i %i %i %i",
+		&mv_clientSessions[clientNum].clientIP[0],
+		&mv_clientSessions[clientNum].clientIP[1],
+		&mv_clientSessions[clientNum].clientIP[2],
+		&mv_clientSessions[clientNum].clientIP[3],
+		&mv_clientSessions[clientNum].localClient
+		);
+	//trap_Cvar_Set( var, "" ); // Causes issues, if people aren't fully ingam, but the server changes maps again.
 }
 
 

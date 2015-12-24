@@ -27,6 +27,7 @@ This is the only way control passes into the module.
 vmCvar_t  ui_debug;
 vmCvar_t  ui_initialized;
 qboolean mvapi = qfalse;
+int Init_inGameLoad;
 
 void _UI_Init( qboolean );
 void _UI_Shutdown( void );
@@ -42,7 +43,15 @@ LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int a
 
 	  case UI_INIT:
 		  requestedMvApi = MVAPI_Init(arg11);
-		  _UI_Init(arg0);
+		  
+		  if ( !requestedMvApi )
+		  { // Only call _UI_Init if we haven't got access to the MVAPI. If we can use the MVAPI we delay the Init until the "MVAPI_AFTER_INIT" command is sent. That allows us use the MVAPI in the actual init.
+			  _UI_Init(arg0);
+		  }
+		  else
+		  { // Store the values that were meant for _UI_Init to use them later, when MVAPIR_AFTER_INIT is called.
+			  Init_inGameLoad = arg0;
+		  }
 		  return requestedMvApi;
 
 	  case MVAPI_AFTER_INIT:
@@ -110,7 +119,8 @@ int MVAPI_Init(int apilevel)
 
 void MVAPI_AfterInit(void)
 {
-	// Nothing to do in UI at the moment.
+	// Call _UI_Init now, because we delayed it earilier
+	_UI_Init( Init_inGameLoad );
 }
 
 int MV_UiDetectVersion( void )
@@ -122,7 +132,7 @@ int MV_UiDetectVersion( void )
 	trap_Cvar_VariableStringBuffer( "mv_apienabled", buffer, sizeof(buffer) );
 	if ( strlen(buffer) && atoi(buffer) > 0 )
 	{ // JK2MV >= 1.1
-		switch ( trap_MV_GetCurrentGameversion() )
+		switch ( trap_MVAPI_GetCurrentGameversion() )
 		{
 			case VERSION_1_02:
 				jk2version = VERSION_1_02;

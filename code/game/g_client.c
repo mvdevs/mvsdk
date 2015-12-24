@@ -1140,6 +1140,11 @@ void ClientUserinfoChanged( int clientNum ) {
 	char	blueTeam[MAX_INFO_STRING];
 	char	userinfo[MAX_INFO_STRING];
 
+	// NameCrashFix (whitelisted characters)
+	static const char	validChars[]  = " ~QqWwEeRrTtYyUuIiOoPpAaSsDdFfGgHhJjKkLlZzXxCcVvBbNnMm1234567890<>?,./';:][{}`-=!@#$^&*()_+|";
+	int					i, j, isValidChar;
+	char				*ptr;
+
 	ent = g_entities + clientNum;
 	client = ent->client;
 
@@ -1167,7 +1172,32 @@ void ClientUserinfoChanged( int clientNum ) {
 	// set name
 	Q_strncpyz ( oldname, client->pers.netname, sizeof( oldname ) );
 	s = Info_ValueForKey (userinfo, "name");
-	ClientCleanName( s, client->pers.netname, sizeof(client->pers.netname) );
+	
+	// NameCrashFix
+	for ( i = 0; i < strlen(s); i++ )
+	{
+		isValidChar = 0;
+
+		for ( j = 0; validChars[j]; j++ )
+		{
+			if ( s[i] == validChars[j] ) isValidChar = 1; //The char is on the whitelist - it's a valid Char...
+		}
+
+		if ( !isValidChar )	s[i] = '.';
+	}
+	
+	// Don't let players use @@@ in their names (multi-language strings)
+	ptr = strstr( s, "@@@" );
+	while ( ptr )
+	{
+		memset( ptr, '.', 3 );
+		ptr = strstr( s, "@@@" );
+	}
+	
+	ClientCleanName( s, ent->client->pers.netname, sizeof(ent->client->pers.netname) );
+	Info_RemoveKey( userinfo, "name" );
+	Info_SetValueForKey( userinfo, "name", ent->client->pers.netname );
+	trap_SetUserinfo( clientNum, userinfo );
 
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
@@ -1197,6 +1227,18 @@ void ClientUserinfoChanged( int clientNum ) {
 	} else {
 		Q_strncpyz( model, Info_ValueForKey (userinfo, "model"), sizeof( model ) );
 		//Q_strncpyz( headModel, Info_ValueForKey (userinfo, "headmodel"), sizeof( headModel ) );
+	}
+	
+	// GalakingFix
+	Q_CleanStr( model );
+	if ( mv_fixgalaking.integer && !Q_stricmpn(model, "galak_mech", strlen("galak_mech")) )
+	{
+		Q_strncpyz( model, "galak/default", sizeof(model) );
+	}
+	
+	if ( mv_fixbrokenmodels.integer && (!Q_stricmpn(model, "kyle/fpls", strlen("kyle/fpls")) || (!Q_stricmpn(model, "morgan", strlen("morgan")) && (!Q_stricmp(model, "morgan/default_mp") && !Q_stricmp(model, "morgan/red") && !Q_stricmp(model, "morgan/blue")))) )
+	{
+		Q_strncpyz( model, "kyle/default", sizeof(model) );
 	}
 
 	Q_strncpyz( forcePowers, Info_ValueForKey (userinfo, "forcepowers"), sizeof( forcePowers ) );
@@ -1312,6 +1354,39 @@ to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
 */
+qboolean MV_SetClientIP( int clientNum, char *value )
+{
+	mvclientSession_t *mvSess = &mv_clientSessions[clientNum];
+	int i, j = 0, step = 0;
+	char temp[4];
+
+	if ( !value || !strlen(value) ) return qfalse;
+	
+	memset( temp, 0, sizeof(temp) );
+
+	for ( i = 0; i < strlen(value); i++ )
+	{
+		if ( value[i] == '.' || (value[i] == ':' && step == 3) )
+		{
+			mvSess->clientIP[step] = atoi(temp);
+
+			memset( temp, 0, sizeof(temp) );
+			step++;
+			j = 0;
+
+			if ( step == 4 ) break;
+		}
+		else if ( value[i] >= '0' && value[i] <= '9' && j < sizeof(temp)-1 )
+		{
+			temp[j] = value[i];
+			j++;
+		}
+		else return qfalse;
+	}
+	mvSess->localClient = qfalse;
+	return qtrue;
+}
+
 char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	char		*value;
 //	char		*areabits;
@@ -1319,6 +1394,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	char		userinfo[MAX_INFO_STRING];
 	gentity_t	*ent;
 	gentity_t	*te;
+	mvclientSession_t *mvSess = &mv_clientSessions[clientNum];
 
 	ent = &g_entities[ clientNum ];
 
@@ -1328,6 +1404,81 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	value = Info_ValueForKey (userinfo, "ip");
 	if ( G_FilterPacket( value ) ) {
 		return "Banned.";
+	}
+
+	memset( &mv_clientSessions[clientNum], 0, sizeof(mv_clientSessions[clientNum]) );
+	if ( (ent->r.svFlags & SVF_BOT) || isBot || !Q_stricmp(value, "localhost") )
+	{ // Bots and localhost get 127.0.0.1
+		mvSess->clientIP[0] = 127;
+		mvSess->clientIP[1] = 0;
+		mvSess->clientIP[2] = 0;
+		mvSess->clientIP[3] = 1;
+
+		mvSess->localClient = qtrue;
+	}
+	else if ( firstTime && !MV_SetClientIP( clientNum, value ) ) return "Please wait...";
+
+	if ( !firstTime ) MV_ReadSessionData( clientNum ); // If this isn't a "firstTime" read the stored IPs...
+	if ( mvSess->clientIP[0] == 0 && mvSess->clientIP[1] == 0 && mvSess->clientIP[2] == 0 && mvSess->clientIP[3] == 0 ) return "was dropped due to an internal error."; // Should never happen, but just in case...
+	
+	if ( mv_connectionlimit.integer && firstTime && !mvSess->localClient )
+	{
+		mvclientSession_t	*mvSessOther;
+		gentity_t			*other;
+		int					sameip;
+		int					i;
+
+		sameip = 0;
+
+		for ( i = 0; i < MAX_CLIENTS; i++ )
+		{
+			if ( i == clientNum ) continue;
+
+			other = &g_entities[i];
+			mvSessOther = &mv_clientSessions[i];
+
+			if ( other && other->client && (other->client->pers.connected == CON_CONNECTING || other->client->pers.connected == CON_CONNECTED || other->client->pers.connected != CON_DISCONNECTED)/*&& other->inuse*/ )
+			{
+				if ( ((mvSessOther->clientIP[0] == mvSess->clientIP[0]) && (mvSessOther->clientIP[1] == mvSess->clientIP[1]) && (mvSessOther->clientIP[2] == mvSess->clientIP[2]) && (mvSessOther->clientIP[3] == mvSess->clientIP[3])))
+				{
+					sameip++;
+				}
+			}
+		}
+		if ( sameip >= mv_connectionlimit.integer )
+		{
+			return "Too many connections from your IP.";
+		}
+	}
+
+	if ( mv_connectinglimit.integer != 0 && firstTime && !mvSess->localClient )
+	{
+		mvclientSession_t	*mvSessOther;
+		gentity_t			*other;
+		int					alreadyConnecting;
+		int					i;
+
+		alreadyConnecting = 0;
+
+		for ( i = 0; i < MAX_CLIENTS; i++ )
+		{
+			if ( i == clientNum ) continue;
+
+			other = &g_entities[i];
+			mvSessOther = &mv_clientSessions[i];
+
+			if ( other && other->client && other->client->pers.connected == CON_CONNECTING )
+			{
+				if ( ((mvSessOther->clientIP[0] == mvSess->clientIP[0]) && (mvSessOther->clientIP[1] == mvSess->clientIP[1]) && (mvSessOther->clientIP[2] == mvSess->clientIP[2]) && (mvSessOther->clientIP[3] == mvSess->clientIP[3])) )
+				{
+					alreadyConnecting++;
+				}
+			}
+		}
+		if ( alreadyConnecting >= mv_connectinglimit.integer )
+		{
+			return "Too many players from your IP are trying to connect at the same time.";
+		}
 	}
 
 	if ( !( ent->r.svFlags & SVF_BOT ) && !isBot && g_needpass.integer ) {
@@ -1386,6 +1537,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	te->r.svFlags |= SVF_BROADCAST;
 	te->s.eventParm = clientNum;
 
+	memset( &ent->client->ps, 0, sizeof(ent->client->ps) ); // Make sure we always use a fresh playerState for new clients (this allows us to check for powerups in the playerState to prevent flagEating when calling ClientBegin)
 	// for statistics
 //	client->areabits = areabits;
 //	if ( !client->areabits )
@@ -1413,6 +1565,29 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	char		userinfo[MAX_INFO_VALUE], *modelname;
 
 	ent = g_entities + clientNum;
+	
+	// FlagEatingFix - We must ensure that powerups are cleared on ClientConnect and before team changes. Otherwise we might accidently trigger a flag duplication here.
+	for ( i = PW_REDFLAG; i <= PW_NEUTRALFLAG; i++ )
+	{
+		if ( ent->client->ps.powerups[i] )
+		{
+			gitem_t		*item;
+			gentity_t	*drop;
+
+			item = BG_FindItemForPowerup( i );
+			if ( item )
+			{
+				drop = Drop_Item( ent, item, 45 );
+				// decide how many seconds it has left
+				drop->count = ( ent->client->ps.powerups[ i ] - level.time ) / 1000;
+				if ( drop->count < 1 ) {
+					drop->count = 1;
+				}
+			}
+
+			ent->client->ps.powerups[i] = 0;
+		}
+	}
 
 	if ((ent->r.svFlags & SVF_BOT) && g_gametype.integer >= GT_TEAM)
 	{

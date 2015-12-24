@@ -226,9 +226,6 @@ equ trap_G2API_RemoveGhoul2Model_1_04_real				-600	; G_G2_REMOVEGHOUL2MODEL
 equ trap_G2API_CleanGhoul2Models_1_04_real				-601	; G_G2_CLEANMODELS 
 equ trap_G2API_CollisionDetect_1_04_real				-602	; G_G2_COLLISIONDETECT 
 
-; JK2MV Syscalls
-equ trap_MV_GetCurrentGameversion						-705    ;MVAPI_GET_VERSION
-
 
 ; hardcoded functions
 equ memset												-101	; G_MEMSET 
@@ -245,3 +242,10 @@ equ floor												-111	; G_FLOOR
 equ ceil												-112	; G_CEIL 
 equ acos												-115	; G_ACOS 
 equ asin												-116	; G_ASIN 
+
+; JK2MV Syscalls
+equ trap_MVAPI_GetCurrentGameversion					-705    ;MVAPI_GET_VERSION
+equ trap_MVAPI_ControlFixes								-704	;MVAPI_CONTROL_FIXES
+equ trap_MVAPI_LocateGameData							-703	;MVAPI_LOCATE_GAME_DATA
+equ trap_MVAPI_SendConnectionlessPacket					-701	;MVAPI_SEND_CONNECTIONLESSPACKET
+equ trap_MVAPI_GetConnectionlessPacket					-702	;MVAPI_GET_CONNECTIONLESSPACKET

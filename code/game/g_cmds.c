@@ -777,7 +777,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 
 	// get and distribute relevent paramters
 	ClientUserinfoChanged( clientNum );
-
+	
+	memset( ent->client->ps.powerups, 0, sizeof(ent->client->ps.powerups) ); // Ensure following spectators don't take flags or such into ClientBegin and trigger the FlagEatingFix (this allows us to check for powerups in the playerState to prevent flagEating when calling ClientBegin)
 	ClientBegin( clientNum, qfalse );
 }
 
@@ -906,6 +907,12 @@ Cmd_Follow_f
 void Cmd_Follow_f( gentity_t *ent ) {
 	int		i;
 	char	arg[MAX_TOKEN_CHARS];
+	
+	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR && ent->client->switchTeamTime > level.time )
+	{
+		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStripEdString("SVINGAME", "NOSWITCH")) );
+		return;
+	}
 
 	if ( trap_Argc() != 2 ) {
 		if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
@@ -954,6 +961,12 @@ Cmd_FollowCycle_f
 void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	int		clientnum;
 	int		original;
+	
+	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR && ent->client->switchTeamTime > level.time )
+	{
+		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStripEdString("SVINGAME", "NOSWITCH")) );
+		return;
+	}
 
 	// if they are playing a tournement game, count as a loss
 	if ( (g_gametype.integer == GT_TOURNAMENT )
@@ -972,6 +985,9 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 
 	clientnum = ent->client->sess.spectatorClient;
 	original = clientnum;
+
+	if ( original >= MAX_CLIENTS || original < 0 ) original = 0; // SpectatorCrashFix (infinite loop)
+
 	do {
 		clientnum += dir;
 		if ( clientnum >= level.maxclients ) {
@@ -2444,6 +2460,14 @@ void ClientCommand( int clientNum ) {
 
 
 	trap_Argv( 0, cmd, sizeof( cmd ) );
+	
+	// Filter "\n" and "\r"
+	if( strchr(ConcatArgs(0), '\n') != NULL || strchr(ConcatArgs(0), '\r') != NULL )
+	{
+		trap_SendServerCommand( clientNum, "print \"Invalid input - command blocked.\n\"" );
+		G_Printf("ClientCommand: client '%i' (%s) tried to use an invalid command - command blocked.\n", clientNum, ent->client->pers.netname);
+		return;
+	}
 
 	//rww - redirect bot commands
 	if (strstr(cmd, "bot_") && AcceptBotCommand(cmd, ent))
@@ -2464,6 +2488,7 @@ void ClientCommand( int clientNum ) {
 		Cmd_Tell_f ( ent );
 		return;
 	}
+	/*
 	if (Q_stricmp (cmd, "vsay") == 0) {
 		Cmd_Voice_f (ent, SAY_ALL, qfalse, qfalse);
 		return;
@@ -2492,6 +2517,7 @@ void ClientCommand( int clientNum ) {
 		Cmd_VoiceTaunt_f ( ent );
 		return;
 	}
+	*/
 	if (Q_stricmp (cmd, "score") == 0) {
 		Cmd_Score_f (ent);
 		return;

@@ -9,7 +9,7 @@
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
-#define	GAMEVERSION	"basejk"
+#define	GAMEVERSION	"basejkmv"
 
 #define BODY_QUEUE_SIZE		8
 
@@ -310,6 +310,12 @@ typedef struct {
 	int			updateUITime;		// only update userinfo for FP/SL if < level.time
 	qboolean	teamLeader;			// true when this client is a team leader
 } clientSession_t;
+
+// JK2MV
+typedef struct {
+	int			clientIP[4];
+	qboolean	localClient;
+} mvclientSession_t;
 
 //
 #define MAX_NETNAME			36
@@ -798,6 +804,9 @@ extern qboolean gDoSlowMoDuel;
 extern int gSlowMoDuelTime;
 extern gclient_t g_clients[MAX_CLIENTS];
 
+extern mvsharedEntity_t  mv_entities[MAX_GENTITIES];
+extern mvclientSession_t mv_clientSessions[MAX_CLIENTS];
+
 void FindIntermissionPoint( void );
 void SetLeader(int team, int client);
 void CheckTeamLeader( int team );
@@ -847,6 +856,8 @@ void Svcmd_GameMem_f( void );
 //
 void G_ReadSessionData( gclient_t *client );
 void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot );
+
+void MV_ReadSessionData( int clientNum );
 
 void G_InitWorldSession( void );
 void G_WriteSessionData( void );
@@ -1046,6 +1057,14 @@ extern	vmCvar_t	g_saberDebugPrint;
 extern	vmCvar_t	g_austrian;
 
 extern	vmCvar_t	mv_gameplay;
+
+extern	vmCvar_t	mv_fixgalaking;
+extern	vmCvar_t	mv_fixbrokenmodels;
+extern	vmCvar_t	mv_blockchargejump;
+extern	vmCvar_t	mv_blockspeedhack;
+extern	vmCvar_t	mv_fixturretcrash;
+extern	vmCvar_t	mv_connectionlimit;
+extern	vmCvar_t	mv_connectinglimit;
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );
@@ -1272,10 +1291,16 @@ qboolean	trap_ROFF_Purge_Ent( int entID );
 
 extern qboolean mvapi;
 
-int MVAPI_Init(int apilevel);
-void MVAPI_AfterInit(void);
+// JK2MV API Functions
+int MVAPI_Init( int apilevel );
+void MVAPI_AfterInit( void );
 
-int trap_MV_GetCurrentGameversion( void );
+// JK2MV Syscalls
+int trap_MVAPI_GetCurrentGameversion( void );
+qboolean trap_MVAPI_ControlFixes( mvfix_t fixes );
+qboolean trap_MVAPI_LocateGameData( mvsharedEntity_t *mvEnts, int numGEntities, int sizeofmvsharedEntity_t );
+qboolean trap_MVAPI_SendConnectionlessPacket( const mvaddr_t *addr, const char *message );
+qboolean trap_MVAPI_GetConnectionlessPacket( mvaddr_t *addr, char *buf, unsigned int bufsize );
 
 #include "../api/mvapi.h"
 #include "g_multiversion.h"

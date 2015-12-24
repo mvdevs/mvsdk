@@ -877,7 +877,12 @@ Ghoul2 Insert End
 */
 
 /* JK2MV Syscalls */
-int trap_MV_GetCurrentGameversion()
+int trap_MVAPI_GetCurrentGameversion( void )
 {
-	return syscall(MVAPI_GET_VERSION);
+	return syscall( MVAPI_GET_VERSION );
+}
+
+qboolean trap_MVAPI_ControlFixes( mvfix_t fixes )
+{
+	return syscall( MVAPI_CONTROL_FIXES, fixes );
 }

@@ -18,6 +18,9 @@ typedef struct {
 gentity_t		g_entities[MAX_GENTITIES];
 gclient_t		g_clients[MAX_CLIENTS];
 
+mvsharedEntity_t	mv_entities[MAX_GENTITIES];
+mvclientSession_t	mv_clientSessions[MAX_CLIENTS];
+
 qboolean gDuelExit = qfalse;
 
 vmCvar_t	g_trueJedi;
@@ -123,6 +126,14 @@ vmCvar_t	g_saberDebugPrint;
 vmCvar_t	g_austrian;
 
 vmCvar_t	mv_gameplay;
+
+vmCvar_t	mv_fixgalaking;
+vmCvar_t	mv_fixbrokenmodels;
+vmCvar_t	mv_blockchargejump;
+vmCvar_t	mv_blockspeedhack;
+vmCvar_t	mv_fixturretcrash;
+vmCvar_t	mv_connectionlimit;
+vmCvar_t	mv_connectinglimit;
 
 int gDuelist1 = -1;
 int gDuelist2 = -1;
@@ -271,6 +282,14 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_austrian, "g_austrian", "0", CVAR_ARCHIVE, 0, qfalse  },
 
 	{ &mv_gameplay, "mv_gameplay", "4", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse }, // For simple communication with the server only. Changed by the "gameplay" command.
+
+	{ &mv_fixgalaking, "mv_fixgalaking", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &mv_fixbrokenmodels, "mv_fixbrokenmodels", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &mv_blockchargejump, "mv_blockchargejump", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &mv_blockspeedhack, "mv_blockspeedhack", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &mv_fixturretcrash, "mv_fixturretcrash", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &mv_connectinglimit, "mv_connectinglimit", "3", CVAR_ARCHIVE, 0, qfalse },
+	{ &mv_connectionlimit, "mv_connectionlimit", "0", CVAR_ARCHIVE, 0, qfalse },
 };
 
 // bk001129 - made static to avoid aliasing
@@ -293,6 +312,11 @@ This must be the very first function compiled into the .q3vm file
 ================
 */
 qboolean mvapi = qfalse;
+
+int Init_levelTime;
+int Init_randomSeed;
+int Init_restart;
+
 int JK2_vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  );
 LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  )
 { // Wrapper for vmMain, to apply version-specifc adjustments at the beginning and the end of every VM_Call without compleltly changing the vmMain function.
@@ -308,8 +332,20 @@ int requestedMvApi = 0;
 	switch ( command ) {
 	case GAME_INIT:
 		requestedMvApi = MVAPI_Init(arg11);
-		G_InitGame( arg0, arg1, arg2 );
+		if ( !requestedMvApi )
+		{ // Only call G_InitGame if we haven't got access to the MVAPI. If we can use the MVAPI we delay the Init until the "MVAPI_AFTER_INIT" command is sent. That allows us use the MVAPI in the actual init.
+			G_InitGame( arg0, arg1, arg2 );
+		}
+		else
+		{ // Store the values that were meant for G_InitGame to use them later, when MVAPIR_AFTER_INIT is called.
+			Init_levelTime = arg0;
+			Init_randomSeed = arg1;
+			Init_restart = arg2;
+		}
 		return requestedMvApi;
+	case MVAPI_AFTER_INIT:
+		MVAPI_AfterInit();
+		return 0;
 	case GAME_SHUTDOWN:
 		G_ShutdownGame( arg0 );
 		return 0;
@@ -391,7 +427,11 @@ int MVAPI_Init(int apilevel)
 
 void MVAPI_AfterInit(void)
 {
-	// Nothing to do in Game at the moment.
+	// Call G_InitGame now, because we delayed it earilier
+	G_InitGame( Init_levelTime, Init_randomSeed, Init_restart );
+
+	// Disable those JK2MV Engine fixes we can take care of in the VM
+	trap_MVAPI_ControlFixes( MVFIX_NAMECRASH | MVFIX_FORCECRASH | MVFIX_GALAKING | MVFIX_BROKENMODEL | MVFIX_TURRETCRASH | MVFIX_CHARGEJUMP | MVFIX_SPEEDHACK );
 }
 
 /*
@@ -599,18 +639,18 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 			}
 			else if ( mvapi )
 			{ // Uuuh. This should not happen, as jk2mv > 1.1 sets its "version" cvar according to the original jk2mp's version-string and still uses the mv_serverversion cvar like the old versions did...
-				switch ( trap_MV_GetCurrentGameversion() )
+				switch ( trap_MVAPI_GetCurrentGameversion() )
 				{
 					case VERSION_1_02:
-						jk2version = trap_MV_GetCurrentGameversion();
+						jk2version = trap_MVAPI_GetCurrentGameversion();
 						G_Printf ("jk2version [Game]: 1.02 [via API]\n");
 						break;
 					case VERSION_1_03:
-						jk2version = trap_MV_GetCurrentGameversion();
+						jk2version = trap_MVAPI_GetCurrentGameversion();
 						G_Printf ("jk2version [Game]: 1.03 [via API]\n");
 						break;
 					case VERSION_1_04:
-						jk2version = trap_MV_GetCurrentGameversion();
+						jk2version = trap_MVAPI_GetCurrentGameversion();
 						G_Printf ("jk2version [Game]: 1.04 [via API]\n");
 						break;
 					default:
@@ -626,18 +666,18 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		}
 		else if ( mvapi )
 		{ // This shouldn't happen as well, because jk2mv > 1.1 sets its version cvar according to the original jk2mp's version-string, but you never know...
-			switch ( trap_MV_GetCurrentGameversion() )
+			switch ( trap_MVAPI_GetCurrentGameversion() )
 			{
 				case VERSION_1_02:
-					jk2version = trap_MV_GetCurrentGameversion();
+					jk2version = trap_MVAPI_GetCurrentGameversion();
 					G_Printf ("jk2version [Game]: 1.02 [via API]\n");
 					break;
 				case VERSION_1_03:
-					jk2version = trap_MV_GetCurrentGameversion();
+					jk2version = trap_MVAPI_GetCurrentGameversion();
 					G_Printf ("jk2version [Game]: 1.03 [via API]\n");
 					break;
 				case VERSION_1_04:
-					jk2version = trap_MV_GetCurrentGameversion();
+					jk2version = trap_MVAPI_GetCurrentGameversion();
 					G_Printf ("jk2version [Game]: 1.04 [via API]\n");
 					break;
 				default:
@@ -698,6 +738,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	// initialize all entities for this game
 	memset( g_entities, 0, MAX_GENTITIES * sizeof(g_entities[0]) );
 	level.gentities = g_entities;
+	
+	// We can initialise this even without the JK2MV API and use it in the VM, but we can only share it with the engine, if the API is available
+	memset( &mv_entities, 0, sizeof(mv_entities) );
 
 	// initialize all clients for this game
 	level.maxclients = g_maxclients.integer;
@@ -728,6 +771,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
 			&level.clients[0].ps, sizeof( level.clients[0] ) );
 	}
+	
+	// Inform the engine about our mv_entities
+	if ( mvapi ) trap_MVAPI_LocateGameData( mv_entities, level.num_entities, sizeof( mvsharedEntity_t ) );
 
 	// reserve some spots for dead player bodies
 	InitBodyQue();

@@ -457,11 +457,33 @@ gentity_t *G_Spawn( void ) {
 			break;
 		}
 	}
-	if ( i == ENTITYNUM_MAX_NORMAL ) {
-		for (i = 0; i < MAX_GENTITIES; i++) {
-			G_Printf("%4i: %s\n", i, g_entities[i].classname);
+	if ( i == ENTITYNUM_MAX_NORMAL )
+	{
+		gentity_t *found = NULL;
+		if ( mv_fixturretcrash.integer )
+		{ // TurretCrashFix - One last try!
+			G_Printf("G_Spawn: no free entities, trying to make room by deleting temp entities and missiles\n");
+			for ( i = MAX_CLIENTS; i < MAX_GENTITIES; i++ )
+			{
+				e = &g_entities[i];
+
+				if ( e && (e->s.eType == ET_EVENTS + EV_SABER_BLOCK || ((e->s.weapon == WP_TURRET || mv_fixturretcrash.integer == 2) && e->s.eType == ET_MISSILE)) )
+				{ // Delete all saber blocks and missiles...
+					// mv_fixturretcrash == 1 -> only missiles from the turret will be removed
+					// mv_fixturretcrash == 2 -> any missile will be removed
+					if ( !found ) found = e;
+					G_FreeEntity(e);
+				}
+			}
 		}
-		G_Error( "G_Spawn: no free entities" );
+
+		if ( !found )
+		{
+			for (i = 0; i < MAX_GENTITIES; i++) {
+				G_Printf("%4i: %s\n", i, g_entities[i].classname);
+			}
+			G_Error( "G_Spawn: no free entities" );
+		}
 	}
 	
 	// open up a new slot
@@ -480,6 +502,11 @@ gentity_t *G_Spawn( void ) {
 	{
 		trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
 			&level.clients[0].ps, sizeof( level.clients[0] ) );
+	}
+
+	if ( mvapi )
+	{
+		trap_MVAPI_LocateGameData( mv_entities, level.num_entities, sizeof( mvsharedEntity_t ) );
 	}
 
 	G_InitGentity( e );
@@ -622,6 +649,8 @@ void G_FreeEntity( gentity_t *ed ) {
 	ed->classname = "freed";
 	ed->freetime = level.time;
 	ed->inuse = qfalse;
+	
+	memset( &(mv_entities[ed-g_entities]), 0, sizeof(mv_entities[0]) );
 }
 
 /*

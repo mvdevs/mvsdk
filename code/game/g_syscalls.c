@@ -1001,7 +1001,27 @@ Ghoul2 Insert End
 */
 
 /* JK2MV Syscalls */
-int trap_MV_GetCurrentGameversion()
+int trap_MVAPI_GetCurrentGameversion( void )
 {
-	return syscall(MVAPI_GET_VERSION);
+	return syscall( MVAPI_GET_VERSION );
+}
+
+qboolean trap_MVAPI_ControlFixes( mvfix_t fixes )
+{
+	return syscall( MVAPI_CONTROL_FIXES, fixes );
+}
+
+qboolean trap_MVAPI_LocateGameData( mvsharedEntity_t *mvEnts, int numGEntities, int sizeofmvsharedEntity_t )
+{
+	return syscall( MVAPI_LOCATE_GAME_DATA, mvEnts, numGEntities, sizeofmvsharedEntity_t );
+}
+
+qboolean trap_MVAPI_SendConnectionlessPacket( const mvaddr_t *addr, const char *message )
+{
+	return syscall( MVAPI_SEND_CONNECTIONLESSPACKET, addr, message );
+}
+
+qboolean trap_MVAPI_GetConnectionlessPacket( mvaddr_t *addr, char *buf, unsigned int bufsize )
+{
+	return syscall( MVAPI_GET_CONNECTIONLESSPACKET, addr, buf, bufsize );
 }

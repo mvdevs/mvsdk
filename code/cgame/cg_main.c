@@ -149,13 +149,25 @@ This must be the very first function compiled into the .q3vm file
 ================
 */
 qboolean mvapi = qfalse;
+int Init_serverMessageNum;
+int Init_serverCommandSequence;
+int Init_clientNum;
 LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 	int requestedMvApi = 0;
 
 	switch ( command ) {
 	case CG_INIT:
 		requestedMvApi = MVAPI_Init(arg11);
-		CG_Init( arg0, arg1, arg2 );
+		if ( !requestedMvApi )
+		{ // Only call CG_Init if we haven't got access to the MVAPI. If we can use the MVAPI we delay the Init until the "MVAPI_AFTER_INIT" command is sent. That allows us use the MVAPI in the actual init.
+			CG_Init( arg0, arg1, arg2 );
+		}
+		else
+		{ // Store the values that were meant for CG_Init to use them later, when MVAPIR_AFTER_INIT is called.
+			Init_serverMessageNum = arg0;
+			Init_serverCommandSequence = arg1;
+			Init_clientNum = arg2;
+		}
 		return requestedMvApi;
 	case MVAPI_AFTER_INIT:
 		MVAPI_AfterInit();
@@ -282,7 +294,11 @@ int MVAPI_Init(int apilevel)
 
 void MVAPI_AfterInit(void)
 {
-	// Nothing to do in CGame at the moment.
+	// Call CG_Init now, because we delayed it earilier
+	CG_Init( Init_serverMessageNum, Init_serverCommandSequence, Init_clientNum );
+
+	// Disable those JK2MV Engine fixes we can take care of in the VM
+	trap_MVAPI_ControlFixes( MVFIX_WPGLOWING );
 }
 
 static int C_PointContents(void)
@@ -2409,7 +2425,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	jk2version = VERSION_UNDEF; // Should be set already, but let's just make sure!
 	if ( mvapi )
 	{ // JK2MV >= 1.1
-		switch ( trap_MV_GetCurrentGameversion() )
+		switch ( trap_MVAPI_GetCurrentGameversion() )
 		{
 			case VERSION_1_02:
 				jk2version = VERSION_1_02;

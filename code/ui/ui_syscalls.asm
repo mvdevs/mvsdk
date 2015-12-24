@@ -179,4 +179,5 @@ equ asin									-115	; UI_ASIN
 
 
 ; JK2MV Syscalls
-equ trap_MV_GetCurrentGameversion				-705    ;MVAPI_GET_VERSION
+equ trap_MVAPI_GetCurrentGameversion		-705    ;MVAPI_GET_VERSION
+equ trap_MVAPI_ControlFixes					-704	;MVAPI_CONTROL_FIXES
