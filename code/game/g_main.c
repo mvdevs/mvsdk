@@ -311,7 +311,8 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-qboolean mvapi = qfalse;
+int mvapi = 0;
+qboolean mvStructConversionDisabled = qfalse;
 
 int Init_levelTime;
 int Init_randomSeed;
@@ -321,10 +322,21 @@ int JK2_vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, i
 LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  )
 { // Wrapper for vmMain, to apply version-specifc adjustments at the beginning and the end of every VM_Call without compleltly changing the vmMain function.
 	int retValue;
-	
-	MV_VersionMagic( qfalse );
+	static int activeVMCalls = 0;
+
+#ifndef MV_SYSCALL_WRAPPER
+	if ( !activeVMCalls ) // If we're not using the wrapper functions it can happen that a syscalls triggers a VM_Call and we would try to convert data that has been converted already. So we need to keep track of this...
+#endif
+		MV_VersionMagic( qfalse );
+	activeVMCalls++;
+
 	retValue = JK2_vmMain( command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11 );
-	MV_VersionMagic( qtrue );
+
+	activeVMCalls--;
+#ifndef MV_SYSCALL_WRAPPER
+	if ( !activeVMCalls ) 
+#endif
+		MV_VersionMagic( qtrue );
 	return retValue;
 }
 int JK2_vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
@@ -403,6 +415,7 @@ void QDECL G_Error( const char *fmt, ... ) {
 	trap_Error( text );
 }
 
+#define MV_MIN_APILEVEL 1
 int MVAPI_Init(int apilevel)
 {
 	if (!trap_Cvar_VariableIntegerValue("mv_apienabled"))
@@ -412,14 +425,20 @@ int MVAPI_Init(int apilevel)
 		return 0;
 	}
 
-	if (apilevel < MV_APILEVEL)
+	if (apilevel < MV_MIN_APILEVEL)
 	{
-		G_Printf("MVAPI level %i not supported.\n", MV_APILEVEL);
+		G_Printf("MVAPI level %i not supported.\n", MV_MIN_APILEVEL);
 		G_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
 		return 0;
 	}
 
-	mvapi = qtrue;
+	if (apilevel < MV_APILEVEL)
+	{
+		G_Printf("MVAPI level %i not supported (using level %i instead).\n", MV_APILEVEL, apilevel);
+		G_Printf("You need at least JK2MV " MV_MIN_VERSION " to enable all API features.\n");
+	}
+
+	mvapi = apilevel;
 
 	G_Printf("Using MVAPI level %i (%i supported).\n", MV_APILEVEL, apilevel);
 	return MV_APILEVEL;
@@ -427,6 +446,12 @@ int MVAPI_Init(int apilevel)
 
 void MVAPI_AfterInit(void)
 {
+	if ( mvapi >= 2 )
+	{ // If the mvapi supports it tell the engine that we are using the post 1.02 structs internally and don't waste any time converting structs
+		mvStructConversionDisabled = qtrue;
+		trap_MVAPI_DisableStructConversion( mvStructConversionDisabled );
+	}
+
 	// Call G_InitGame now, because we delayed it earilier
 	G_InitGame( Init_levelTime, Init_randomSeed, Init_restart );
 
@@ -758,7 +783,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.num_entities = MAX_CLIENTS;
 
 	// let the server system know where the entites are
-	if ( jk2version == VERSION_1_02 )
+	if ( jk2version == VERSION_1_02 && !mvStructConversionDisabled )
 	{ // 1.02
 		// initialize all clients for this game
 		memset( g_ps, 0, MAX_CLIENTS * sizeof(g_ps[0]) );

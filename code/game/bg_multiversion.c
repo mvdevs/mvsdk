@@ -134,45 +134,6 @@ void MV_BuildAnimationMappingTable( void )
 #endif // #ifdef MV_GENERATE_ANIMATION_MAPPING_TABLE
 }
 
-int MV_VersionMagic_g2ModelParts( int limbType )
-{
-	if ( jk2version != VERSION_1_02 )
-		return limbType;
-	else if ( limbType >= G2_MODELPART_RHAND ) // 1.02 didn't have a G2_MODELPART_RHAND, this turns G2_MODELPART_RHAND into G2_MODELPART_RARM
-#ifdef JK2_GAME
-		return limbType-1;
-#elif JK2_CGAME // #ifdef JK2_GAME
-		return limbType+1; // This is actually '+', on the serverside we do '-'!
-#endif // #elif JK2_CGAME
-	else return limbType;
-}
-
-void MV_MapAnimation( int *anim, qboolean revert )
-{
-	if ( !revert )
-	{ // 1.02 to 1.04
-		if ( *anim >= ANIM_TOGGLEBIT ) *anim = ( ( animMappingTable_1_02_to_1_04[*anim&~ANIM_TOGGLEBIT] & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | animMappingTable_1_02_to_1_04[*anim&~ANIM_TOGGLEBIT];
-		else						   *anim = animMappingTable_1_02_to_1_04[*anim];
-	}
-	else
-	{ // 1.04 to 1.02
-		if ( *anim >= ANIM_TOGGLEBIT ) *anim = ( ( animMappingTable_1_02_to_1_04[*anim&~ANIM_TOGGLEBIT] & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | animMappingTable_1_04_to_1_02[*anim&~ANIM_TOGGLEBIT];
-		else						   *anim = animMappingTable_1_04_to_1_02[*anim];
-	}
-}
-
-void MV_MapSaberBlocked( int *blocked, qboolean revert )
-{
-	if ( !revert )
-	{ // 1.02 to 1.04
-		if ( *blocked > BLOCKED_NONE ) (*blocked)++;
-	}
-	else
-	{ // 1.04 to 1.02
-		if ( *blocked > BLOCKED_NONE ) (*blocked)--;
-	}
-}
-
 extern int forcePowerNeeded_1_02[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS];
 extern int forcePowerNeeded_1_04[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS];
 extern int (*forcePowerNeeded)[NUM_FORCE_POWERS];

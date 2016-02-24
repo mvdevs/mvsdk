@@ -1286,10 +1286,12 @@ int			trap_ROFF_Cache( char *file );
 qboolean	trap_ROFF_Play( int entID, int roffID, qboolean doTranslation );
 qboolean	trap_ROFF_Purge_Ent( int entID );
 
+#include "g_multiversion_syscalls.h"
 
 #define SABER_BOX_SIZE /*16.0f*/(jk2gameplay == VERSION_1_02 ? 8.0f : 16.0f) //JK2MV: Moved from w_saber.c
 
-extern qboolean mvapi;
+extern int mvapi;
+extern qboolean mvStructConversionDisabled;
 
 // JK2MV API Functions
 int MVAPI_Init( int apilevel );
@@ -1301,6 +1303,7 @@ qboolean trap_MVAPI_ControlFixes( mvfix_t fixes );
 qboolean trap_MVAPI_LocateGameData( mvsharedEntity_t *mvEnts, int numGEntities, int sizeofmvsharedEntity_t );
 qboolean trap_MVAPI_SendConnectionlessPacket( const mvaddr_t *addr, const char *message );
 qboolean trap_MVAPI_GetConnectionlessPacket( mvaddr_t *addr, char *buf, unsigned int bufsize );
+qboolean trap_MVAPI_DisableStructConversion( qboolean disable );
 
 #include "../api/mvapi.h"
 #include "g_multiversion.h"

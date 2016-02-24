@@ -490,7 +490,7 @@ gentity_t *G_Spawn( void ) {
 	level.num_entities++;
 
 	// let the server system know that there are more entities
-	if ( jk2version == VERSION_1_02 )
+	if ( jk2version == VERSION_1_02 && !mvStructConversionDisabled )
 	{ // 1.02
 		// initialize all clients for this game
 		memset( g_ps, 0, MAX_CLIENTS * sizeof(g_ps[0]) );

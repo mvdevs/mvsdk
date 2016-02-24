@@ -130,32 +130,32 @@ void MV_VersionMagic( qboolean revert )
 			ent = &g_entities[i];
 			if ( !ent || !ent->client || !ent->inuse ) continue;
 
-			if ( !revert )
+			if ( !revert && !mvStructConversionDisabled )
 			{ // 1.02 to 1.04
 				/* Convert the 1.02 struct from the engine into a 1.04 struct we can handle internally */
 				memcpy( &(g_clients[i].ps), &(g_ps[i]), (((size_t)&(g_clients[i].ps.forceRestricted)) - (size_t)&(g_clients[i].ps)));
-				memset( &(g_clients[i].ps.forceRestricted), 0, ((size_t)&(g_clients[i].ps.saberIndex) - (size_t)&(g_clients[i].ps.forceRestricted)) );
+				// memset( &(g_clients[i].ps.forceRestricted), 0, ((size_t)&(g_clients[i].ps.saberIndex) - (size_t)&(g_clients[i].ps.forceRestricted)) ); // We don't need this, as the engine only got the 1.02 struct. By not doing this we can these internally...
 				memcpy( &(g_clients[i].ps.saberIndex), &(g_ps[i].saberIndex), ((size_t)&(&(g_clients[i].ps))[1] - (size_t)&(g_clients[i].ps.saberIndex)) );
 			}
 			
 			/* Convert the animations */
 			/* NOTE: When converting from 1.02 to 1.04 we have to convert the playerState struct BEFORE the animations. When converting from 1.04 to 1.02 we have to convert the playerState struct AFTER the animations. */
-			MV_MapAnimation( &g_clients[i].ps.legsAnim, revert );
-			MV_MapAnimation( &g_clients[i].ps.legsAnimExecute, revert );
-			MV_MapAnimation( &g_clients[i].ps.torsoAnim, revert );
-			MV_MapAnimation( &g_clients[i].ps.torsoAnimExecute, revert );
+			MV_MapAnimation( g_clients[i].ps.legsAnim, revert );
+			MV_MapAnimation( g_clients[i].ps.legsAnimExecute, revert );
+			MV_MapAnimation( g_clients[i].ps.torsoAnim, revert );
+			MV_MapAnimation( g_clients[i].ps.torsoAnimExecute, revert );
 
 			/* Only convert forceDodgeAnim if it really is an animation (forceHandExtend being either HANDEXTEND_TAUNT or HANDEXTEND_DODGE) */
-			if ( g_clients[i].ps.forceHandExtend == HANDEXTEND_TAUNT || g_clients[i].ps.forceHandExtend == HANDEXTEND_DODGE ) MV_MapAnimation( &g_clients[i].ps.forceDodgeAnim, revert );
+			if ( g_clients[i].ps.forceHandExtend == HANDEXTEND_TAUNT || g_clients[i].ps.forceHandExtend == HANDEXTEND_DODGE ) MV_MapAnimation( g_clients[i].ps.forceDodgeAnim, revert );
 
 			/* The following two seem to be unused, but maybe custom cgames make use of them (well, fullAnimExecute seems to not even be set at least once - could probably just leave that one out) */
-			MV_MapAnimation( &g_clients[i].ps.fullAnimExecute, revert );
-			MV_MapAnimation( &g_clients[i].ps.saberAttackSequence, revert );
+			MV_MapAnimation( g_clients[i].ps.fullAnimExecute, revert );
+			MV_MapAnimation( g_clients[i].ps.saberAttackSequence, revert );
 
 			/* Convert the saberblocks */
-			MV_MapSaberBlocked( &g_clients[i].ps.saberBlocked, revert );
+			MV_MapSaberBlocked( g_clients[i].ps.saberBlocked, revert );
 
-			if ( revert )
+			if ( revert && !mvStructConversionDisabled )
 			{ // 1.04 to 1.02
 				/* Convert the 1.04 struct into a 1.02 struct so the engine can handle it */
 				memcpy( &(g_ps[i]), &(g_clients[i].ps), (((size_t)&(g_ps[i].saberIndex)) - (size_t)&(g_ps[i])));
@@ -169,8 +169,8 @@ void MV_VersionMagic( qboolean revert )
 			ent = &g_entities[i];
 			if ( !ent || !ent->inuse ) continue;
 
-			MV_MapAnimation( &g_entities[i].s.torsoAnim, revert );
-			MV_MapAnimation( &g_entities[i].s.legsAnim, revert );
+			MV_MapAnimation( g_entities[i].s.torsoAnim, revert );
+			MV_MapAnimation( g_entities[i].s.legsAnim, revert );
 		}
 	}
 	else

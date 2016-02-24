@@ -244,6 +244,7 @@ equ acos												-115	; G_ACOS
 equ asin												-116	; G_ASIN 
 
 ; JK2MV Syscalls
+equ trap_MVAPI_DisableStructConversion					-706	;MVAPI_DISABLE_STRUCT_CONVERSION
 equ trap_MVAPI_GetCurrentGameversion					-705    ;MVAPI_GET_VERSION
 equ trap_MVAPI_ControlFixes								-704	;MVAPI_CONTROL_FIXES
 equ trap_MVAPI_LocateGameData							-703	;MVAPI_LOCATE_GAME_DATA

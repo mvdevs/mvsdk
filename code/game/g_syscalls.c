@@ -1025,3 +1025,8 @@ qboolean trap_MVAPI_GetConnectionlessPacket( mvaddr_t *addr, char *buf, unsigned
 {
 	return syscall( MVAPI_GET_CONNECTIONLESSPACKET, addr, buf, bufsize );
 }
+
+qboolean trap_MVAPI_DisableStructConversion( qboolean disable )
+{
+	return syscall( MVAPI_DISABLE_STRUCT_CONVERSION, disable );
+}

@@ -10,6 +10,7 @@ but given that they're different depending on whether we build qvms or native li
 #include "g_local.h"
 #include "g_multiversion_syscalls.h"
 
+#ifdef MV_SYSCALL_WRAPPER
 void trap_Printf( const char *fmt )
 {
 	MV_VersionMagic( qtrue );
@@ -1833,3 +1834,4 @@ void trap_G2API_CleanGhoul2Models_1_02(void **ghoul2Ptr)
 /*
 Ghoul2 Insert End
 */
+#endif

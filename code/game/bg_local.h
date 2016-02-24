@@ -61,6 +61,19 @@ void	trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void	trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void	trap_FS_FCloseFile( fileHandle_t f );
 
+#ifdef JK2_GAME
+#ifndef MV_SYSCALL_WRAPPER
+int		trap_FS_FOpenFile_real( const char *qpath, fileHandle_t *f, fsMode_t mode );
+void	trap_FS_Read_real( void *buffer, int len, fileHandle_t f );
+void	trap_FS_Write_real( const void *buffer, int len, fileHandle_t f );
+void	trap_FS_FCloseFile_real( fileHandle_t f );
+#define trap_FS_FOpenFile trap_FS_FOpenFile_real
+#define trap_FS_Read trap_FS_Read_real
+#define trap_FS_Write trap_FS_Write_real
+#define trap_FS_FCloseFile trap_FS_FCloseFile_real
+#endif
+#endif
+
 //PM anim utility functions:
 qboolean PM_SaberInParry( int move );
 qboolean PM_SaberInKnockaway( int move );

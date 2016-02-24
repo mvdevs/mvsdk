@@ -41,8 +41,8 @@ static void CG_TransitionEntity( centity_t *cent ) {
 
 	if ( jk2version == VERSION_1_02 )
 	{ // JK2MV: Version Magic!
-		MV_MapAnimation( &cent->currentState.torsoAnim, qfalse );
-		MV_MapAnimation( &cent->currentState.legsAnim, qfalse );
+		MV_MapAnimation( cent->currentState.torsoAnim, qfalse );
+		MV_MapAnimation( cent->currentState.legsAnim, qfalse );
 	}
 
 	// reset if the entity wasn't in the last frame or was teleported
@@ -103,8 +103,8 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 
 		if ( jk2version == VERSION_1_02 )
 		{ // JK2MV: Version Magic!
-			MV_MapAnimation( &cent->currentState.torsoAnim, qfalse );
-			MV_MapAnimation( &cent->currentState.legsAnim, qfalse );
+			MV_MapAnimation( cent->currentState.torsoAnim, qfalse );
+			MV_MapAnimation( cent->currentState.legsAnim, qfalse );
 		}
 
 		CG_ResetEntity( cent );
@@ -305,20 +305,20 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 				memcpy( &dest->numEntities, &(activeSnapshot_1_02.numEntities), ((size_t)&(dest)[1] - (size_t)&(dest->numEntities)) ); // Copy everything after ps
 
 				/* Convert the animations */
-				MV_MapAnimation( &dest->ps.legsAnim, qfalse );
-				MV_MapAnimation( &dest->ps.legsAnimExecute, qfalse );
-				MV_MapAnimation( &dest->ps.torsoAnim, qfalse );
-				MV_MapAnimation( &dest->ps.torsoAnimExecute, qfalse );
+				MV_MapAnimation( dest->ps.legsAnim, qfalse );
+				MV_MapAnimation( dest->ps.legsAnimExecute, qfalse );
+				MV_MapAnimation( dest->ps.torsoAnim, qfalse );
+				MV_MapAnimation( dest->ps.torsoAnimExecute, qfalse );
 
 				/* Only convert forceDodgeAnim if it really is an animation (forceHandExtend being either HANDEXTEND_TAUNT or HANDEXTEND_DODGE) */
-				if ( dest->ps.forceHandExtend == HANDEXTEND_TAUNT || dest->ps.forceHandExtend == HANDEXTEND_DODGE ) MV_MapAnimation( &dest->ps.forceDodgeAnim, qfalse );
+				if ( dest->ps.forceHandExtend == HANDEXTEND_TAUNT || dest->ps.forceHandExtend == HANDEXTEND_DODGE ) MV_MapAnimation( dest->ps.forceDodgeAnim, qfalse );
 
 				/* The following two seem to be unused, but maybe custom cgames make use of them (well, fullAnimExecute seems to not even be set at least once - could probably just leave that one out) */
-				MV_MapAnimation( &dest->ps.fullAnimExecute, qfalse );
-				MV_MapAnimation( &dest->ps.saberAttackSequence, qfalse );
+				MV_MapAnimation( dest->ps.fullAnimExecute, qfalse );
+				MV_MapAnimation( dest->ps.saberAttackSequence, qfalse );
 
 				/* Convert the saberblocks */
-				MV_MapSaberBlocked( &dest->ps.saberBlocked, qfalse );
+				MV_MapSaberBlocked( dest->ps.saberBlocked, qfalse );
 			}
 			CG_AddLagometerSnapshotInfo( dest );
 			return dest;
