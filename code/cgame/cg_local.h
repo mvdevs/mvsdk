@@ -2252,7 +2252,7 @@ extern void *g2WeaponInstances[MAX_WEAPONS];
 Ghoul2 Insert End
 */
 
-extern qboolean mvapi;
+extern int mvapi;
 
 // JK2MV API Functions
 int MVAPI_Init( int apilevel );

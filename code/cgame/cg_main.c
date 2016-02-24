@@ -148,7 +148,7 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-qboolean mvapi = qfalse;
+int mvapi = 0;
 int Init_serverMessageNum;
 int Init_serverCommandSequence;
 int Init_clientNum;
@@ -267,6 +267,8 @@ LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int a
 	return -1;
 }
 
+#define CGAME_MV_MIN_APILEVEL 1
+#define CGAME_MV_MIN_VERSION "1.1"
 int MVAPI_Init(int apilevel)
 {
 	char mv_apiEnabledBuffer[80];
@@ -274,22 +276,29 @@ int MVAPI_Init(int apilevel)
 
 	if (!atoi(mv_apiEnabledBuffer))
 	{
-		CG_Printf("MVAPI is not supported at all or has been disabled.\n");
-		CG_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
+		CG_Printf("CGame: MVAPI is not supported at all or has been disabled.\n");
+		CG_Printf("CGame: You need at least JK2MV " CGAME_MV_MIN_VERSION ".\n");
+		return 0;
+	}
+
+	if (apilevel < CGAME_MV_MIN_APILEVEL)
+	{
+		CG_Printf("CGame: MVAPI level %i not supported.\n", CGAME_MV_MIN_APILEVEL);
+		CG_Printf("CGame: You need at least JK2MV " CGAME_MV_MIN_VERSION ".\n");
 		return 0;
 	}
 
 	if (apilevel < MV_APILEVEL)
 	{
-		CG_Printf("MVAPI level %i not supported.\n", MV_APILEVEL);
-		CG_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
-		return 0;
+		CG_Printf("CGame: MVAPI level %i not supported (using level %i instead).\n", MV_APILEVEL, apilevel);
+		CG_Printf("CGame: You need at least JK2MV " MV_MIN_VERSION " to enable all API features.\n");
 	}
 
-	mvapi = qtrue;
+	mvapi = apilevel;
+	if ( mvapi > MV_APILEVEL ) mvapi = MV_APILEVEL;
 
-	CG_Printf("Using MVAPI level %i (%i supported).\n", MV_APILEVEL, apilevel);
-	return MV_APILEVEL;
+	CG_Printf("CGame: Using MVAPI level %i (%i supported).\n", mvapi, apilevel);
+	return mvapi;
 }
 
 void MVAPI_AfterInit(void)

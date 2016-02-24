@@ -415,33 +415,35 @@ void QDECL G_Error( const char *fmt, ... ) {
 	trap_Error( text );
 }
 
-#define MV_MIN_APILEVEL 1
+#define GAME_MV_MIN_APILEVEL 1
+#define GAME_MV_MIN_VERSION "1.1"
 int MVAPI_Init(int apilevel)
 {
 	if (!trap_Cvar_VariableIntegerValue("mv_apienabled"))
 	{
-		G_Printf("MVAPI is not supported at all or has been disabled.\n");
-		G_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
+		G_Printf("Game: MVAPI is not supported at all or has been disabled.\n");
+		G_Printf("Game: You need at least JK2MV " GAME_MV_MIN_VERSION ".\n");
 		return 0;
 	}
 
-	if (apilevel < MV_MIN_APILEVEL)
+	if (apilevel < GAME_MV_MIN_APILEVEL)
 	{
-		G_Printf("MVAPI level %i not supported.\n", MV_MIN_APILEVEL);
-		G_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
+		G_Printf("Game: MVAPI level %i not supported.\n", GAME_MV_MIN_APILEVEL);
+		G_Printf("Game: You need at least JK2MV " GAME_MV_MIN_VERSION ".\n");
 		return 0;
 	}
 
 	if (apilevel < MV_APILEVEL)
 	{
-		G_Printf("MVAPI level %i not supported (using level %i instead).\n", MV_APILEVEL, apilevel);
-		G_Printf("You need at least JK2MV " MV_MIN_VERSION " to enable all API features.\n");
+		G_Printf("Game: MVAPI level %i not supported (using level %i instead).\n", MV_APILEVEL, apilevel);
+		G_Printf("Game: You need at least JK2MV " MV_MIN_VERSION " to enable all API features.\n");
 	}
 
 	mvapi = apilevel;
+	if ( mvapi > MV_APILEVEL ) mvapi = MV_APILEVEL;
 
-	G_Printf("Using MVAPI level %i (%i supported).\n", MV_APILEVEL, apilevel);
-	return MV_APILEVEL;
+	G_Printf("Game: Using MVAPI level %i (%i supported).\n", mvapi, apilevel);
+	return mvapi;
 }
 
 void MVAPI_AfterInit(void)

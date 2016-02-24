@@ -26,7 +26,7 @@ This is the only way control passes into the module.
 */
 vmCvar_t  ui_debug;
 vmCvar_t  ui_initialized;
-qboolean mvapi = qfalse;
+int mvapi = 0;
 int Init_inGameLoad;
 
 void _UI_Init( qboolean );
@@ -95,26 +95,35 @@ LIBEXPORT int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int a
 	return -1;
 }
 
+#define UI_MV_MIN_APILEVEL 1
+#define UI_MV_MIN_VERSION "1.1"
 int MVAPI_Init(int apilevel)
 {
 	if (!trap_Cvar_VariableValue("mv_apienabled"))
 	{
-		Com_Printf("MVAPI is not supported at all or has been disabled.\n");
-		Com_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
+		Com_Printf("UI: MVAPI is not supported at all or has been disabled.\n");
+		Com_Printf("UI: You need at least JK2MV " UI_MV_MIN_VERSION ".\n");
+		return 0;
+	}
+
+	if (apilevel < UI_MV_MIN_APILEVEL)
+	{
+		Com_Printf("UI: MVAPI level %i not supported.\n", UI_MV_MIN_APILEVEL);
+		Com_Printf("UI: You need at least JK2MV " UI_MV_MIN_VERSION ".\n");
 		return 0;
 	}
 
 	if (apilevel < MV_APILEVEL)
 	{
-		Com_Printf("MVAPI level %i not supported.\n", MV_APILEVEL);
-		Com_Printf("You need at least JK2MV " MV_MIN_VERSION ".\n");
-		return 0;
+		Com_Printf("UI: MVAPI level %i not supported (using level %i instead).\n", MV_APILEVEL, apilevel);
+		Com_Printf("UI: You need at least JK2MV " MV_MIN_VERSION " to enable all API features.\n");
 	}
 
-	mvapi = qtrue;
+	mvapi = apilevel;
+	if ( mvapi > MV_APILEVEL ) mvapi = MV_APILEVEL;
 
-	Com_Printf("Using MVAPI level %i (%i supported).\n", MV_APILEVEL, apilevel);
-	return MV_APILEVEL;
+	Com_Printf("UI: Using MVAPI level %i (%i supported).\n", mvapi, apilevel);
+	return mvapi;
 }
 
 void MVAPI_AfterInit(void)

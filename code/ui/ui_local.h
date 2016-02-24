@@ -1159,7 +1159,7 @@ typedef struct postGameInfo_s {
 
 #endif
 
-extern qboolean mvapi;
+extern int mvapi;
 
 // JK2MV API Functions
 int MVAPI_Init( int apilevel );
