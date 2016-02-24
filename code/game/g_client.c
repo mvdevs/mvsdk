@@ -1230,13 +1230,12 @@ void ClientUserinfoChanged( int clientNum ) {
 	}
 	
 	// GalakingFix
-	Q_CleanStr( model );
-	if ( mv_fixgalaking.integer && !Q_stricmpn(model, "galak_mech", strlen("galak_mech")) )
+	if ( mv_fixgalaking.integer && (!Q_stricmp(model, "galak_mech") || !Q_stricmpn(model, "galak_mech/", strlen("galak_mech/"))) )
 	{
 		Q_strncpyz( model, "galak/default", sizeof(model) );
 	}
 	
-	if ( mv_fixbrokenmodels.integer && (!Q_stricmpn(model, "kyle/fpls", strlen("kyle/fpls")) || (!Q_stricmpn(model, "morgan", strlen("morgan")) && (!Q_stricmp(model, "morgan/default_mp") && !Q_stricmp(model, "morgan/red") && !Q_stricmp(model, "morgan/blue")))) )
+	if ( mv_fixbrokenmodels.integer && (!Q_stricmpn(model, "kyle/fpls", strlen("kyle/fpls")) || !Q_stricmp(model, "morgan") || (!Q_stricmpn(model, "morgan/", strlen("morgan/")) && (Q_stricmp(model, "morgan/default_mp") && Q_stricmp(model, "morgan/red") && Q_stricmp(model, "morgan/blue")))) )
 	{
 		Q_strncpyz( model, "kyle/default", sizeof(model) );
 	}
