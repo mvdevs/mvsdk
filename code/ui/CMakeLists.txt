@@ -3,40 +3,54 @@ if(NOT InMV)
 	message(FATAL_ERROR "Use the top-level cmake script!")
 endif(NOT InMV)
 
-set(MVUIFILES
+set(MVUIHEADERS
+	"${SRCDir}/api/mvapi.h"
+
 	"${SRCDir}/ui/keycodes.h"
 	"${SRCDir}/ui/ui_force.h"
 	"${SRCDir}/ui/ui_local.h"
 	"${SRCDir}/ui/ui_public.h"
 	"${SRCDir}/ui/ui_shared.h"
+	"${SRCDir}/ui/ui_multiversion.h"
+	"${SRCDir}/ui/ui_multiversion_syscalls.h"
+	
 	"${SRCDir}/game/bg_weapons.h"
 	"${SRCDir}/game/q_shared.h"
+	"${SRCDir}/game/bg_multiversion.h"
+)
 
+set(MVUISOURCES
+	"${SRCDir}/ui/ui_main.c" # keep this on top (qvm compiler needs VM_Main as the first compiled function)
 	"${SRCDir}/ui/ui_atoms.c"
 	"${SRCDir}/ui/ui_force.c"
 	"${SRCDir}/ui/ui_gameinfo.c"
-	"${SRCDir}/ui/ui_main.c"
 	"${SRCDir}/ui/ui_shared.c"
-	"${SRCDir}/ui/ui_syscalls.c"
-	
+	"${SRCDir}/ui/ui_multiversion.c"
+
 	"${SRCDir}/game/bg_misc.c"
 	"${SRCDir}/game/bg_weapons.c"
 	"${SRCDir}/game/q_math.c"
 	"${SRCDir}/game/q_shared.c"
-	
-#	"${SRCDir}/ui/ui.def"
-
-	"${SRCDir}/api/mvapi.h"
-
-	"${SRCDir}/ui/ui_multiversion.c"
-	"${SRCDir}/ui/ui_multiversion.h"
-
 	"${SRCDir}/ui/ui_multiversion_syscalls.c"
-	"${SRCDir}/ui/ui_multiversion_syscalls.h"
-	
 	"${SRCDir}/game/bg_multiversion.c"
-	"${SRCDir}/game/bg_multiversion.h"
 )
+
+set(MVUIASM
+	"${SRCDir}/ui/ui_syscalls.asm"
+	PARENT_SCOPE
+)
+
+set(MVUIFILES
+	${MVUIHEADERS}
+	${MVUISOURCES}
+	"${SRCDir}/ui/ui_syscalls.c"
+)
+
+set(MVUIVMSOURCES ${MVUISOURCES}
+	"${SRCDir}/game/bg_lib.c"
+	PARENT_SCOPE
+)
+
 add_library(${MVUI} SHARED ${MVUIFILES})
 
 # Defines

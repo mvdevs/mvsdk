@@ -193,4 +193,14 @@ endif()
 # set(MVGLOBALIncludeDirs ${MVGLOBALIncludeDirs} ${CMAKE_BINARY_DIR})
 # configure_file("${SRCDir}/mv_setup.h.in" "${CMAKE_BINARY_DIR}/mv_setup.h" @ONLY)
 
+set(QVMDir "${CMAKE_BINARY_DIR}/out/qvm")
+
+# Binary names
+set(LCC "q3lcc")
+set(CPP "q3cpp")
+set(RCC "q3rcc")
+set(ASM "q3asm")
+
+add_subdirectory("tools")
+
 add_subdirectory(${SRCDir})
