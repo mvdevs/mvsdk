@@ -61,7 +61,10 @@ if(NOT WIN32)
 	set_target_properties(${MVUI} PROPERTIES PREFIX "") # remove "lib" prefix for .so/.dylib files
 endif()
 
-set_target_properties(${MVUI} PROPERTIES COMPILE_DEFINITIONS_RELEASE "${GlobalDefines};${MVUIDefines};${ReleaseDefines}")
-set_target_properties(${MVUI} PROPERTIES COMPILE_DEFINITIONS_DEBUG "${GlobalDefines};${MVUIDefines};${DebugDefines}")
+set_property(TARGET ${MVUI} APPEND PROPERTY COMPILE_DEFINITIONS
+  $<$<CONFIG:Debug>:${GlobalDefines} ${MVUIDefines} ${DebugDefines}>
+  $<$<CONFIG:Release>:${GlobalDefines} ${MVUIDefines} ${ReleaseDefines}>
+)
+
 set_target_properties(${MVUI} PROPERTIES INCLUDE_DIRECTORIES "${MVUIIncludeDirs}")
 set_target_properties(${MVUI} PROPERTIES PROJECT_LABEL "JK2MV - UI Module")

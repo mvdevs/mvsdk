@@ -116,7 +116,10 @@ if(NOT WIN32)
 	set_target_properties(${MVGAME} PROPERTIES PREFIX "") # remove "lib" prefix for .so/.dylib files
 endif()
 
-set_target_properties(${MVGAME} PROPERTIES COMPILE_DEFINITIONS_RELEASE "${GlobalDefines};${MVGAMEDefines};${ReleaseDefines}")
-set_target_properties(${MVGAME} PROPERTIES COMPILE_DEFINITIONS_DEBUG "${GlobalDefines};${MVGAMEDefines};${DebugDefines}")
+set_property(TARGET ${MVGAME} APPEND PROPERTY COMPILE_DEFINITIONS
+  $<$<CONFIG:Debug>:${GlobalDefines} ${MVGAMEDefines} ${DebugDefines}>
+  $<$<CONFIG:Release>:${GlobalDefines} ${MVGAMEDefines} ${ReleaseDefines}>
+)
+
 set_target_properties(${MVGAME} PROPERTIES INCLUDE_DIRECTORIES "${MVGAMEIncludeDirs}")
 set_target_properties(${MVGAME} PROPERTIES PROJECT_LABEL "JK2MV - Game Module")

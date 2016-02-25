@@ -8,8 +8,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tools)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tools)
 set(CPACK_PACKAGE_DIRECTORY ${CMAKE_BINARY_DIR}/tools)
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
 add_subdirectory("lcc")
 add_subdirectory("cpp")
 add_subdirectory("rcc")

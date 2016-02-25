@@ -1,21 +1,11 @@
-if(WIN32)
-	cmake_minimum_required(VERSION 3.1.0) # assembler stuff
-else()
-	cmake_minimum_required(VERSION 2.8.8)
-endif()
-
-if(POLICY CMP0043)
-	cmake_policy(SET CMP0043 OLD) # debian wheezy still uses 2.8.9
-endif()
-if(POLICY CMP0042)
-	cmake_policy(SET CMP0042 OLD)
-endif()
+cmake_minimum_required(VERSION 3.0)
 
 # For checks in subdirectories
 set(InMV TRUE)
 
 # Paths
 set(SRCDir "${CMAKE_SOURCE_DIR}/code")
+set(QVMDir "${CMAKE_BINARY_DIR}/out/qvm")
 
 # Custom CMake Modules
 #list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_SOURCE_DIR}/tools")
@@ -31,42 +21,40 @@ set(ProjectURL "https://jk2mv.org")
 #message(STATUS "${ProjectName} Version: ${MV_VERSION}")
 
 # Languages
-if (WIN32)
-	enable_language(C CXX)
-else()
-	enable_language(C CXX)
-endif()
+enable_language(C)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Architecture
 set(CMAKE_OSX_ARCHITECTURES "i386" "x86_64") # always building both on osx
 
-if(CMAKE_SIZEOF_VOID_P MATCHES "8")
-	set(ARCH_BITS 64)
-	if(WIN32)
+if(WIN32)
+	set(X86 ON)
+	if(CMAKE_SIZEOF_VOID_P MATCHES "8")
 		set(Architecture "x64")
 		set(WIN64 TRUE)
-	elseif(APPLE)
-		set(Architecture "universal")
-	else()
-		set(Architecture "amd64")
-	endif()
-
-	if(NOT APPLE)
 		set(GlobalDefines ${GlobalDefines} "_M_X64")
-	endif()
-else()
-	set(ARCH_BITS 32)
-	if(WIN32)
+	else()
 		set(Architecture "x86")
 		set(WIN64 FALSE)
-	elseif(APPLE)
-		set(Architecture "universal")
-	else()
-		set(Architecture "i386")
-	endif()
-
-	if(NOT APPLE)
 		set(GlobalDefines ${GlobalDefines} "_M_IX86")
+	endif()
+elseif(APPLE)
+	set(X86 ON)
+	set(Architecture "universal")
+else()
+	set(X86 OFF)
+
+	if(CMAKE_SYSTEM_PROCESSOR MATCHES "^arm")
+		set(Architecture "arm")
+		set(ARM ON)
+	elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^i.86$")
+		set(X86 ON)
+		set(Architecture "i386")
+	elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^x86.64$")
+		set(X86 ON)
+		set(Architecture "amd64")
+	else()
+		set(Architecture "${CMAKE_SYSTEM_PROCESSOR}")
 	endif()
 endif()
 
@@ -78,22 +66,19 @@ if(NOT APPLE)
 	set(MVCGAME "cgame_${Architecture}")
 	set(MVUI "ui_${Architecture}")
 else()
-	set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/out/install")
-
 	set(MVGAME "jk2mpgame")
 	set(MVCGAME "cgame")
 	set(MVUI "ui")
 endif()
 
-# OSX install target is more like a finalization step
-if(APPLE)
-	set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/out/bundle")
-endif()
+set(LCC "q3lcc")
+set(CPP "q3cpp")
+set(RCC "q3rcc")
+set(ASM "q3asm")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
-set(CPACK_PACKAGE_DIRECTORY ${CMAKE_BINARY_DIR}/out)
 
 # Global Defines
 set(GlobalDefines ${GlobalDefines} "_JK2")
@@ -145,15 +130,19 @@ elseif ((("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" 
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb")
 
 	# we need sse optimizations in debug configuration, too because of the inline assembler which is sse code
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
+	if(X86)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
+	endif()
 
 	# Optimization
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -ffast-math")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -ffast-math")
 
 	if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
-		set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mfpmath=sse -fexpensive-optimizations")
+		if(X86)
+			set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mfpmath=sse -fexpensive-optimizations")
+		endif()
 
 		# Link only libs actually needed
 		set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wl,--as-needed,-s")
@@ -166,7 +155,9 @@ elseif ((("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" 
 	endif()
 
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mfpmath=sse -fexpensive-optimizations")
+		if(X86)
+			set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mfpmath=sse -fexpensive-optimizations")
+		endif()
 
 		# Link only libs actually needed
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wl,--as-needed,-s")
@@ -193,14 +184,5 @@ endif()
 # set(MVGLOBALIncludeDirs ${MVGLOBALIncludeDirs} ${CMAKE_BINARY_DIR})
 # configure_file("${SRCDir}/mv_setup.h.in" "${CMAKE_BINARY_DIR}/mv_setup.h" @ONLY)
 
-set(QVMDir "${CMAKE_BINARY_DIR}/out/qvm")
-
-# Binary names
-set(LCC "q3lcc")
-set(CPP "q3cpp")
-set(RCC "q3rcc")
-set(ASM "q3asm")
-
 add_subdirectory("tools")
-
 add_subdirectory(${SRCDir})
