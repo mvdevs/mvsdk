@@ -459,10 +459,7 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 							);
 }
 
-#ifndef WIN32
 #define min(x,y) ((x)<(y)?(x):(y))
-#endif
-
 void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style, int iMenuFont) 
 {
 	Text_Paint(x, y, scale, color, text, 0, limit, style, iMenuFont);

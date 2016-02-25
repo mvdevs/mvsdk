@@ -112,9 +112,7 @@ set(MVGAMEDefines ${MVGAMEDefines} "QAGAME")
 set(MVGAMEDefines ${MVGAMEDefines} "JK2_GAME")
 set(MVGAMEIncludeDirs ${MVGLOBALIncludeDirs})
 
-if(NOT WIN32)
-	set_target_properties(${MVGAME} PROPERTIES PREFIX "") # remove "lib" prefix for .so/.dylib files
-endif()
+set_target_properties(${MVGAME} PROPERTIES PREFIX "") # remove "lib" prefix for .so/.dylib files
 
 set_property(TARGET ${MVGAME} APPEND PROPERTY COMPILE_DEFINITIONS
   $<$<CONFIG:Debug>:${GlobalDefines} ${MVGAMEDefines} ${DebugDefines}>

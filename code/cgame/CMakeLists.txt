@@ -105,9 +105,7 @@ add_library(${MVCGAME} SHARED ${MVCGAMEFILES})
 set(MVCGAMEDefines ${MVCGAMEDefines} "JK2_CGAME")
 set(MVCGAMEIncludeDirs ${MVGLOBALIncludeDirs})
 
-if(NOT WIN32)
-	set_target_properties(${MVCGAME} PROPERTIES PREFIX "") # remove "lib" prefix for .so/.dylib files
-endif()
+set_target_properties(${MVCGAME} PROPERTIES PREFIX "") # remove "lib" prefix for .so/.dylib files
 
 set_property(TARGET ${MVCGAME} APPEND PROPERTY COMPILE_DEFINITIONS
   $<$<CONFIG:Debug>:${GlobalDefines} ${MVCGAMEDefines} ${DebugDefines}>

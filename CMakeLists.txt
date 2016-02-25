@@ -119,7 +119,7 @@ if(MSVC)
 
 		set(CMAKE_ASM_MASM_FLAGS "${CMAKE_ASM_MASM_FLAGS} /safeseh") # safe exception handler
 	endif()
-elseif ((("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")) AND NOT WIN32)
+elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang"))
 	if(APPLE)
 		set(GlobalDefines ${GlobalDefines} "MACOS_X")
 	endif()

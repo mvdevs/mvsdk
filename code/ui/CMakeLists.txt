@@ -57,9 +57,7 @@ add_library(${MVUI} SHARED ${MVUIFILES})
 set(MVUIDefines ${MVUIDefines} "JK2_UI")
 set(MVUIIncludeDirs ${MVGLOBALIncludeDirs})
 
-if(NOT WIN32)
-	set_target_properties(${MVUI} PROPERTIES PREFIX "") # remove "lib" prefix for .so/.dylib files
-endif()
+set_target_properties(${MVUI} PROPERTIES PREFIX "") # remove "lib" prefix for .so/.dylib files
 
 set_property(TARGET ${MVUI} APPEND PROPERTY COMPILE_DEFINITIONS
   $<$<CONFIG:Debug>:${GlobalDefines} ${MVUIDefines} ${DebugDefines}>
