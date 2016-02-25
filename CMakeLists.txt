@@ -16,10 +16,6 @@ set(ProjectName "JK2MV SDK" CACHE STRING "Project Name")
 project(${ProjectName})
 set(ProjectURL "https://jk2mv.org")
 
-#include(GetGitRevisionDescription)
-#git_describe(MV_VERSION --tags)
-#message(STATUS "${ProjectName} Version: ${MV_VERSION}")
-
 # Languages
 enable_language(C)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -179,10 +175,6 @@ if(NOT CMAKE_BUILD_TYPE)
 	message(STATUS "No build type selected, default to Release")
 	set(CMAKE_BUILD_TYPE "Release")
 endif()
-
-# mv_setup.h preparation - Not used, yet
-# set(MVGLOBALIncludeDirs ${MVGLOBALIncludeDirs} ${CMAKE_BINARY_DIR})
-# configure_file("${SRCDir}/mv_setup.h.in" "${CMAKE_BINARY_DIR}/mv_setup.h" @ONLY)
 
 add_subdirectory("tools")
 add_subdirectory(${SRCDir})
