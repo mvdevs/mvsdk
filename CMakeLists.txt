@@ -20,6 +20,9 @@ set(ProjectURL "https://jk2mv.org")
 enable_language(C)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Customizable options
+option(BuildQVMs "Whether to create targets for building QVM files" ON)
+
 # Architecture
 set(CMAKE_OSX_ARCHITECTURES "i386" "x86_64") # always building both on osx
 
@@ -176,5 +179,8 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-add_subdirectory("tools")
+if(BuildQVMs)
+	add_subdirectory("tools")
+endif()
+
 add_subdirectory(${SRCDir})

@@ -7,51 +7,53 @@ add_subdirectory("${SRCDir}/game")
 add_subdirectory("${SRCDir}/cgame")
 add_subdirectory("${SRCDir}/ui")
 
-# Custom target for building qvm's
-file(MAKE_DIRECTORY "${QVMDir}/tmp")
+if(BuildQVMs)
+	# Custom target for building qvm's
+	file(MAKE_DIRECTORY "${QVMDir}/tmp")
 
-foreach(FILE ${MVGAMEVMSOURCES})
-	get_filename_component(FILE ${FILE} NAME_WE)
-	
-	set(MVGAMEASMFILES ${MVGAMEASMFILES} "${FILE}.asm")
-endforeach()
+	foreach(FILE ${MVGAMEVMSOURCES})
+		get_filename_component(FILE ${FILE} NAME_WE)
+		
+		set(MVGAMEASMFILES ${MVGAMEASMFILES} "${FILE}.asm")
+	endforeach()
 
-foreach(FILE ${MVCGAMEVMSOURCES})
-	get_filename_component(FILE ${FILE} NAME_WE)
-	
-	set(MVCGAMEASMFILES ${MVCGAMEASMFILES} "${FILE}.asm")
-endforeach()
+	foreach(FILE ${MVCGAMEVMSOURCES})
+		get_filename_component(FILE ${FILE} NAME_WE)
+		
+		set(MVCGAMEASMFILES ${MVCGAMEASMFILES} "${FILE}.asm")
+	endforeach()
 
-foreach(FILE ${MVUIVMSOURCES})
-	get_filename_component(FILE ${FILE} NAME_WE)
-	
-	set(MVUIASMFILES ${MVUIASMFILES} "${FILE}.asm")
-endforeach()
+	foreach(FILE ${MVUIVMSOURCES})
+		get_filename_component(FILE ${FILE} NAME_WE)
+		
+		set(MVUIASMFILES ${MVUIASMFILES} "${FILE}.asm")
+	endforeach()
 
-add_custom_target(qvms
-	COMMAND $<TARGET_FILE:${LCC}>
-		"-DQ3_VM" "-DJK2_GAME" "-DMISSIONPACK" "-S" "-Wf-target=bytecode" "-Wf-g" "-I${SRCDir}/cgame" "-I${SRCDir}/game" "-I${SRCDir}/ui" ${MVGAMEVMSOURCES}
+	add_custom_target(qvms
+		COMMAND $<TARGET_FILE:${LCC}>
+			"-DQ3_VM" "-DJK2_GAME" "-DMISSIONPACK" "-S" "-Wf-target=bytecode" "-Wf-g" "-I${SRCDir}/cgame" "-I${SRCDir}/game" "-I${SRCDir}/ui" ${MVGAMEVMSOURCES}
 
-	COMMAND $<TARGET_FILE:${ASM}>
-		"-vq3" "-v" "-o" "${QVMDir}/jk2mpgame.qvm" ${MVGAMEASMFILES} ${MVGAMEASM}
+		COMMAND $<TARGET_FILE:${ASM}>
+			"-vq3" "-v" "-o" "${QVMDir}/jk2mpgame.qvm" ${MVGAMEASMFILES} ${MVGAMEASM}
 
-	COMMAND $<TARGET_FILE:${LCC}>
-		"-DQ3_VM" "-DJK2_CGAME" "-DMISSIONPACK" "-S" "-Wf-target=bytecode" "-Wf-g" "-I${SRCDir}/cgame" "-I${SRCDir}/game" "-I${SRCDir}/ui" ${MVCGAMEVMSOURCES}
+		COMMAND $<TARGET_FILE:${LCC}>
+			"-DQ3_VM" "-DJK2_CGAME" "-DMISSIONPACK" "-S" "-Wf-target=bytecode" "-Wf-g" "-I${SRCDir}/cgame" "-I${SRCDir}/game" "-I${SRCDir}/ui" ${MVCGAMEVMSOURCES}
 
-	COMMAND $<TARGET_FILE:${ASM}>
-		"-vq3" "-v" "-o" "${QVMDir}/cgame.qvm" ${MVCGAMEASMFILES} ${MVCGAMEASM}
+		COMMAND $<TARGET_FILE:${ASM}>
+			"-vq3" "-v" "-o" "${QVMDir}/cgame.qvm" ${MVCGAMEASMFILES} ${MVCGAMEASM}
 
-	COMMAND $<TARGET_FILE:${LCC}>
-		"-DQ3_VM" "-DJK2_UI" "-S" "-Wf-target=bytecode" "-Wf-g" "-I${SRCDir}/cgame" "-I${SRCDir}/game" "-I${SRCDir}/ui" ${MVUIVMSOURCES}
+		COMMAND $<TARGET_FILE:${LCC}>
+			"-DQ3_VM" "-DJK2_UI" "-S" "-Wf-target=bytecode" "-Wf-g" "-I${SRCDir}/cgame" "-I${SRCDir}/game" "-I${SRCDir}/ui" ${MVUIVMSOURCES}
 
-	COMMAND $<TARGET_FILE:${ASM}>
-		"-vq3" "-v" "-o" "${QVMDir}/ui.qvm" ${MVUIASMFILES} ${MVUIASM}
+		COMMAND $<TARGET_FILE:${ASM}>
+			"-vq3" "-v" "-o" "${QVMDir}/ui.qvm" ${MVUIASMFILES} ${MVUIASM}
 
-	WORKING_DIRECTORY
-		"${QVMDir}/tmp"
+		WORKING_DIRECTORY
+			"${QVMDir}/tmp"
 
-	DEPENDS
-		${LCC} ${CPP} ${RCC} ${ASM}
-)
+		DEPENDS
+			${LCC} ${CPP} ${RCC} ${ASM}
+	)
 
-set_property(TARGET qvms PROPERTY PROJECT_LABEL "Build QVMs")
+	set_property(TARGET qvms PROPERTY PROJECT_LABEL "Build QVMs")
+endif()
