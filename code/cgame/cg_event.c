@@ -8,7 +8,7 @@
 #include "../ui/ui_shared.h"
 
 // for the voice chats
-#include "../../ui/menudef.h"
+#include "../ui/menudef.h"
 //==========================================================================
 
 extern int g_saberFlashTime;

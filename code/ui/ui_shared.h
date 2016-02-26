@@ -6,7 +6,7 @@
 #include "../cgame/tr_types.h"
 #include "keycodes.h"
 
-#include "../../ui/menudef.h"
+#include "menudef.h"
 
 #include "../api/mvapi.h"
 
