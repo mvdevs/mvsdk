@@ -432,8 +432,8 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 		i++;
 	}
 
-	if ( jk2gameplay == VERSION_1_02 )
-	{
+	if ( (jk2version == VERSION_1_02 && mv_forcePowerDisableMode.integer) )
+	{ // The 1.02 client doesn't show the force selection menu if ANY force power is disabled. Some servers might be running on a power-set that disables all powers, except those three. Basejk clients might get a handicap then, cause they can't set their powers and might end up with weaker attack/defense than other players. Servers should only disable this on 1.02, if they know what they're doing.
 		if (fpDisabled)
 		{
 			final_Powers[FP_LEVITATION] = 1;

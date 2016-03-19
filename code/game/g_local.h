@@ -1065,6 +1065,7 @@ extern	vmCvar_t	mv_blockspeedhack;
 extern	vmCvar_t	mv_fixturretcrash;
 extern	vmCvar_t	mv_connectionlimit;
 extern	vmCvar_t	mv_connectinglimit;
+extern	vmCvar_t	mv_forcePowerDisableMode;
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );

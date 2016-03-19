@@ -134,6 +134,7 @@ vmCvar_t	mv_blockspeedhack;
 vmCvar_t	mv_fixturretcrash;
 vmCvar_t	mv_connectionlimit;
 vmCvar_t	mv_connectinglimit;
+vmCvar_t	mv_forcePowerDisableMode;
 
 int gDuelist1 = -1;
 int gDuelist2 = -1;
@@ -290,6 +291,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &mv_fixturretcrash, "mv_fixturretcrash", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &mv_connectinglimit, "mv_connectinglimit", "3", CVAR_ARCHIVE, 0, qfalse },
 	{ &mv_connectionlimit, "mv_connectionlimit", "0", CVAR_ARCHIVE, 0, qfalse },
+
+	{ &mv_forcePowerDisableMode, "mv_forcePowerDisableMode", "1", CVAR_ARCHIVE, 0, qfalse }, // Relevant for 1.02 only.
 };
 
 // bk001129 - made static to avoid aliasing
