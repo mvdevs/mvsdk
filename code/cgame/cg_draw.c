@@ -2064,7 +2064,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 			} else {
 				xx = x + w - TINYCHAR_WIDTH;
 			}
-			for (j = 0; j <= PW_NUM_POWERUPS; j++) {
+			for (j = 0; j < PW_NUM_POWERUPS; j++) {
 				if (ci->powerups & (1 << j)) {
 
 					item = BG_FindItemForPowerup( j );
@@ -2104,7 +2104,7 @@ static void CG_DrawPowerupIcons(int y)
 
 	y += 16;
 
-	for (j = 0; j <= PW_NUM_POWERUPS; j++)
+	for (j = 0; j < PW_NUM_POWERUPS; j++)
 	{
 		if (cg.snap->ps.powerups[j] > cg.time)
 		{

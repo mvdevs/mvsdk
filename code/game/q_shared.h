@@ -32,9 +32,6 @@
 
 #define assert(exp)     ((void)0)
 
-#define min(x,y) ((x)<(y)?(x):(y))
-#define max(x,y) ((x)>(y)?(x):(y))
-
 #define LIBEXPORT
 
 #else
@@ -305,6 +302,8 @@ typedef enum {
 	EXEC_APPEND			// add to end of the command buffer (normal case)
 } cbufExec_t;
 
+#define MIN(x,y) ((x)<(y)?(x):(y))
+#define MAX(x,y) ((x)>(y)?(x):(y))
 
 //
 // these aren't needed by any of the VMs.  put in another header?

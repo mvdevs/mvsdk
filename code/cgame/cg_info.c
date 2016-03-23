@@ -284,12 +284,18 @@ void CG_DrawInformation( void ) {
 
 	value = atoi( Info_ValueForKey( info, "g_maxForceRank" ) );
 	if ( value && !valueNOFP ) {
-		char fmStr[1024]; 
+		char fmStr[1024];
+		char *text;
 
 		trap_SP_GetStringTextString("INGAMETEXT_MAXFORCERANK",fmStr, sizeof(fmStr));
 
-		UI_DrawProportionalString( 320, y, va( "%s %s", fmStr, (value < ((sizeof(forceMasteryLevels) / sizeof(forceMasteryLevels[0]))) ? CG_GetStripEdString("INGAMETEXT", forceMasteryLevels[value]) : va("%i", value)) ),
-			UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
+		if ( value >= 0 && value < ARRAY_LEN(forceMasteryLevels) ) {
+			text = va( "%s %s", fmStr, CG_GetStripEdString("INGAMETEXT", forceMasteryLevels[value]) );
+		} else {
+			text = va( "%s %i", fmStr, value );
+		}
+
+		UI_DrawProportionalString( 320, y, text, UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 	}
 	else if (!valueNOFP)
