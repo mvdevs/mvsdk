@@ -814,7 +814,7 @@ void G_RunThink (gentity_t *ent);
 void QDECL G_LogPrintf( const char *fmt, ... );
 void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
-void QDECL G_Error( const char *fmt, ... );
+Q_NORETURN void QDECL G_Error( const char *fmt, ... );
 const char *G_GetStripEdString(char *refSection, char *refName);
 
 // On linux rand() behaves different than on Winodws or in a qvm, ...
@@ -1068,7 +1068,7 @@ extern	vmCvar_t	mv_connectinglimit;
 extern	vmCvar_t	mv_forcePowerDisableMode;
 
 void	trap_Printf( const char *fmt );
-void	trap_Error( const char *fmt );
+Q_NORETURN void	trap_Error( const char *fmt );
 int		trap_Milliseconds( void );
 int		trap_Argc( void );
 void	trap_Argv( int n, char *buffer, int bufferLength );

@@ -6,7 +6,7 @@ The prototypes in this file do not even belong to g_multiversion_syscalls.c, but
 */
 
 void	trap_Printf_real( const char *fmt );
-void	trap_Error_real( const char *fmt );
+Q_NORETURN void	trap_Error_real( const char *fmt );
 int		trap_Milliseconds_real( void );
 int		trap_Argc_real( void );
 void	trap_Argv_real( int n, char *buffer, int bufferLength );

@@ -18,7 +18,7 @@ void trap_Printf( const char *fmt )
 	MV_VersionMagic( qfalse );
 }
 
-void trap_Error( const char *fmt )
+Q_NORETURN void trap_Error( const char *fmt )
 {
 	MV_VersionMagic( qtrue );
 	trap_Error_real( fmt );

@@ -22,8 +22,9 @@ void	trap_Print( const char *fmt ) {
 	syscall( CG_PRINT, fmt );
 }
 
-void	trap_Error( const char *fmt ) {
+Q_NORETURN void	trap_Error( const char *fmt ) {
 	syscall( CG_ERROR, fmt );
+	q_unreachable();
 }
 
 int		trap_Milliseconds( void ) {

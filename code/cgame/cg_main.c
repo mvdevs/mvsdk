@@ -855,7 +855,7 @@ void QDECL CG_Printf( const char *msg, ... ) {
 	trap_Print( text );
 }
 
-void QDECL CG_Error( const char *msg, ... ) {
+Q_NORETURN void QDECL CG_Error( const char *msg, ... ) {
 	va_list		argptr;
 	char		text[1024];
 
@@ -869,7 +869,7 @@ void QDECL CG_Error( const char *msg, ... ) {
 #ifndef CGAME_HARD_LINKED
 // this is only here so the functions in q_shared.c and bg_*.c can link (FIXME)
 
-void QDECL Com_Error( int level, const char *error, ... ) {
+Q_NORETURN void QDECL Com_Error( int level, const char *error, ... ) {
 	va_list		argptr;
 	char		text[1024];
 

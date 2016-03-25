@@ -21,8 +21,9 @@ void trap_Print( const char *string ) {
 	syscall( UI_PRINT, string );
 }
 
-void trap_Error( const char *string ) {
+Q_NORETURN void trap_Error( const char *string ) {
 	syscall( UI_ERROR, string );
+	q_unreachable();
 }
 
 int trap_Milliseconds( void ) {

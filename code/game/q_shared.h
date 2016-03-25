@@ -32,7 +32,7 @@
 
 #define assert(exp)     ((void)0)
 
-#define LIBEXPORT
+#define Q_EXPORT
 
 #else
 
@@ -47,14 +47,22 @@
 #include <limits.h>
 #include <stdint.h>
 
-#ifdef GAME_EXPORTS
-	#ifdef WIN32
-		#define LIBEXPORT __declspec(dllexport)
-	#else
-		#define LIBEXPORT __attribute__((visibility("default")))
-	#endif
-#else
-	#define LIBEXPORT
+#if defined _MSC_VER							// Microsoft Visual C++
+#define LIBEXPORT __declspec(dllexport)
+#define Q_NORETURN __declscpec(noreturn)
+#define q_unreachable() abort()
+#elif (defined __GNUC__ || defined __clang__)	// GCC & Clang
+#define LIBEXPORT __attribute__((visibility("default")))
+#define Q_NORETURN __attribute__((noreturn))
+#define q_unreachable() __builtin_unreachable()
+#elif (defined __SUNPRO_C)						// Sun Pro C Compiler
+#define LIBEXPORT __global
+#define Q_NORETURN
+#define q_unreachable() abort()
+#else											// Any ANSI C compiler
+#define LIBEXPORT
+#define Q_NORETURN
+#define q_unreachable() abort()
 #endif
 
 #endif

@@ -1561,7 +1561,7 @@ const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
 
 void QDECL CG_Printf( const char *msg, ... );
-void QDECL CG_Error( const char *msg, ... );
+Q_NORETURN void QDECL CG_Error( const char *msg, ... );
 
 void CG_StartMusic( qboolean bForceStart );
 
@@ -1881,7 +1881,7 @@ void CG_SagaObjectiveCompleted(centity_t *ent, int won, int objectivenum);
 void		trap_Print( const char *fmt );
 
 // abort the game
-void		trap_Error( const char *fmt );
+Q_NORETURN void	trap_Error( const char *fmt );
 
 // milliseconds should only be used for performance tuning, never
 // for anything game related.  Get time from the CG_DrawActiveFrame parameter

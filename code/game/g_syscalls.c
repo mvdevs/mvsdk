@@ -22,8 +22,9 @@ void	trap_Printf_real( const char *fmt ) {
 	syscall( G_PRINT, fmt );
 }
 
-void	trap_Error_real( const char *fmt ) {
+Q_NORETURN void	trap_Error_real( const char *fmt ) {
 	syscall( G_ERROR, fmt );
+	q_unreachable();
 }
 
 int		trap_Milliseconds_real( void ) {
