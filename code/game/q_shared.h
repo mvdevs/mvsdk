@@ -45,6 +45,7 @@
 #include <time.h>
 #include <ctype.h>
 #include <limits.h>
+#include <stdint.h>
 
 #ifdef GAME_EXPORTS
 	#ifdef WIN32

@@ -3,6 +3,8 @@
 
 // This file is NOT included on native builds
 
+typedef int intptr_t;
+
 typedef int size_t;
 
 typedef char *  va_list;
