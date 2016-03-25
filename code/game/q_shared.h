@@ -305,6 +305,8 @@ typedef enum {
 #define MIN(x,y) ((x)<(y)?(x):(y))
 #define MAX(x,y) ((x)>(y)?(x):(y))
 
+#define ARRAY_LEN(x) (sizeof (x) / sizeof( *(x) ))
+
 //
 // these aren't needed by any of the VMs.  put in another header?
 //
