@@ -34,6 +34,10 @@
 
 #define Q_EXPORT
 
+#define LIBEXPORT
+#define Q_NORETURN
+#define q_unreachable()
+
 #else
 
 #include <assert.h>
@@ -49,7 +53,7 @@
 
 #if defined _MSC_VER							// Microsoft Visual C++
 #define LIBEXPORT __declspec(dllexport)
-#define Q_NORETURN __declscpec(noreturn)
+#define Q_NORETURN __declspec(noreturn)
 #define q_unreachable() abort()
 #elif (defined __GNUC__ || defined __clang__)	// GCC & Clang
 #define LIBEXPORT __attribute__((visibility("default")))
@@ -1040,7 +1044,7 @@ qboolean Info_Validate( const char *s );
 void Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
-void	QDECL Com_Error( int level, const char *error, ... );
+Q_NORETURN void	QDECL Com_Error( int level, const char *error, ... );
 void	QDECL Com_Printf( const char *msg, ... );
 
 
