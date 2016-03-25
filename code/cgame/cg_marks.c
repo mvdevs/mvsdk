@@ -47,7 +47,6 @@ CG_FreeMarkPoly
 void CG_FreeMarkPoly( markPoly_t *le ) {
 	if ( !le->prevMark ) {
 		CG_Error( "CG_FreeLocalEntity: not active" );
-		return;
 	}
 
 	// remove from the doubly linked active list
@@ -1497,7 +1496,6 @@ void CG_ParticleExplosion (char *animStr, vec3_t origin, vec3_t vel, int duratio
 	}
 	if (!shaderAnimNames[anim]) {
 		CG_Error("CG_ParticleExplosion: unknown animation string: %s\n", animStr);
-		return;
 	}
 
 	if (!free_particles)
