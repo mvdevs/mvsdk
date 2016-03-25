@@ -512,7 +512,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			vec3_t	velocity;
 
 			if( LogAccuracyHit( other, &g_entities[ent->r.ownerNum] ) ) {
-				if ( &g_entities[ent->r.ownerNum] && g_entities[ent->r.ownerNum].client ) g_entities[ent->r.ownerNum].client->accuracy_hits++;
+				if ( g_entities[ent->r.ownerNum].client ) g_entities[ent->r.ownerNum].client->accuracy_hits++;
 				hitClient = qtrue;
 			}
 			BG_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
@@ -569,7 +569,7 @@ killProj:
 		if( G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, 
 			other, ent->splashMethodOfDeath ) ) {
 			if( !hitClient ) {
-				if ( &g_entities[ent->r.ownerNum] && g_entities[ent->r.ownerNum].client ) g_entities[ent->r.ownerNum].client->accuracy_hits++;
+				if ( g_entities[ent->r.ownerNum].client ) g_entities[ent->r.ownerNum].client->accuracy_hits++;
 			}
 		}
 	}

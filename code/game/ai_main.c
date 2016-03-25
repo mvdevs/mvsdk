@@ -3034,7 +3034,7 @@ void Saga_DefendFromAttackers(bot_state_t *bs)
 	{
 		ent = &g_entities[i];
 
-		if (ent && ent->client && &g_entities[bs->client] && g_entities[bs->client].client && ent->client->sess.sessionTeam != g_entities[bs->client].client->sess.sessionTeam &&
+		if (ent && ent->client && g_entities[bs->client].client && ent->client->sess.sessionTeam != g_entities[bs->client].client->sess.sessionTeam &&
 			ent->health > 0 && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
 		{
 			VectorSubtract(ent->client->ps.origin, bs->origin, a);
@@ -3077,7 +3077,7 @@ int Saga_CountDefenders(bot_state_t *bs)
 		ent = &g_entities[i];
 		bot = botstates[i];
 
-		if (ent && ent->client && bot && &g_entities[bs->client] && g_entities[bs->client].client)
+		if (ent && ent->client && bot && g_entities[bs->client].client)
 		{
 			if (bot->sagaState == SAGASTATE_DEFENDER &&
 				ent->client->sess.sessionTeam == g_entities[bs->client].client->sess.sessionTeam)
@@ -3102,7 +3102,7 @@ int Saga_CountTeammates(bot_state_t *bs)
 	{
 		ent = &g_entities[i];
 
-		if (ent && ent->client && &g_entities[bs->client] && g_entities[bs->client].client)
+		if (ent && ent->client && g_entities[bs->client].client)
 		{
 			if (ent->client->sess.sessionTeam == g_entities[bs->client].client->sess.sessionTeam)
 			{

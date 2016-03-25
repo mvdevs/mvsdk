@@ -597,7 +597,7 @@ int CreateNewWP_InTrail(vec3_t origin, int flags, int afterindex)
 
 			if ( i >= MAX_WPARRAY_SIZE )
 			{ // Not sure if this ever happens, but let's add a check anyway...
-				G_Printf(S_COLOR_YELLOW "CreateNewWP_InTrail: i hit the waypoint limit hit (%i)\n", MAX_WPARRAY_SIZE);
+				G_Printf(S_COLOR_YELLOW "CreateNewWP_InTrail: i hit the waypoint limit (%i)\n", MAX_WPARRAY_SIZE);
 				return 0;
 			}
 

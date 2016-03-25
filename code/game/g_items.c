@@ -1336,16 +1336,13 @@ void RespawnItem( gentity_t *ent ) {
 		}
 		master = ent->teammaster;
 
-		if ( master )
-		{
-			for (count = 0, ent = master; ent; ent = ent->teamchain, count++)
-				;
+		for (count = 0, ent = master; ent; ent = ent->teamchain, count++)
+			;
 
-			choice = rand() % count;
+		choice = rand() % count;
 
-			for (count = 0, ent = master; count < choice; ent = ent->teamchain, count++)
-				;
-		}
+		for (count = 0, ent = master; count < choice; ent = ent->teamchain, count++)
+			;
 	}
 
 	ent->r.contents = CONTENTS_TRIGGER;

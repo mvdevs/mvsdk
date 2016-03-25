@@ -3663,9 +3663,6 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 				qboolean gotHit = qfalse;
 				qboolean clientUnlinked[MAX_CLIENTS];
 				qboolean skipSaberTrace = qfalse;
-				
-				int i;
-				for ( i = 0; i < MAX_CLIENTS; i++ ) clientUnlinked[i] = qfalse;
 
 				if (!g_saberTraceSaberFirst.integer)
 				{
@@ -3787,7 +3784,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 						gotHit = qtrue;
 					}
 
-					if (g_saberTraceSaberFirst.integer)
+					if (!skipSaberTrace)
 					{
 						sN = 0;
 						while (sN < MAX_CLIENTS)
