@@ -625,7 +625,7 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 
 		case UI_RIGHT:
 		{
-			x -= CG_Text_Width(str, 1.0, iMenuFont) / 2;
+			x -= CG_Text_Width(str, 1.0, iMenuFont);
 		}
 		break;
 	}
@@ -667,7 +667,7 @@ void UI_DrawScaledProportionalString( int x, int y, const char* str, int style, 
 
 		case UI_RIGHT:
 		{
-			x -= CG_Text_Width(str, scale, FONT_MEDIUM) / 2;
+			x -= CG_Text_Width(str, scale, FONT_MEDIUM);
 		}
 		break;
 	}
