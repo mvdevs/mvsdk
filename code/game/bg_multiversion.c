@@ -33,7 +33,7 @@ void MV_DumpAnimationMappingTable( void )
 		return;
 	}
 
-	Q_strncpyz( line, "animMappingTable_1_04_to_1_02[MAX_TOTALANIMATIONS] = \n"
+	Q_strncpyz( line, "animNumber_1_02_t animMappingTable_1_04_to_1_02[MAX_TOTALANIMATIONS] = \n"
 					"{\n", sizeof(line) );
 	trap_FS_Write( line, strlen(line), dumpFile );
 
@@ -53,7 +53,7 @@ void MV_DumpAnimationMappingTable( void )
 	Q_strncpyz( line, "};\n\n", sizeof(line) );
 	trap_FS_Write( line, strlen(line), dumpFile );
 
-	Q_strncpyz( line, "animMappingTable_1_02_to_1_04[MAX_TOTALANIMATIONS_1_02] = \n"
+	Q_strncpyz( line, "animNumber_t animMappingTable_1_02_to_1_04[MAX_TOTALANIMATIONS_1_02] = \n"
 					"{\n", sizeof(line) );
 	trap_FS_Write( line, strlen(line), dumpFile );
 
@@ -63,7 +63,7 @@ void MV_DumpAnimationMappingTable( void )
 		{
 			if ( animTable[j].id == animMappingTable_1_02_to_1_04[i] )
 			{
-				Q_strncpyz( line, va("	%s, // %s\n", animTable[j].name, animTable_1_02[i].name), sizeof(line) ); // It's only an assumption that animTable[i].name is the right 1.02 name. :/
+				Q_strncpyz( line, va("	%s, // %s\n", animTable[j].name, animTable_1_02[i].name), sizeof(line) ); // It's only an assumption that animTable_1_02[i].name is the right 1.02 name. :/
 				trap_FS_Write( line, strlen(line), dumpFile );
 				break;
 			}

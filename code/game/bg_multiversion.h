@@ -8,8 +8,8 @@ extern int jk2version;
 extern int jk2gameplay;
 
 #ifndef JK2_UI // Not defined for UI, but still in bg_* for game and cgame
-extern int animMappingTable_1_04_to_1_02[MAX_TOTALANIMATIONS];
-extern int animMappingTable_1_02_to_1_04[MAX_TOTALANIMATIONS_1_02];
+extern animNumber_1_02_t animMappingTable_1_04_to_1_02[MAX_TOTALANIMATIONS];
+extern animNumber_t animMappingTable_1_02_to_1_04[MAX_TOTALANIMATIONS_1_02];
 #endif // #ifndef JK2_UI
 
 /* Functions */

@@ -2,7 +2,7 @@
 #include "../game/anims.h"
 //#include "../cgame/animtable.h"
 
-animMappingTable_1_04_to_1_02[MAX_TOTALANIMATIONS] = 
+animNumber_1_02_t animMappingTable_1_04_to_1_02[MAX_TOTALANIMATIONS] = 
 {
 	BOTH_DEATH1_1_02, // BOTH_1CRUFTFORGIL
 	BOTH_DEATH1_1_02, // BOTH_DEATH1
@@ -1217,7 +1217,7 @@ animMappingTable_1_04_to_1_02[MAX_TOTALANIMATIONS] =
 	BOTH_DEATH1_1_02, // (null)
 };
 
-animMappingTable_1_02_to_1_04[MAX_TOTALANIMATIONS_1_02] = 
+animNumber_t animMappingTable_1_02_to_1_04[MAX_TOTALANIMATIONS_1_02] = 
 {
 	BOTH_DEATH1, // BOTH_DEATH1_1_02
 	BOTH_DEATH2, // BOTH_DEATH2_1_02
