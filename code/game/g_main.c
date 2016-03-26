@@ -125,8 +125,6 @@ vmCvar_t	g_saberDebugPrint;
 
 vmCvar_t	g_austrian;
 
-vmCvar_t	mv_gameplay;
-
 vmCvar_t	mv_fixgalaking;
 vmCvar_t	mv_fixbrokenmodels;
 vmCvar_t	mv_blockchargejump;
@@ -281,8 +279,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_saberDebugPrint, "g_saberDebugPrint", "0", CVAR_CHEAT, 0, qfalse  },
 
 	{ &g_austrian, "g_austrian", "0", CVAR_ARCHIVE, 0, qfalse  },
-
-	{ &mv_gameplay, "mv_gameplay", "4", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse }, // For simple communication with the server only. Changed by the "gameplay" command.
 
 	{ &mv_fixgalaking, "mv_fixgalaking", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &mv_fixbrokenmodels, "mv_fixbrokenmodels", "1", CVAR_ARCHIVE, 0, qfalse },

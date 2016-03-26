@@ -9,8 +9,8 @@
 #include "../ui/ui_local.h"
 #endif
 
-int	jk2version	= VERSION_UNDEF;
-int	jk2gameplay	= VERSION_UNDEF;
+mvversion_t	jk2version	= VERSION_UNDEF;
+mvversion_t	jk2gameplay	= VERSION_UNDEF;
 
 #ifndef JK2_UI // Not defined for UI, but still in bg_* for game and cgame
 /* Additional functions */
@@ -184,7 +184,7 @@ void MV_SetGamePlay( mvversion_t version )
 		}
 	}
 	
-	trap_Cvar_Set( "mv_gameplay", va("%i", jk2gameplay) );
+	for ( i = 0; i < MAX_CLIENTS; i++ ) if ( g_entities[i].client && g_entities[i].inuse ) ClientUserinfoChanged(i); // Update every client's userinfo to reflect the gameplay change (assigning the value to every player opens the possibility to intoduce per-player gameplay in the future)
 #endif // #ifdef JK2_GAME
 }
 #endif // #ifndef JK2_UI // Not defined for UI, but still in bg_* for game and cgame

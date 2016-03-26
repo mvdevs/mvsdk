@@ -1141,6 +1141,31 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	v = Info_ValueForKey( configstring, "forcepowers" );
 	Q_strncpyz( newInfo.forcePowers, v, sizeof( newInfo.forcePowers ) );
 
+	// JK2MV: jk2gameplay
+	v = Info_ValueForKey( configstring, "mvgp" );
+	if ( strlen(v) && cg.clientNum == clientNum )
+	{ // Currently we only care for our own gameplay, but we could read other player's gameplay if we need it...
+		mvversion_t newGameplay;
+		switch ( atoi(v) )
+		{
+			case VERSION_1_02:
+				newGameplay = VERSION_1_02;
+				break;
+			case VERSION_1_03:
+				newGameplay = VERSION_1_03;
+				break;
+			case VERSION_1_04:
+				newGameplay = VERSION_1_04;
+				break;
+			default:
+				newGameplay = VERSION_1_04;
+				CG_Printf("CGame: Server gave unknown jk2gameplay [Fall-back to 1.04]\n");
+				break;
+		}
+		if ( jk2gameplay != newGameplay ) CG_Printf("CGame: Setting gameplay to 1.0%i\n", newGameplay);
+		MV_SetGamePlay( newGameplay );
+	}
+
 	newInfo.ATST = wasATST;
 
 	if (cgs.gametype >= GT_TEAM	&& !cgs.jediVmerc )

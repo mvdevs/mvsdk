@@ -169,27 +169,6 @@ void CG_ParseServerinfo( void ) {
 	trap_Cvar_Set ( "ui_about_hostname", Info_ValueForKey( info, "sv_hostname" ) );
 	trap_Cvar_Set ( "ui_about_needpass", Info_ValueForKey( info, "g_needpass" ) );
 	trap_Cvar_Set ( "ui_about_botminplayers", Info_ValueForKey ( info, "bot_minplayers" ) );
-
-	if ( strlen(Info_ValueForKey(info, "mv_gameplay")) && atoi(Info_ValueForKey(info, "mv_gameplay")) )
-	{
-		CG_Printf("CGame: Setting gameplay to ");
-		switch ( atoi(Info_ValueForKey(info, "mv_gameplay")) )
-		{
-			case VERSION_1_02:
-				CG_Printf("1.02\n");
-				break;
-			case VERSION_1_03:
-				CG_Printf("1.03\n");
-				break;
-			case VERSION_1_04:
-				CG_Printf("1.04\n");
-				break;
-			default:
-				CG_Printf("unknown [Fall-back to 1.04]\n");
-				break;
-		}
-		MV_SetGamePlay( (mvversion_t)(atoi(Info_ValueForKey(info, "mv_gameplay"))) );
-	}
 }
 
 /*

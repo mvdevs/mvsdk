@@ -1056,8 +1056,6 @@ extern	vmCvar_t	g_saberDebugPrint;
 
 extern	vmCvar_t	g_austrian;
 
-extern	vmCvar_t	mv_gameplay;
-
 extern	vmCvar_t	mv_fixgalaking;
 extern	vmCvar_t	mv_fixbrokenmodels;
 extern	vmCvar_t	mv_blockchargejump;

@@ -4,8 +4,8 @@
 #include "../game/anims.h"
 
 /* Variables */
-extern int jk2version;
-extern int jk2gameplay;
+extern mvversion_t jk2version;
+extern mvversion_t jk2gameplay;
 
 #ifndef JK2_UI // Not defined for UI, but still in bg_* for game and cgame
 extern animNumber_1_02_t animMappingTable_1_04_to_1_02[MAX_TOTALANIMATIONS];
