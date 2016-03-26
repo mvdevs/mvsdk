@@ -620,102 +620,48 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		char version[128];
 
 		trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+		jk2version = VERSION_UNDEF;
 
-		//It might be not the exact versionString, but as some servers have different versionStrings we just check wether the versionNumber is included in the versionString or not...
+		//It might be not the exact versionString, but as some servers have different versionStrings we just check whether the versionNumber is included in the versionString or not...
 		if ( strstr(version, "JK2MP") )
 		{ // Seems to be JK2MP
-			if ( strstr(version, "1.02") )
-			{ //Seems to be "1.02"
-				jk2version = VERSION_1_02;
-				G_Printf ("jk2version [Game]: 1.02 [via JK2MP version-cvar]\n");
-			}
-			else if ( strstr(version, "1.03") )
-			{ //Seems to be "1.03" - for now treat 1.03 like 1.04...
-				jk2version = VERSION_1_03;
-				G_Printf ("jk2version [Game]: 1.03 [via JK2MP version-cvar]\n");
-			}
-			else if ( strstr(version, "1.04") )
-			{ //Seems to be "1.04"
-				jk2version = VERSION_1_04;
-				G_Printf ("jk2version [Game]: 1.04 [via JK2MP version-cvar]\n");
-			}
+			     if ( strstr(version, "1.02") ) jk2version = VERSION_1_02;
+			else if ( strstr(version, "1.03") ) jk2version = VERSION_1_03;
+			else if ( strstr(version, "1.04") ) jk2version = VERSION_1_04;
 			else
 			{
 				jk2version = VERSION_1_04;
-				G_Printf("JK2MultiVersionMod: Unable to detect jk2mp version, setting to 1.04 compatibility.\n");
+				G_Printf("MVSDK: Unable to detect jk2mp version, setting to 1.04 compatibility.\n");
 			}
 		}
 		else if ( strstr(version, "JK2MV") )
 		{ // Seems to be jk2mv, but an old version, try to find the version by reading the mv_serverversion cvar
 			trap_Cvar_VariableStringBuffer("mv_serverversion", version, sizeof(version));
-			if ( !Q_stricmp(version, "1.02") )
-			{ //Seems to be "1.02"
-				jk2version = VERSION_1_02;
-				G_Printf ("jk2version [Game]: 1.02 [via JK2MV version-cvar]\n");
-			}
-			else if ( !Q_stricmp(version, "1.03") )
-			{ //Seems to be "1.03" - for now treat 1.03 like 1.04...
-				jk2version = VERSION_1_03;
-				G_Printf ("jk2version [Game]: 1.03 [via JK2MV version-cvar]\n");
-			}
-			else if ( !Q_stricmp(version, "1.04") )
-			{ //Seems to be "1.04"
-				jk2version = VERSION_1_04;
-				G_Printf ("jk2version [Game]: 1.04 [via JK2MV version-cvar]\n");
-			}
-			else if ( mvapi )
-			{ // Uuuh. This should not happen, as jk2mv > 1.1 sets its "version" cvar according to the original jk2mp's version-string and still uses the mv_serverversion cvar like the old versions did...
-				switch ( trap_MVAPI_GetCurrentGameversion() )
-				{
-					case VERSION_1_02:
-						jk2version = trap_MVAPI_GetCurrentGameversion();
-						G_Printf ("jk2version [Game]: 1.02 [via API]\n");
-						break;
-					case VERSION_1_03:
-						jk2version = trap_MVAPI_GetCurrentGameversion();
-						G_Printf ("jk2version [Game]: 1.03 [via API]\n");
-						break;
-					case VERSION_1_04:
-						jk2version = trap_MVAPI_GetCurrentGameversion();
-						G_Printf ("jk2version [Game]: 1.04 [via API]\n");
-						break;
-					default:
-						jk2version = VERSION_UNDEF;
-						G_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
-				}
-			}
-			else
-			{
-				jk2version = VERSION_UNDEF;
-				G_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
-			}
+			     if ( !Q_stricmp(version, "1.02") ) jk2version = VERSION_1_02;
+			else if ( !Q_stricmp(version, "1.03") ) jk2version = VERSION_1_03;
+			else if ( !Q_stricmp(version, "1.04") ) jk2version = VERSION_1_04;
 		}
-		else if ( mvapi )
+
+		if ( mvapi && jk2version == VERSION_UNDEF )
 		{ // This shouldn't happen as well, because jk2mv > 1.1 sets its version cvar according to the original jk2mp's version-string, but you never know...
 			switch ( trap_MVAPI_GetCurrentGameversion() )
 			{
 				case VERSION_1_02:
 					jk2version = trap_MVAPI_GetCurrentGameversion();
-					G_Printf ("jk2version [Game]: 1.02 [via API]\n");
 					break;
 				case VERSION_1_03:
 					jk2version = trap_MVAPI_GetCurrentGameversion();
-					G_Printf ("jk2version [Game]: 1.03 [via API]\n");
 					break;
 				case VERSION_1_04:
 					jk2version = trap_MVAPI_GetCurrentGameversion();
-					G_Printf ("jk2version [Game]: 1.04 [via API]\n");
 					break;
 				default:
 					jk2version = VERSION_UNDEF;
-					G_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
 			}
 		}
-		else
-		{
-			jk2version = VERSION_UNDEF;
-			G_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
-		}
+
+		if ( jk2version == VERSION_UNDEF ) G_Error("MVSDK: Unable to detect jk2version [Game].\n");
+		G_Printf("jk2version [Game]: 1.0%i\n", jk2version);
 		MV_SetGameVersion(jk2version);
 	}
 

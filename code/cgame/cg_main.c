@@ -2433,55 +2433,40 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	// JK2MV: Let's detect which version of the engine we are running in...
 	// In theory CG_ParseServerinfo is the perfect place for this, but as the first thing CG_Init does is trying to get shared memory we have to perform our check even before that...
 	// FIXME: by putting me into an own function or something
-	jk2version = VERSION_UNDEF; // Should be set already, but let's just make sure!
+	jk2version = VERSION_UNDEF;
 	if ( mvapi )
 	{ // JK2MV >= 1.1
 		switch ( trap_MVAPI_GetCurrentGameversion() )
 		{
 			case VERSION_1_02:
 				jk2version = VERSION_1_02;
-				CG_Printf ("jk2version [CGame]: 1.02 [via API]\n");
 				break;
 			case VERSION_1_03:
 				jk2version = VERSION_1_03;
-				CG_Printf ("jk2version [CGame]: 1.03 [via API]\n");
 				break;
 			case VERSION_1_04:
 				jk2version = VERSION_1_04;
-				CG_Printf ("jk2version [CGame]: 1.04 [via API]\n");
 				break;
 			default:
 				jk2version = VERSION_UNDEF;
-				CG_Error("JK2MultiVersionMod: Unable to detect jk2version. [via API]\n");
 		}
 	}
-	else
-	{
+
+	if ( jk2version == VERSION_UNDEF )
+	{ // Still undefined?
 		char version[128];
 
 		trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
 		
 		if ( strstr(version, "JK2MP") )
 		{ // JK2MP
-			if ( strstr(version, "1.02") )
-			{ //Seems to be "1.02"
-				jk2version = VERSION_1_02;
-				CG_Printf ("jk2version [CGame]: 1.02 [via client-version]\n");
-			}
-			else if ( strstr(version, "1.03") )
-			{ //Seems to be "1.03" - for now treat 1.03 like 1.04...
-				jk2version = VERSION_1_03;
-				CG_Printf ("jk2version [CGame]: 1.03 [via client-version]\n");
-			}
-			else if ( strstr(version, "1.04") )
-			{ //Seems to be "1.04"
-				jk2version = VERSION_1_04;
-				CG_Printf ("jk2version [CGame]: 1.04 [via client-version]\n");
-			}
+			     if ( strstr(version, "1.02") ) jk2version = VERSION_1_02;
+			else if ( strstr(version, "1.03") ) jk2version = VERSION_1_03;
+			else if ( strstr(version, "1.04") ) jk2version = VERSION_1_04;
 		}
 
 		if ( jk2version == VERSION_UNDEF )
-		{ //No valid version found on the client - let's hope the server got the information we need...
+		{ // No valid version found on the client - let's hope the server got the information we need...
 			const char *info;
 			char *version;
 
@@ -2490,37 +2475,18 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 			info = CG_ConfigString( CS_SERVERINFO );
 			version = Info_ValueForKey( info, "version" );
 		
-			//It might be not the exact versionString, but as some servers have different versionStrings we just check wether the versionNumber is included in the versionString or not...
+			// It might be not the exact versionString, but as some servers have different versionStrings we just check wether the versionNumber is included in the versionString or not...
 			if ( strstr(version, "JK2MP") )
 			{ // JK2MP
-				if ( strstr(version, "1.02") )
-				{ //Seems to be "1.02"
-					jk2version = VERSION_1_02;
-					CG_Printf ("jk2version [CGame]: 1.02 [via server-version]\n");
-				}
-				else if ( strstr(version, "1.03") )
-				{ //Seems to be "1.03" - for now treat 1.03 like 1.04...
-					jk2version = VERSION_1_03;
-					CG_Printf ("jk2version [CGame]: 1.03 [via server-version]\n");
-				}
-				else if ( strstr(version, "1.04") )
-				{ //Seems to be "1.04"
-					jk2version = VERSION_1_04;
-					CG_Printf ("jk2version [CGame]: 1.04 [via server-version]\n");
-				}
-				else
-				{ // Seems to be JK2MP, but nothing from 1.02 to 1.04. Let's hope it is something 1.04 compatible, we're not having a lot more options anyway...
-					jk2version = VERSION_1_04;
-					CG_Printf("JK2MultiVersionMod: Unable to detect jk2mp version, setting to 1.04 compatibility.\n");
-				}
-			}
-			else
-			{ // Forget it, we don't have access to the jk2mv api (jk2mv >= 1.1) and the version cvar of the client and server don't tell us the version - we could guess, but well...
-				jk2version = VERSION_UNDEF;
-				CG_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
+				     if ( strstr(version, "1.02") ) jk2version = VERSION_1_02;
+				else if ( strstr(version, "1.03") ) jk2version = VERSION_1_03;
+				else if ( strstr(version, "1.04") ) jk2version = VERSION_1_04;
 			}
 		}
 	}
+
+	if ( jk2version == VERSION_UNDEF ) CG_Error("MVSDK: Unable to detect jk2version [CGame].\n");
+	CG_Printf("jk2version [CGame]: 1.0%i\n", jk2version);
 	MV_SetGameVersion(jk2version);
 
 	trap_CG_RegisterSharedMemory(cg.sharedBuffer);

@@ -136,7 +136,7 @@ int MV_UiDetectVersion( void )
 {
 	char buffer[80];
 	// JK2MV: Let's detect which version of the engine we are running in...
-	jk2version = VERSION_UNDEF; // Should be set already, but let's just make sure!
+	jk2version = VERSION_UNDEF;
 
 	trap_Cvar_VariableStringBuffer( "mv_apienabled", buffer, sizeof(buffer) );
 	if ( strlen(buffer) && atoi(buffer) > 0 )
@@ -145,22 +145,19 @@ int MV_UiDetectVersion( void )
 		{
 			case VERSION_1_02:
 				jk2version = VERSION_1_02;
-				Com_Printf ("jk2version [UI]: 1.02 [via API]\n");
 				break;
 			case VERSION_1_03:
 				jk2version = VERSION_1_03;
-				Com_Printf ("jk2version [UI]: 1.03 [via API]\n");
 				break;
 			case VERSION_1_04:
 				jk2version = VERSION_1_04;
-				Com_Printf ("jk2version [UI]: 1.04 [via API]\n");
 				break;
 			default:
 				jk2version = VERSION_UNDEF;
-				trap_Error("JK2MultiVersionMod: Unable to detect jk2version. [via API]\n");
 		}
 	}
-	else
+
+	if ( jk2version == VERSION_UNDEF )
 	{
 		char version[128];
 
@@ -168,30 +165,14 @@ int MV_UiDetectVersion( void )
 		
 		if ( strstr(version, "JK2MP") )
 		{ // JK2MP
-			if ( strstr(version, "1.02") )
-			{ //Seems to be "1.02"
-				jk2version = VERSION_1_02;
-				Com_Printf ("jk2version [UI]: 1.02 [via client-version]\n");
-			}
-			else if ( strstr(version, "1.03") )
-			{ //Seems to be "1.03" - for now treat 1.03 like 1.04...
-				jk2version = VERSION_1_03;
-				Com_Printf ("jk2version [UI]: 1.03 [via client-version]\n");
-			}
-			else if ( strstr(version, "1.04") )
-			{ //Seems to be "1.04"
-				jk2version = VERSION_1_04;
-				Com_Printf ("jk2version [UI]: 1.04 [via client-version]\n");
-			}
-		}
-
-		if ( jk2version == VERSION_UNDEF )
-		{ 
-			// Forget it, we don't have access to the jk2mv api (jk2mv >= 1.1) and the version cvar of the client doen't tell us the version - we could guess, but well...
-			jk2version = VERSION_UNDEF;
-			trap_Error("JK2MultiVersionMod: Unable to detect jk2version.\n");
+			     if ( strstr(version, "1.02") ) jk2version = VERSION_1_02;
+			else if ( strstr(version, "1.03") ) jk2version = VERSION_1_03;
+			else if ( strstr(version, "1.04") ) jk2version = VERSION_1_04;
 		}
 	}
+	
+	if ( jk2version == VERSION_UNDEF ) trap_Error("MVSDK: Unable to detect jk2version [UI].\n");
+	Com_Printf("jk2version [UI]: 1.0%i\n", jk2version);
 	MV_SetGameVersion(jk2version); // Set the GameVersion...
 
 	switch( jk2version )

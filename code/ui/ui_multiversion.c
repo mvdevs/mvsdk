@@ -135,13 +135,13 @@ void			(*trap_R_RemapShader)						(const char *oldShader, const char *newShader,
 /* Functions that do not exist in 1.02 get a dummy here */
 qboolean trap_Language_IsAsian_DoesNotExistIn_1_02(void)
 {
-	Com_Printf("JK2MultiVersionMod: trap_Language_IsAsian called in 1.02 mode\n");
+	Com_Printf("MVSDK: trap_Language_IsAsian called in 1.02 mode\n");
 	return qfalse;
 }
 
 qboolean trap_Language_UsesSpaces_DoesNotExistIn_1_02(void)
 {
-	Com_Printf("JK2MultiVersionMod: trap_Language_UsesSpaces called in 1.02 mode\n");
+	Com_Printf("MVSDK: trap_Language_UsesSpaces called in 1.02 mode\n");
 	return qfalse;
 }
 

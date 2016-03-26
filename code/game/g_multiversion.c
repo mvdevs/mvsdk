@@ -64,13 +64,13 @@ qboolean	(*trap_G2API_SetBoneAnim)					(void *ghoul2, const int modelIndex, cons
 /* JK2MultiVersionFunctions: these functions decide which syscalls we have to call for which version... */
 qboolean trap_G2API_GetBoltMatrix_NoRecNoRot_DoesNotExistIn_1_02(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale)
 {
-	G_Printf("JK2MultiVersionMod: trap_G2API_GetBoltMatrix_NoRecNoRot called in 1.02 mode\n");
+	G_Printf("MVSDK: trap_G2API_GetBoltMatrix_NoRecNoRot called in 1.02 mode\n");
 	return qfalse;
 }
 
 void trap_G2API_CollisionDetect_DoesNotExistIn_1_02(CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius)
 {
-	G_Printf("JK2MultiVersionMod: trap_G2API_CollisionDetect called in 1.02 mode");
+	G_Printf("MVSDK: trap_G2API_CollisionDetect called in 1.02 mode");
 }
 
 void MV_SetGameVersion( mvversion_t version )

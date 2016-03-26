@@ -45,7 +45,6 @@ set(MVCGAMESOURCES
 	"${SRCDir}/cgame/cg_localents.c"
 	"${SRCDir}/cgame/cg_marks.c"
 	"${SRCDir}/cgame/cg_newDraw.c"
-	"${SRCDir}/cgame/cg_playeranimate.c"
 	"${SRCDir}/cgame/cg_players.c"
 	"${SRCDir}/cgame/cg_playerstate.c"
 	"${SRCDir}/cgame/cg_predict.c"
