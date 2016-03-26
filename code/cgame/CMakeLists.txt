@@ -26,7 +26,6 @@ set(MVCGAMEHEADERS
 
 	"${SRCDir}/ui/ui_shared.h"
 
-	"${SRCDir}/qcommon/disablewarnings.h"
 	"${SRCDir}/qcommon/qfiles.h"
 	"${SRCDir}/qcommon/tags.h"
 

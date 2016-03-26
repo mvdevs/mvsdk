@@ -96,7 +96,12 @@ if(NOT MSVC)
 endif()
 
 if(MSVC)
-	set(GlobalDefines ${GlobalDefines} "_CRT_SECURE_NO_WARNINGS")
+	# Warnings
+	# 4244 = conversion' conversion from 'type1' to 'type2', possible loss of data
+	# 4018 = 'expression' : signed/unsigned mismatch
+	# 4996 = 'function': was declared deprecated
+	# 4305 = 'identifier' : truncation from 'type1' to 'type2'
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4244 /wd4018 /wd4996 /wd4305")
 
 	# Multithreaded
 	set(CMAKE_C_FLAGS_RELEASE "/MT" CACHE TYPE INTERNAL FORCE)

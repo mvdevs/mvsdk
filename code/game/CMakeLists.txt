@@ -38,7 +38,6 @@ set(MVGAMEHEADERS
 	"${SRCDir}/cgame/cg_public.h"
 	"${SRCDir}/cgame/tr_types.h"
 
-	"${SRCDir}/qcommon/disablewarnings.h"
 	"${SRCDir}/qcommon/tags.h"
 
 	"${SRCDir}/ghoul2/g2.h"
