@@ -30,6 +30,8 @@ typedef struct
 	vec3_t		previous_origin;
 	vec3_t		previous_velocity;
 	int			previous_waterlevel;
+
+	int			seed;
 } pml_t;
 
 extern	pml_t		pml;

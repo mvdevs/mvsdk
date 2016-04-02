@@ -4548,6 +4548,7 @@ void PmoveSingle (pmove_t *pmove) {
 	memset (&pml, 0, sizeof(pml));
 
 	// determine the time
+	pml.seed = pmove->cmd.serverTime;
 	pml.msec = pmove->cmd.serverTime - pm->ps->commandTime;
 	if ( pml.msec < 1 ) {
 		pml.msec = 1;

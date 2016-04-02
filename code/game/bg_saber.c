@@ -6,7 +6,7 @@ int PM_irand_timesync(int val1, int val2)
 {
 	int i;
 
-	i = (val1-1) + (Q_random( &pm->cmd.serverTime )*(val2 - val1)) + 1;
+	i = (val1-1) + (Q_random( &pml.seed )*(val2 - val1)) + 1;
 	if (i < val1)
 	{
 		i = val1;
