@@ -681,23 +681,29 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 
 	if (f)
 	{
-		i = 0;
-
 		trap_FS_Read(soundpath, fLen, f);
 
 		i = fLen;
 
-		while (i >= 0 && soundpath[i] != '\n')
+		while (i > 0)
 		{
+			i--;
+
 			if (soundpath[i] == 'f')
 			{
 				isFemale = qtrue;
 			}
-
-			i--;
+			else if (soundpath[i] == '\n')
+			{
+				if (i > 0) // && soundpath[i - 1] == '\r')
+				{
+					i--;
+				}
+				break;
+			}
 		}
 
-		soundpath[i-1] = '\0';
+		soundpath[i] = '\0';
 
 		trap_FS_FCloseFile(f);
 	}
