@@ -2057,7 +2057,7 @@ float Item_Slider_ThumbPosition(itemDef_t *item) {
 		x = item->window.rect.x;
 	}
 
-	if (editDef == NULL && item->cvar) {
+	if (!editDef || !item->cvar) {
 		return x;
 	}
 
@@ -3747,7 +3747,7 @@ void Item_TextField_Paint(itemDef_t *item) {
 	char buff[1024];
 	vec4_t newColor, lowLight;
 	int offset;
-	menuDef_t *parent = (menuDef_t*)item->parent;
+	menuDef_t *parent;
 	editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
 
 	Item_Text_Paint(item);

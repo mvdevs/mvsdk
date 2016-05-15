@@ -661,7 +661,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 		return;
 	}
 
-	if (ent->client && (ent->client->ps.eFlags & EF_DISINTEGRATION))
+	if (ent->client->ps.eFlags & EF_DISINTEGRATION)
 	{ //for now, just don't spawn a body if you got disint'd
 		return;
 	}
@@ -681,7 +681,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 	body->s.eType = ET_BODY;
 	body->s.eFlags = EF_DEAD;		// clear EF_TALK, etc
 
-	if (ent->client && (ent->client->ps.eFlags & EF_DISINTEGRATION))
+	if (ent->client->ps.eFlags & EF_DISINTEGRATION)
 	{
 		body->s.eFlags |= EF_DISINTEGRATION;
 	}

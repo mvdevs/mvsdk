@@ -103,7 +103,7 @@ UpdateIPBans
 */
 static void UpdateIPBans (void)
 {
-	byte	b[4];
+	byte	*b;
 	int		i;
 	char	iplist[MAX_INFO_STRING];
 
@@ -113,7 +113,7 @@ static void UpdateIPBans (void)
 		if (ipFilters[i].compare == 0xffffffff)
 			continue;
 
-		*(unsigned *)b = ipFilters[i].compare;
+		b = (byte *)&ipFilters[i].compare;
 		Com_sprintf( iplist + strlen(iplist), sizeof(iplist) - strlen(iplist), 
 			"%i.%i.%i.%i ", b[0], b[1], b[2], b[3]);
 	}

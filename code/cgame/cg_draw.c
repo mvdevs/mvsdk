@@ -2834,14 +2834,15 @@ void CG_SaberClashFlare( void )
 
 	v = ( 1.0f - ((float)t / maxTime )) * ((1.0f - ( len / 800.0f )) * 2.0f + 0.35f);
 
-	CG_WorldCoordToScreenCoord( g_saberFlashPos, &x, &y );
+	if ( CG_WorldCoordToScreenCoord( g_saberFlashPos, &x, &y ) )
+	{
+		VectorSet( color, 0.8f, 0.8f, 0.8f );
+		trap_R_SetColor( color );
 
-	VectorSet( color, 0.8f, 0.8f, 0.8f );
-	trap_R_SetColor( color );
-
-	CG_DrawPic( x - ( v * 300 ), y - ( v * 300 ),
-				v * 600, v * 600,
-				trap_R_RegisterShader( "gfx/effects/saberFlare" ));
+		CG_DrawPic( x - ( v * 300 ), y - ( v * 300 ),
+			v * 600, v * 600,
+			trap_R_RegisterShader( "gfx/effects/saberFlare" ));
+	}
 }
 
 //--------------------------------------------------------------

@@ -1967,7 +1967,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		} else {
 			if (g_gametype.integer == GT_JEDIMASTER)
 			{
-				if ((attacker->client && attacker->client->ps.isJediMaster) ||
+				if (attacker->client->ps.isJediMaster ||
 					(self->client && self->client->ps.isJediMaster))
 				{
 					AddScore( attacker, self->r.currentOrigin, 1 );

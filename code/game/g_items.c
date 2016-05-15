@@ -88,6 +88,7 @@ static qhandle_t	shieldAttachSound=0;
 static qhandle_t	shieldActivateSound=0;
 static qhandle_t	shieldDeactivateSound=0;
 static qhandle_t	shieldDamageSound=0;
+static gitem_t		*shieldItem=0;
 
 
 void ShieldRemove(gentity_t *self)
@@ -348,7 +349,6 @@ void CreateShield(gentity_t *ent)
 
 qboolean PlaceShield(gentity_t *playerent)
 {
-	static const gitem_t *shieldItem = NULL;
 	gentity_t	*shield = NULL;
 	trace_t		tr;
 	vec3_t		fwd, pos, dest, mins = {-4,-4, 0}, maxs = {4,4,4};

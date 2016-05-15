@@ -751,7 +751,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			{
 				int delta = client->ps.eventParms[ i & (MAX_PS_EVENTS-1) ];
 
-				if (ent->client && ent->client->ps.fallingToDeath)
+				if ( client->ps.fallingToDeath )
 				{
 					break;
 				}
