@@ -1915,6 +1915,7 @@ void laserTrapDelayedExplode( gentity_t *self, gentity_t *inflictor, gentity_t *
 	self->think = laserTrapExplode;
 	self->nextthink = level.time + FRAMETIME;
 	self->takedamage = qfalse;
+	/*
 	if ( attacker && !attacker->s.number )
 	{
 		//less damage when shot by player
@@ -1922,6 +1923,7 @@ void laserTrapDelayedExplode( gentity_t *self, gentity_t *inflictor, gentity_t *
 		self->splashRadius /= 3;
 		//FIXME: different effect?
 	}
+	*/
 }
 
 void touchLaserTrap( gentity_t *ent, gentity_t *other, trace_t *trace )
