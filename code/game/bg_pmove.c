@@ -240,6 +240,10 @@ float forceJumpStrength[NUM_FORCE_POWER_LEVELS] =
 
 int PM_GetSaberStance(void)
 {
+	if ( pm->ps->dualBlade )
+	{
+		return BOTH_STAND1;
+	}
 	if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_2)
 	{ //medium
 		return BOTH_STAND2;
@@ -2660,6 +2664,10 @@ static void PM_Footsteps( void ) {
 				else
 				{
 					if (pm->ps->weapon == WP_SABER && pm->ps->saberHolstered)
+					{
+						PM_ContinueLegsAnim( BOTH_STAND1 );
+					}
+					else if ( pm->ps->weapon == WP_SABER && pm->ps->dualBlade )
 					{
 						PM_ContinueLegsAnim( BOTH_STAND1 );
 					}

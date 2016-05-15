@@ -915,10 +915,12 @@ static void PM_StartLegsAnim( int anim ) {
 		return;
 	}
 
+	/*
 	if (BG_InSaberStandAnim(anim) && pm->ps->weapon == WP_SABER && pm->ps->dualBlade)
 	{ //a bit of a hack, but dualblade is cheat-only anyway
 		anim = BOTH_STAND1;
 	}
+	*/
 
 	pm->ps->legsAnim = ( ( pm->ps->legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
 		| anim;
@@ -976,10 +978,12 @@ void PM_StartTorsoAnim( int anim ) {
 		return;
 	}
 
+	/*
 	if (BG_InSaberStandAnim(anim) && pm->ps->weapon == WP_SABER && pm->ps->dualBlade)
 	{ //a bit of a hack, but dualblade is cheat-only anyway
 		anim = BOTH_STAND1;
 	}
+	*/
 
 	pm->ps->torsoAnim = ( ( pm->ps->torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
 		| anim;
