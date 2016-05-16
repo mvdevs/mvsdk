@@ -995,7 +995,7 @@ void PM_SaberLocked( void )
 
 qboolean PM_SaberInBrokenParry( int move )
 {
-	if ( move >= LS_V1_BR && move <= LS_V1_B_ && jk2gameplay == VERSION_1_02)
+	if ( move >= LS_V1_BR && move <= LS_V1_B_ && jk2gameplay != VERSION_1_02)
 	{
 		return qtrue;
 	}
