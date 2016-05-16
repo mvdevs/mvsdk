@@ -197,7 +197,7 @@ uiInfo_t uiInfo;
 static void UI_StartServerRefresh(qboolean full);
 static void UI_StopServerRefresh( void );
 static void UI_DoServerRefresh( void );
-static void UI_BuildServerDisplayList(qboolean force);
+static void UI_BuildServerDisplayList(int force);
 static void UI_BuildServerStatus(qboolean force);
 static void UI_BuildFindPlayerList(qboolean force);
 static int QDECL UI_ServersQsortCompare( const void *arg1, const void *arg2 );
@@ -255,8 +255,8 @@ static char* netnames[] = {
 	NULL
 };
 
-static int gamecodetoui[] = {4,2,3,0,5,1,6};
-static int uitogamecode[] = {4,6,2,3,1,5,7};
+// static int gamecodetoui[] = {4,2,3,0,5,1,6};
+// static int uitogamecode[] = {4,6,2,3,1,5,7};
 
 const char *UI_GetStripEdString(const char *refSection, const char *refName);
 
@@ -1863,8 +1863,8 @@ void UpdateForceStatus()
 
 
 static qboolean updateModel = qtrue;
-static qboolean q3Model = qfalse;
 /*
+static qboolean q3Model = qfalse;
 
 static void UI_DrawPlayerModel(rectDef_t *rect) {
   static playerInfo_t info;
@@ -5023,7 +5023,7 @@ static void UI_BinaryServerInsertion(int num) {
 UI_BuildServerDisplayList
 ==================
 */
-static void UI_BuildServerDisplayList(qboolean force) {
+static void UI_BuildServerDisplayList(int force) {
 	int i, count, clients, maxClients, ping, game, len, visible;
 	char info[MAX_STRING_CHARS];
 //	qboolean startRefresh = qtrue; TTimo: unused

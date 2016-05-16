@@ -888,14 +888,8 @@ argCheck:
 
 	if (trap_Argc() > 1)
 	{
-		char	arg[MAX_TOKEN_CHARS];
-
-		trap_Argv( 1, arg, sizeof( arg ) );
-
-		if (arg && arg[0])
-		{ //if there's an arg, assume it's a combo team command from the UI.
-			Cmd_Team_f(ent);
-		}
+		//if there's an arg, assume it's a combo team command from the UI.
+		Cmd_Team_f(ent);
 	}
 }
 
@@ -1194,7 +1188,7 @@ static void G_VoiceTo( gentity_t *ent, gentity_t *other, int mode, const char *i
 		return;
 	}
 	// no chatting to players in tournements
-	if ( (g_gametype.integer == GT_TOURNAMENT )) {
+	if (g_gametype.integer == GT_TOURNAMENT) {
 		return;
 	}
 
@@ -1239,6 +1233,7 @@ void G_Voice( gentity_t *ent, gentity_t *target, int mode, const char *id, qbool
 	}
 }
 
+#if 0
 /*
 ==================
 Cmd_Voice_f
@@ -1372,7 +1367,7 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 	// just say something
 	G_Voice( ent, NULL, SAY_ALL, VOICECHAT_TAUNT, qfalse );
 }
-
+#endif
 
 
 static char	*gc_orders[] = {

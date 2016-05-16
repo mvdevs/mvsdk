@@ -1195,7 +1195,7 @@ float PM_GroundDistance(void)
 
 saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 {
-	saberMoveName_t newmove = -1;
+	saberMoveName_t newmove = LS_INVALID;
 
 	if ( pm->cmd.rightmove > 0 )
 	{//moving right
@@ -1792,7 +1792,7 @@ weapChecks:
 					if ( jk2gameplay != VERSION_1_02 )
 					{
 						saberMoveName_t checkMove = PM_SaberAttackForMovement(curmove);
-						if (checkMove != -1)
+						if (checkMove != LS_INVALID)
 						{
 							newmove = checkMove;
 						}
@@ -1817,7 +1817,7 @@ weapChecks:
 						else
 						{
 							saberMoveName_t checkMove = PM_SaberAttackForMovement(curmove);
-							if (checkMove != -1)
+							if (checkMove != LS_INVALID)
 							{
 								newmove = checkMove;
 							}

@@ -3702,8 +3702,6 @@ static void WP_UpdateMindtrickEnts(gentity_t *self)
 
 static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd_t *cmd )
 {
-	extern usercmd_t	ucmd;
-
 	switch( (int)forcePower )
 	{
 	case FP_HEAL:

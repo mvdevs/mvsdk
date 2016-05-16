@@ -224,7 +224,7 @@ void CG_InitSagaMode(void)
 
 	Com_sprintf(levelname, sizeof(levelname), "%s.saga\0", levelname); 
 
-	if (!levelname || !levelname[0])
+	if (!levelname[0])
 	{
 		goto failure;
 	}

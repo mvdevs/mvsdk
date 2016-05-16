@@ -826,6 +826,7 @@ typedef enum {
 // which is currently used for determining if a saber trail should be rendered in a given frame
 
 typedef enum {
+	LS_INVALID	= -1,
 	// Invalid, or saber not armed
 	LS_NONE		= 0,
 

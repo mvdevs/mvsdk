@@ -166,8 +166,7 @@ qboolean CG_ParseSurfsFile( const char *modelName, const char *skinName, char *s
 	// parse the text
 	text_p = text;
 
-	memset( (char *)surfOff, 0, sizeof(surfOff) );
-	memset( (char *)surfOn, 0, sizeof(surfOn) );
+	surfOff[0] = surfOn[0] = '\0';
 
 	// read information for surfOff and surfOn
 	while ( 1 ) 
@@ -185,7 +184,7 @@ qboolean CG_ParseSurfsFile( const char *modelName, const char *skinName, char *s
 			{
 				continue;
 			}
-			if ( surfOff && surfOff[0] )
+			if ( surfOff[0] )
 			{
 				Q_strcat( surfOff, MAX_SURF_LIST_SIZE, "," );
 				Q_strcat( surfOff, MAX_SURF_LIST_SIZE, value );
@@ -204,7 +203,7 @@ qboolean CG_ParseSurfsFile( const char *modelName, const char *skinName, char *s
 			{
 				continue;
 			}
-			if ( surfOn && surfOn[0] )
+			if ( surfOn[0] )
 			{
 				Q_strcat( surfOn, MAX_SURF_LIST_SIZE, ",");
 				Q_strcat( surfOn, MAX_SURF_LIST_SIZE, value );
@@ -377,7 +376,7 @@ retryModel:
 		const char	*p;
 
 		//Now turn on/off any surfaces
-		if ( surfOff && surfOff[0] )
+		if ( surfOff[0] )
 		{
 			p = surfOff;
 			while ( 1 ) 
@@ -391,7 +390,7 @@ retryModel:
 				trap_G2API_SetSurfaceOnOff( ci->ghoul2Model, token, 0x00000002/*G2SURFACEFLAG_OFF*/ );
 			}
 		}
-		if ( surfOn && surfOn[0] )
+		if ( surfOn[0] )
 		{
 			p = surfOn;
 			while ( 1 )
@@ -661,7 +660,7 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 	dir = ci->modelName;
 	fallback = DEFAULT_MALE_SOUNDPATH; //(cgs.gametype >= GT_TEAM) ? DEFAULT_TEAM_MODEL : DEFAULT_MODEL;
 
-	if ( !ci->skinName || !Q_stricmp( "default", ci->skinName ) )
+	if ( ci->skinName[0] == '\0' || !Q_stricmp( "default", ci->skinName ) )
 	{//try default sounds.cfg first
 		fLen = trap_FS_FOpenFile(va("models/players/%s/sounds.cfg", dir), &f, FS_READ);
 		if ( !f ) 

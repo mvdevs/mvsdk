@@ -2206,7 +2206,7 @@ String ID Tables
 
 ========================================================================
 */
-#define ENUM2STRING(arg)   #arg,arg
+#define ENUM2STRING(arg)   {#arg,arg}
 typedef struct stringID_table_s
 {
 	char	*name;

@@ -42,7 +42,7 @@ void InitSagaMode(void)
 
 	Com_sprintf(levelname, sizeof(levelname), "maps/%s.saga\0", mapname.string);
 
-	if (!levelname || !levelname[0])
+	if (!levelname[0])
 	{
 		goto failure;
 	}

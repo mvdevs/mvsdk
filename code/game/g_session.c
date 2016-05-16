@@ -68,6 +68,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	int teamLeader;
 	int spectatorState;
 	int sessionTeam;
+	int setForce;
 
 	var = va( "session%i", client - level.clients );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
@@ -80,7 +81,7 @@ void G_ReadSessionData( gclient_t *client ) {
 		&client->sess.wins,
 		&client->sess.losses,
 		&teamLeader,                   // bk010221 - format
-		&client->sess.setForce,
+		&setForce,
 		&client->sess.saberLevel,
 		&client->sess.selectedFP
 		);
@@ -89,6 +90,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	client->sess.sessionTeam = (team_t)sessionTeam;
 	client->sess.spectatorState = (spectatorState_t)spectatorState;
 	client->sess.teamLeader = (qboolean)teamLeader;
+	client->sess.setForce = (qboolean)setForce;
 
 	client->ps.fd.saberAnimLevel = client->sess.saberLevel;
 	client->ps.fd.forcePowerSelected = client->sess.selectedFP;
@@ -106,6 +108,7 @@ void MV_ReadSessionData( int clientNum )
 	char	s[MAX_STRING_CHARS];
 	const char	*var;
 	int read;
+	int localClient;
 
 	var = va( "sessionmv%i", clientNum );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
@@ -114,8 +117,10 @@ void MV_ReadSessionData( int clientNum )
 		&mv_clientSessions[clientNum].clientIP[1],
 		&mv_clientSessions[clientNum].clientIP[2],
 		&mv_clientSessions[clientNum].clientIP[3],
-		&mv_clientSessions[clientNum].localClient
+		&localClient
 		);
+
+	mv_clientSessions[clientNum].localClient = (qboolean)localClient;
 	//trap_Cvar_Set( var, "" ); // Causes issues, if people aren't fully ingam, but the server changes maps again.
 }
 
