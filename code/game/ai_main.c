@@ -3638,7 +3638,7 @@ void GetIdealDestination(bot_state_t *bs)
 	}
 
 	if (bs->revengeEnemy && bs->revengeEnemy->health > 0 &&
-		bs->revengeEnemy->client && (bs->revengeEnemy->client->pers.connected == CA_ACTIVE || bs->revengeEnemy->client->pers.connected == CA_AUTHORIZING))
+		bs->revengeEnemy->client && bs->revengeEnemy->client->pers.connected == CON_CONNECTED)
 	{ //if we hate someone, always try to get to them
 		if (bs->wpDestSwitchTime < level.time)
 		{
@@ -3661,7 +3661,7 @@ void GetIdealDestination(bot_state_t *bs)
 		}
 	}
 	else if (bs->squadLeader && bs->squadLeader->health > 0 &&
-		bs->squadLeader->client && (bs->squadLeader->client->pers.connected == CA_ACTIVE || bs->squadLeader->client->pers.connected == CA_AUTHORIZING))
+		bs->squadLeader->client && bs->squadLeader->client->pers.connected == CON_CONNECTED)
 	{
 		if (bs->wpDestSwitchTime < level.time)
 		{
@@ -5792,14 +5792,14 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 
 	if (bs->revengeEnemy && bs->revengeEnemy->client &&
-		bs->revengeEnemy->client->pers.connected != CA_ACTIVE && bs->revengeEnemy->client->pers.connected != CA_AUTHORIZING)
+		bs->revengeEnemy->client->pers.connected != CON_CONNECTED)
 	{
 		bs->revengeEnemy = NULL;
 		bs->revengeHateLevel = 0;
 	}
 
 	if (bs->currentEnemy && bs->currentEnemy->client &&
-		bs->currentEnemy->client->pers.connected != CA_ACTIVE && bs->currentEnemy->client->pers.connected != CA_AUTHORIZING)
+		bs->currentEnemy->client->pers.connected != CON_CONNECTED)
 	{
 		bs->currentEnemy = NULL;
 	}
