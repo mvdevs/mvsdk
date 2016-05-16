@@ -1911,7 +1911,7 @@ void ExampleAnimEnt_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attac
 void ExampleAnimEnt_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
 	int painAnim = (BOTH_PAIN1 + Q_irand(0, 3));
-	int animLen = (bgGlobalAnimations[painAnim].numFrames * fabs(bgGlobalAnimations[painAnim].frameLerp))-50;
+	int animLen = (bgGlobalAnimations[painAnim].numFrames * abs(bgGlobalAnimations[painAnim].frameLerp))-50;
 
 	while (painAnim == self->s.torsoAnim)
 	{

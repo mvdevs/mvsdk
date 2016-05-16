@@ -1113,7 +1113,7 @@ qboolean WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *defender, f
 		int attQuadStart = saberMoveData[attacker->client->ps.saberMove].startQuad;
 		int attQuadEnd = saberMoveData[attacker->client->ps.saberMove].endQuad;
 		int defQuad = saberMoveData[defender->client->ps.saberMove].endQuad;
-		int quadDiff = fabs(defQuad-attQuadStart);
+		int quadDiff = abs(defQuad-attQuadStart);
 
 		if ( defender->client->ps.saberMove == LS_READY )
 		{
@@ -1380,8 +1380,8 @@ int G_GetAttackDamage(gentity_t *self, int minDmg, int maxDmg, float multPoint)
 	float damageFactor = 0;
 	float animSpeedFactor = 1.0f;
 
-	if ( jk2gameplay == VERSION_1_04 ) attackAnimLength = bgGlobalAnimations[self->client->ps.torsoAnim&~ANIM_TOGGLEBIT].numFrames * fabs(bgGlobalAnimations[self->client->ps.torsoAnim&~ANIM_TOGGLEBIT].frameLerp);
-	else							   attackAnimLength = bgGlobalAnimations[self->client->ps.torsoAnim].numFrames * fabs(bgGlobalAnimations[self->client->ps.torsoAnim].frameLerp);
+	if ( jk2gameplay == VERSION_1_04 ) attackAnimLength = bgGlobalAnimations[self->client->ps.torsoAnim&~ANIM_TOGGLEBIT].numFrames * abs(bgGlobalAnimations[self->client->ps.torsoAnim&~ANIM_TOGGLEBIT].frameLerp);
+	else							   attackAnimLength = bgGlobalAnimations[self->client->ps.torsoAnim].numFrames * abs(bgGlobalAnimations[self->client->ps.torsoAnim].frameLerp);
 
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
 	BG_SaberStartTransAnim(self->client->ps.fd.saberAnimLevel, self->client->ps.torsoAnim&~ANIM_TOGGLEBIT, &animSpeedFactor);
@@ -1432,8 +1432,8 @@ float G_GetAnimPoint(gentity_t *self)
 	float animSpeedFactor = 1.0f;
 	float animPercentage = 0;
 
-	if ( jk2gameplay == VERSION_1_04 ) attackAnimLength = bgGlobalAnimations[self->client->ps.torsoAnim&~ANIM_TOGGLEBIT].numFrames * fabs(bgGlobalAnimations[self->client->ps.torsoAnim&~ANIM_TOGGLEBIT].frameLerp);
-	else							   attackAnimLength = bgGlobalAnimations[self->client->ps.torsoAnim].numFrames * fabs(bgGlobalAnimations[self->client->ps.torsoAnim].frameLerp);
+	if ( jk2gameplay == VERSION_1_04 ) attackAnimLength = bgGlobalAnimations[self->client->ps.torsoAnim&~ANIM_TOGGLEBIT].numFrames * abs(bgGlobalAnimations[self->client->ps.torsoAnim&~ANIM_TOGGLEBIT].frameLerp);
+	else							   attackAnimLength = bgGlobalAnimations[self->client->ps.torsoAnim].numFrames * abs(bgGlobalAnimations[self->client->ps.torsoAnim].frameLerp);
 
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
 	BG_SaberStartTransAnim(self->client->ps.fd.saberAnimLevel, self->client->ps.torsoAnim&~ANIM_TOGGLEBIT, &animSpeedFactor);
