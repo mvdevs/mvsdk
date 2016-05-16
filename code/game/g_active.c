@@ -594,10 +594,6 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 	client = ent->client;
 
-	// SaberStealingFix
-	ent->client->ps.saberEntityNum = 0;
-	ent->client->ps.saberInFlight = qfalse;
-
 	if ( client->sess.spectatorState != SPECTATOR_FOLLOW ) {
 		client->ps.pm_type = PM_SPECTATOR;
 		client->ps.speed = 400;	// faster than normal
