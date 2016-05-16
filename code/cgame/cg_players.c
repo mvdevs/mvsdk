@@ -6729,7 +6729,7 @@ doEssentialTwo:
 
 	if (cg_entities[cent->currentState.number].teamPowerEffectTime > cg.time)
 	{
-		if (cg_entities[cent->currentState.number].teamPowerType == 3)
+		if (cg_entities[cent->currentState.number].teamPowerType == TFP_ABSORB)
 		{ //absorb is a somewhat different effect entirely
 			//Guess I'll take care of it where it's always been, just checking these values instead.
 		}
@@ -6748,13 +6748,13 @@ doEssentialTwo:
 			preCol[2] = legs.shaderRGBA[2];
 			preCol[3] = legs.shaderRGBA[3];
 
-			if (cg_entities[cent->currentState.number].teamPowerType == 1)
+			if (cg_entities[cent->currentState.number].teamPowerType == TFP_HEAL)
 			{ //heal
 				legs.shaderRGBA[0] = 0;
 				legs.shaderRGBA[1] = 255;
 				legs.shaderRGBA[2] = 0;
 			}
-			else if (cg_entities[cent->currentState.number].teamPowerType == 0)
+			else if (cg_entities[cent->currentState.number].teamPowerType == TFP_REGEN)
 			{ //regen
 				legs.shaderRGBA[0] = 0;
 				legs.shaderRGBA[1] = 0;
@@ -7514,7 +7514,7 @@ doEssentialThree:
 	}
 	//if (cent->currentState.forcePowersActive & (1 << FP_ABSORB))
 	//Showing only when the power has been active (absorbed something) recently now, instead of always.
-	if ( (jk2gameplay == VERSION_1_02 && cent->currentState.forcePowersActive & (1 << FP_ABSORB)) || (jk2gameplay != VERSION_1_02 && cg_entities[cent->currentState.number].teamPowerEffectTime > cg.time && cg_entities[cent->currentState.number].teamPowerType == 3) )
+	if ( (jk2gameplay == VERSION_1_02 && cent->currentState.forcePowersActive & (1 << FP_ABSORB)) || (jk2gameplay != VERSION_1_02 && cg_entities[cent->currentState.number].teamPowerEffectTime > cg.time && cg_entities[cent->currentState.number].teamPowerType == TFP_ABSORB) )
 	{ //aborb is represented by blue..
 		legs.shaderRGBA[0] = 0;
 		legs.shaderRGBA[1] = 0;

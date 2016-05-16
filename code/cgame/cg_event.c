@@ -1636,7 +1636,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					int clnum = es->trickedentindex;
 
 					cg_entities[clnum].teamPowerEffectTime = cg.time + 1000;
-					cg_entities[clnum].teamPowerType = 3;
+					cg_entities[clnum].teamPowerType = TFP_ABSORB;
 				}
 				break;
 			case PDSOUND_ABSORB:
@@ -1672,13 +1672,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					{ //eventParm 1 is heal
 						trap_S_StartSound (NULL, clnum, CHAN_AUTO, cgs.media.teamHealSound );
 						cg_entities[clnum].teamPowerEffectTime = cg.time + 1000;
-						cg_entities[clnum].teamPowerType = 1;
+						cg_entities[clnum].teamPowerType = TFP_HEAL;
 					}
 					else
 					{ //eventParm 2 is force regen
 						trap_S_StartSound (NULL, clnum, CHAN_AUTO, cgs.media.teamRegenSound );
 						cg_entities[clnum].teamPowerEffectTime = cg.time + 1000;
-						cg_entities[clnum].teamPowerType = 0;
+						cg_entities[clnum].teamPowerType = TFP_REGEN;
 					}
 				}
 				clnum++;
@@ -2288,7 +2288,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		//FX_ForceDrained(position, dir);
 		trap_S_StartSound (NULL, es->owner, CHAN_AUTO, cgs.media.drainSound );
 		cg_entities[es->owner].teamPowerEffectTime = cg.time + 1000;
-		cg_entities[es->owner].teamPowerType = 2;
+		cg_entities[es->owner].teamPowerType = TFP_DRAIN;
 		break;
 
 	case EV_GIB_PLAYER:
