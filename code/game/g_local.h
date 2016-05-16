@@ -887,6 +887,10 @@ const char *G_RefreshNextMap(int gametype, qboolean forced);
 // w_force.c / w_saber.c
 gentity_t *G_PreDefSound(vec3_t org, int pdSound);
 qboolean HasSetSaberOnly(void);
+void SaberUpdateSelf(gentity_t *ent);
+void SaberGotHit( gentity_t *self, gentity_t *other, trace_t *trace );
+void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace);
+void MakeDeadSaber(gentity_t *ent);
 void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
 void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd );
 int WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, int mod, qboolean projectile, int attackStr);

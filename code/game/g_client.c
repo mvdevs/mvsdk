@@ -1769,6 +1769,31 @@ void ClientSpawn(gentity_t *ent) {
 	index = ent - g_entities;
 	client = ent->client;
 
+	if ( ent->client->ps.saberInFlight && ent->client->ps.saberEntityNum >= MAX_CLIENTS && ent->client->ps.saberEntityNum < MAX_GENTITIES )
+	{
+		gentity_t *saberent = &g_entities[ent->client->ps.saberEntityNum];
+
+		if ( saberent && saberent->inuse && saberent->r.ownerNum == ent-g_entities && saberent->touch == thrownSaberTouch )
+		{
+			saberent->touch = SaberGotHit;
+			saberent->think = SaberUpdateSelf;
+			/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // JK2MV: This shouldn't affect gameplay.
+			saberent->nextthink = level.time;
+
+			MakeDeadSaber(saberent);
+
+			saberent->r.svFlags |= (SVF_NOCLIENT);
+			saberent->r.contents = CONTENTS_LIGHTSABER;
+			VectorSet( saberent->r.mins, -SABER_BOX_SIZE, -SABER_BOX_SIZE, -SABER_BOX_SIZE );
+			VectorSet( saberent->r.maxs, SABER_BOX_SIZE, SABER_BOX_SIZE, SABER_BOX_SIZE );
+			saberent->s.loopSound = 0;
+
+			ent->client->ps.saberInFlight = qfalse;
+			ent->client->ps.saberThrowDelay = level.time + 500;
+			ent->client->ps.saberCanThrow = qfalse;
+		}
+	}
+
 	if (client->ps.fd.forceDoInit)
 	{ //force a reread of force powers
 		WP_InitForcePowers( ent );
