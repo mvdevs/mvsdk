@@ -13,9 +13,9 @@ LIBEXPORT void dllEntry( int (QDECL *syscallptr)( int arg,... ) ) {
 }
 
 int PASSFLOAT( float x ) {
-	float	floatTemp;
-	floatTemp = x;
-	return *(int *)&floatTemp;
+	floatint_t fi;
+	fi.f = x;
+	return fi.i;
 }
 
 void	trap_Printf_real( const char *fmt ) {
@@ -298,9 +298,9 @@ void trap_AAS_PresenceTypeBoundingBox_real(int presencetype, vec3_t mins, vec3_t
 }
 
 float trap_AAS_Time_real(void) {
-	int temp;
-	temp = syscall( BOTLIB_AAS_TIME );
-	return (*(float*)&temp);
+	floatint_t fi;
+	fi.i = syscall( BOTLIB_AAS_TIME );
+	return fi.f;
 }
 
 int trap_AAS_PointAreaNum_real(vec3_t point) {
@@ -492,15 +492,15 @@ void trap_BotFreeCharacter_real(int character) {
 }
 
 float trap_Characteristic_Float_real(int character, int index) {
-	int temp;
-	temp = syscall( BOTLIB_AI_CHARACTERISTIC_FLOAT, character, index );
-	return (*(float*)&temp);
+	floatint_t fi;
+	fi.i = syscall( BOTLIB_AI_CHARACTERISTIC_FLOAT, character, index );
+	return fi.f;
 }
 
 float trap_Characteristic_BFloat_real(int character, int index, float min, float max) {
-	int temp;
-	temp = syscall( BOTLIB_AI_CHARACTERISTIC_BFLOAT, character, index, PASSFLOAT(min), PASSFLOAT(max) );
-	return (*(float*)&temp);
+	floatint_t fi;
+	fi.i = syscall( BOTLIB_AI_CHARACTERISTIC_BFLOAT, character, index, PASSFLOAT(min), PASSFLOAT(max) );
+	return fi.f;
 }
 
 int trap_Characteristic_Integer_real(int character, int index) {
@@ -668,9 +668,9 @@ int trap_BotGetMapLocationGoal_real(char *name, void /* struct bot_goal_s */ *go
 }
 
 float trap_BotAvoidGoalTime_real(int goalstate, int number) {
-	int temp;
-	temp = syscall( BOTLIB_AI_AVOID_GOAL_TIME, goalstate, number );
-	return (*(float*)&temp);
+	floatint_t fi;
+	fi.i = syscall( BOTLIB_AI_AVOID_GOAL_TIME, goalstate, number );
+	return fi.f;
 }
 
 void trap_BotSetAvoidGoalTime_real(int goalstate, int number, float avoidtime) {
