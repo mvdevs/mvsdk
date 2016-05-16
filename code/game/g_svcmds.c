@@ -56,17 +56,13 @@ StringToFilter
 */
 static qboolean StringToFilter (char *s, ipFilter_t *f)
 {
-	char	num[128];
-	int		i, j;
-	byte	b[4];
-	byte	m[4];
-	
-	for (i=0 ; i<4 ; i++)
-	{
-		b[i] = 0;
-		m[i] = 0;
-	}
-	
+	char		num[128];
+	int			i, j;
+	unsigned	compare = 0;
+	unsigned	mask = 0;
+	byte		*c = (byte *)&compare;
+	byte		*m = (byte *)&mask;
+
 	for (i=0 ; i<4 ; i++)
 	{
 		if (*s < '0' || *s > '9')
@@ -74,25 +70,25 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 			G_Printf( "Bad filter address: %s\n", s );
 			return qfalse;
 		}
-		
+
 		j = 0;
 		while (*s >= '0' && *s <= '9')
 		{
 			num[j++] = *s++;
 		}
 		num[j] = 0;
-		b[i] = atoi(num);
-		if (b[i] != 0)
+		c[i] = atoi(num);
+		if (c[i] != 0)
 			m[i] = 255;
 
 		if (!*s)
 			break;
 		s++;
 	}
-	
-	f->mask = *(unsigned *)m;
-	f->compare = *(unsigned *)b;
-	
+
+	f->mask = mask;
+	f->compare = compare;
+
 	return qtrue;
 }
 
@@ -128,15 +124,14 @@ G_FilterPacket
 */
 qboolean G_FilterPacket (char *from)
 {
-	int		i;
-	unsigned	in;
-	byte m[4] = {'\0','\0','\0','\0'};
-	char *p;
+	int			i;
+	unsigned	mask = 0;
+	byte		*m = (byte *)&mask;
+	char		*p;
 
 	i = 0;
 	p = from;
 	while (*p && i < 4) {
-		m[i] = 0;
 		while (*p >= '0' && *p <= '9') {
 			m[i] = m[i]*10 + (*p - '0');
 			p++;
@@ -145,11 +140,9 @@ qboolean G_FilterPacket (char *from)
 			break;
 		i++, p++;
 	}
-	
-	in = *(unsigned *)m;
 
 	for (i=0 ; i<numIPFilters ; i++)
-		if ( (in & ipFilters[i].mask) == ipFilters[i].compare)
+		if ( (mask & ipFilters[i].mask) == ipFilters[i].compare)
 			return g_filterBan.integer != 0;
 
 	return g_filterBan.integer == 0;
