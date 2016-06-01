@@ -888,6 +888,12 @@ argCheck:
 
 	if (trap_Argc() > 1)
 	{
+		char	arg[MAX_TOKEN_CHARS];
+
+		trap_Argv( 1, arg, sizeof( arg ) );
+
+		if ( !Q_stricmp(arg, "none") || !Q_stricmp(arg, "same") || !Q_stricmp(arg, ";") ) return; // 1.02 clients send those and trigger unwanted team-changes...
+
 		//if there's an arg, assume it's a combo team command from the UI.
 		Cmd_Team_f(ent);
 	}
