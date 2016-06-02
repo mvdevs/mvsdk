@@ -34,6 +34,7 @@
 
 #define LIBEXPORT
 #define Q_NORETURN
+#define Q_PTR_NORETURN
 #define q_unreachable()
 
 #else
@@ -52,10 +53,12 @@
 #if defined _MSC_VER							// Microsoft Visual C++
 #define LIBEXPORT __declspec(dllexport)
 #define Q_NORETURN __declspec(noreturn)
+#define Q_PTR_NORETURN // MSVC doesn't support noreturn function pointers
 #define q_unreachable() abort()
 #elif (defined __GNUC__ || defined __clang__)	// GCC & Clang
 #define LIBEXPORT __attribute__((visibility("default")))
 #define Q_NORETURN __attribute__((noreturn))
+#define Q_PTR_NORETURN Q_NORETURN
 #define q_unreachable() __builtin_unreachable()
 #elif (defined __SUNPRO_C)						// Sun Pro C Compiler
 #define LIBEXPORT __global
@@ -64,6 +67,7 @@
 #else											// Any ANSI C compiler
 #define LIBEXPORT
 #define Q_NORETURN
+#define Q_PTR_NORETURN
 #define q_unreachable() abort()
 #endif
 
