@@ -1237,12 +1237,12 @@ static qboolean PM_CheckJump( void )
 					return qfalse;
 				}
 			}
-			else if ( pm->cmd.forwardmove > 0 //pushing forward
+			else if ( jk2gameplay != VERSION_1_02 &&
+				pm->cmd.forwardmove > 0 //pushing forward
 				&& pm->ps->fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1
 				&& pm->ps->velocity[2] > 200
 				&& PM_GroundDistance() <= 80 //unfortunately we do not have a happy ground timer like SP (this would use up more bandwidth if we wanted prediction workign right), so we'll just use the actual ground distance.
-				&& !BG_InSpecialJump(pm->ps->legsAnim)
-				&& jk2gameplay != VERSION_1_02)
+				&& !BG_InSpecialJump(pm->ps->legsAnim) )
 			{//run up wall, flip backwards
 				vec3_t fwd, traceto, mins, maxs, fwdAngles;
 				trace_t	trace;

@@ -1286,7 +1286,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		{//bounces should go to their default attack if you don't specify a direction but are attacking
 			if ( jk2gameplay != VERSION_1_02 ) newmove = saberMoveData[curmove].chain_attack;
 
-			if ( (PM_SaberKataDone(curmove, newmove) && jk2gameplay != VERSION_1_02) || (PM_SaberKataDone_1_02() && jk2gameplay == VERSION_1_02) )
+			if ( (jk2gameplay != VERSION_1_02 && PM_SaberKataDone(curmove, newmove)) || (jk2gameplay == VERSION_1_02 && PM_SaberKataDone_1_02()) )
 			{
 				newmove = saberMoveData[curmove].chain_idle;
 			}
@@ -1932,20 +1932,26 @@ void PM_SetSaberMove(short newMove)
 		pm->ps->saberAttackChainCount = 16;
 	}
 
-	if ( pm->ps->fd.saberAnimLevel > FORCE_LEVEL_1 &&
-		 !BG_SaberInIdle( newMove ) && !PM_SaberInParry( newMove ) && !PM_SaberInKnockaway( newMove ) && !PM_SaberInBrokenParry( newMove ) && !PM_SaberInReflect( newMove ) && !BG_SaberInSpecial(newMove) && jk2gameplay != VERSION_1_02)
-	{//readies, parries and reflections have only 1 level 
-		//increment the anim to the next level of saber anims
-		anim += (pm->ps->fd.saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+	if ( jk2gameplay != VERSION_1_02 )
+	{
+		if ( pm->ps->fd.saberAnimLevel > FORCE_LEVEL_1 &&
+			 !BG_SaberInIdle( newMove ) && !PM_SaberInParry( newMove ) && !PM_SaberInKnockaway( newMove ) && !PM_SaberInBrokenParry( newMove ) && !PM_SaberInReflect( newMove ) && !BG_SaberInSpecial(newMove))
+		{//readies, parries and reflections have only 1 level 
+			//increment the anim to the next level of saber anims
+			anim += (pm->ps->fd.saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+		}
 	}
 	
-	if ( pm->ps->fd.saberAnimLevel > FORCE_LEVEL_1 &&
-		 !BG_SaberInIdle( newMove ) && !PM_SaberInParry( newMove ) && !PM_SaberInReflect( newMove ) && !BG_SaberInSpecial(newMove) && jk2gameplay == VERSION_1_02)
-	{//readies, parries and reflections have only 1 level 
-		//increment the anim to the next level of saber anims
-		if ( !PM_SaberInTransition( newMove ) )
-		{//FIXME: only have level 1 transitions for now
-			anim += (pm->ps->fd.saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+	if ( jk2gameplay == VERSION_1_02 )
+	{
+		if ( pm->ps->fd.saberAnimLevel > FORCE_LEVEL_1 &&
+				!BG_SaberInIdle( newMove ) && !PM_SaberInParry( newMove ) && !PM_SaberInReflect( newMove ) && !BG_SaberInSpecial(newMove))
+		{//readies, parries and reflections have only 1 level 
+			//increment the anim to the next level of saber anims
+			if ( !PM_SaberInTransition( newMove ) )
+			{//FIXME: only have level 1 transitions for now
+				anim += (pm->ps->fd.saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+			}
 		}
 	}
 
