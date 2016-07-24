@@ -1238,21 +1238,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	Q_strncpyz( forcePowers, Info_ValueForKey (userinfo, "forcepowers"), sizeof( forcePowers ) );
 
-	// bots set their team a few frames later
-	if (g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT) {
-		s = Info_ValueForKey( userinfo, "team" );
-		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) ) {
-			team = TEAM_RED;
-		} else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) ) {
-			team = TEAM_BLUE;
-		} else {
-			// pick the team with the least number of players
-			team = PickTeam( clientNum );
-		}
-	}
-	else {
-		team = client->sess.sessionTeam;
-	}
+	team = client->sess.sessionTeam;
 
 /*	NOTE: all client side now
 
