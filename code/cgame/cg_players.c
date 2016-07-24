@@ -3397,12 +3397,12 @@ static void CG_PlayerSprites( centity_t *cent ) {
 		return; //this entity is mind-tricking the current client, so don't render it
 	}
 
-	if ( cent->currentState.eFlags & EF_CONNECTION ) {
+	if ( cent->currentState.eFlags & EF_CONNECTION && cg_drawPlayerSprites.integer & 1 ) {
 		CG_PlayerFloatSprite( cent, cgs.media.connectionShader );
 		return;
 	}
 
-	if ( cent->currentState.eFlags & EF_TALK ) {
+	if ( cent->currentState.eFlags & EF_TALK && cg_drawPlayerSprites.integer & 2 ) {
 		CG_PlayerFloatSprite( cent, cgs.media.balloonShader );
 		return;
 	}

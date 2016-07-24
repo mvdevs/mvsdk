@@ -1549,6 +1549,7 @@ extern  vmCvar_t		cg_recordSPDemoName;
 extern	vmCvar_t		ui_myteam;
 
 extern	vmCvar_t		mv_fixbrokenmodelsclient;
+extern	vmCvar_t		cg_drawPlayerSprites;
 /*
 Ghoul2 Insert Start
 */

@@ -563,6 +563,7 @@ vmCvar_t	cg_recordSPDemoName;
 vmCvar_t	ui_myteam;
 
 vmCvar_t	mv_fixbrokenmodelsclient;
+vmCvar_t	cg_drawPlayerSprites;
 
 typedef struct {
 	vmCvar_t	*vmCvar;
@@ -712,6 +713,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &ui_myteam, "ui_myteam", "0", CVAR_ROM|CVAR_INTERNAL},
 
 	{ &mv_fixbrokenmodelsclient, "mv_fixbrokenmodelsclient", "2", CVAR_ARCHIVE },
+	{ &cg_drawPlayerSprites, "cg_drawPlayerSprites", "3", CVAR_ARCHIVE },
 
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 /*
