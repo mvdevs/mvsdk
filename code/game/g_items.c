@@ -207,12 +207,9 @@ void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 	if (g_gametype.integer >= GT_TEAM)
 	{ // let teammates through
 		// compare the parent's team to the "other's" team
-		if (self->parent && ( self->parent->client) && (other->client))
+		if ( other->client && self->s.otherEntityNum2 == other->client->sess.sessionTeam )
 		{
-			if (OnSameTeam(self->parent, other))
-			{
-				ShieldGoNotSolid(self);
-			}
+			ShieldGoNotSolid(self);
 		}
 	}
 	else
