@@ -44,6 +44,8 @@
 
 #define SHIELD_HALFTHICKNESS		4
 
+#define MVSDK_BBOX				1
+
 //
 // config strings are a general means of communicating variable length strings
 // from the server to all connected clients.
@@ -63,6 +65,7 @@
 
 #define CS_TEAMVOTE_TIME		12
 #define CS_TEAMVOTE_STRING		14
+
 #define	CS_TEAMVOTE_YES			16
 #define	CS_TEAMVOTE_NO			18
 
@@ -72,6 +75,8 @@
 #define CS_FLAGSTATUS			23		// string indicating flag status in CTF
 #define CS_SHADERSTATE			24
 #define CS_BOTINFO				25
+
+#define CS_MVSDK				26		// CS for mvsdk specific configuration
 
 #define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
 

@@ -2418,6 +2418,13 @@ forceTicPos_t ammoTicPos[] =
  69,  34, -10,  10, "gfx/hud/ammo_tick7", 0,
 };
 
+void MV_LoadSettings()
+{ // Load additional settings (like cgFlags) if the server supports additional mvsdk features
+	const char *info = CG_ConfigString( CS_MVSDK );
+
+	cgs.mvsdk_cgFlags = atoi(Info_ValueForKey( info, "mvsdk_cgFlags" ));
+}
+
 
 /*
 =================
@@ -2661,6 +2668,7 @@ Ghoul2 Insert End
 
 	// get the gamestate from the client system
 	trap_GetGameState( &cgs.gameState );
+	MV_LoadSettings();
 
 	// check version
 	s = CG_ConfigString( CS_GAME_VERSION );

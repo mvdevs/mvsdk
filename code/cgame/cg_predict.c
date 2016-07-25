@@ -118,8 +118,24 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 				zd = ((ent->solid>>8) & 255);
 				zu = ((ent->solid>>16) & 255) - 32;
 
-				bmins[0] = bmins[1] = -x;
-				bmaxs[0] = bmaxs[1] = x;
+				if ( cgs.mvsdk_cgFlags & MVSDK_BBOX && ent->time2 && ent->number >= MAX_CLIENTS )
+				{ // If the server set the MVSDK_BBOX flag it sends bbox infos through time2
+					int maxs1, mins0, mins1;
+
+					maxs1 = (ent->time2 & 255);
+					mins0 = ((ent->time2>>8) & 255);
+					mins1 = ((ent->time2>>16) & 255);
+
+					bmaxs[0] = x;
+					bmaxs[1] = maxs1;
+					bmins[0] = -mins0;
+					bmins[1] = -mins1;
+				}
+				else
+				{
+					bmins[0] = bmins[1] = -x;
+					bmaxs[0] = bmaxs[1] = x;
+				}
 				bmins[2] = -zd;
 				bmaxs[2] = zu;
 			}
