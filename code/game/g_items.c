@@ -290,7 +290,7 @@ void CreateShield(gentity_t *ent)
 	else
 	{
 		VectorSet(ent->r.mins, -SHIELD_HALFTHICKNESS, -halfWidth, -(height>>1));
-		VectorSet(ent->r.maxs, SHIELD_HALFTHICKNESS, halfWidth, height);
+		VectorSet(ent->r.maxs, SHIELD_HALFTHICKNESS, halfWidth, height>>1);
 	}
 	ent->clipmask = MASK_SHOT;
 
