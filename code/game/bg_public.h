@@ -42,6 +42,8 @@
 
 #define MAX_CLIENT_SCORE_SEND 20
 
+#define SHIELD_HALFTHICKNESS		4
+
 //
 // config strings are a general means of communicating variable length strings
 // from the server to all connected clients.

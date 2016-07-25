@@ -80,7 +80,6 @@ int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
 #define SHIELD_HEALTH_DEC			10		// 25 seconds	
 #define MAX_SHIELD_HEIGHT			254
 #define MAX_SHIELD_HALFWIDTH		255
-#define SHIELD_HALFTHICKNESS		4
 #define SHIELD_PLACEDIST			64
 
 static qhandle_t	shieldLoopSound=0;
