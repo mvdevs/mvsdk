@@ -151,9 +151,9 @@ unsigned int trap_AnyLanguage_ReadCharFromString_1_04( const char *psText, int *
 }
 
 /* 1.02 */
-unsigned int trap_AnyLanguage_ReadCharFromString_1_02( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation )
+unsigned int trap_AnyLanguage_ReadCharFromString_1_02( const char **ppText )
 {
-	return syscall( UI_ANYLANGUAGE_READCHARFROMSTRING_1_02, psText, piAdvanceCount, pbIsTrailingPunctuation);
+	return syscall( UI_ANYLANGUAGE_READCHARFROMSTRING_1_02, ppText);
 }
 
 

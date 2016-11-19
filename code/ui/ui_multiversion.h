@@ -23,7 +23,7 @@ extern void MV_SetGamePlay( mvversion_t version );
 /* Function pointers */
 extern qboolean		(*trap_Language_IsAsian)					(void);
 extern qboolean		(*trap_Language_UsesSpaces)					(void);
-extern unsigned int	(*trap_AnyLanguage_ReadCharFromString)		(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation);
+//extern unsigned int	(*trap_AnyLanguage_ReadCharFromString)		(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation);
 
 extern void			(*trap_R_ModelBounds)						(clipHandle_t model, vec3_t mins, vec3_t maxs);
 extern int			(*trap_LAN_GetServerCount)					(int source);
@@ -58,5 +58,8 @@ extern e_status		(*trap_CIN_RunCinematic)					(int handle);
 extern void			(*trap_CIN_DrawCinematic)					(int handle);
 extern void			(*trap_CIN_SetExtents)						(int handle, int x, int y, int w, int h);
 extern void			(*trap_R_RemapShader)						(const char *oldShader, const char *newShader, const char *timeOffset);
+
+extern unsigned int trap_AnyLanguage_ReadCharFromString_1_04( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation );
+extern unsigned int trap_AnyLanguage_ReadCharFromString_1_02( const char **ppText );
 
 #endif //__UI_MULTIVERSION_H_INCLUDED___

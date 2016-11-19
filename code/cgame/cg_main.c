@@ -2285,7 +2285,7 @@ void CG_LoadHudMenu()
 	cgDC.Font_DrawString = &trap_R_Font_DrawString;
 	cgDC.Language_IsAsian = trap_Language_IsAsian;
 	cgDC.Language_UsesSpaces = trap_Language_UsesSpaces;
-	cgDC.AnyLanguage_ReadCharFromString = trap_AnyLanguage_ReadCharFromString;
+	//cgDC.AnyLanguage_ReadCharFromString = trap_AnyLanguage_ReadCharFromString;
 	cgDC.ownerDrawItem = &CG_OwnerDraw;
 	cgDC.getValue = &CG_GetValue;
 	cgDC.ownerDrawVisible = &CG_OwnerDrawVisible;

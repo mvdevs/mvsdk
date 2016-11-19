@@ -359,7 +359,7 @@ typedef struct {
 	void	(*Font_DrawString)(int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale);
 	qboolean (*Language_IsAsian)(void);
 	qboolean (*Language_UsesSpaces)(void);
-	unsigned int (*AnyLanguage_ReadCharFromString)( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/ );
+	//unsigned int (*AnyLanguage_ReadCharFromString)( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/ );
   void (*ownerDrawItem) (float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int iMenuFont);
 	float (*getValue) (int ownerDraw);
 	qboolean (*ownerDrawVisible) (int flags);
@@ -495,7 +495,7 @@ unsigned int trap_AnyLanguage_ReadCharFromString( const char *psText, int *piAdv
 */
 extern qboolean		(*trap_Language_IsAsian)					(void);
 extern qboolean		(*trap_Language_UsesSpaces)					(void);
-extern unsigned int	(*trap_AnyLanguage_ReadCharFromString)		(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation);
+//extern unsigned int	(*trap_AnyLanguage_ReadCharFromString)		(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation);
 
 qboolean	trap_SP_RegisterServer( const char *package );
 qboolean	trap_SP_Register(char *file );

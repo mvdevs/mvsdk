@@ -5,6 +5,8 @@
 #include "../game/bg_multiversion.h"
 #include "../api/mvapi.h"
 
+#include "ui_multiversion.h"
+
 #define SCROLL_TIME_START					500
 #define SCROLL_TIME_ADJUST				150
 #define SCROLL_TIME_ADJUSTOFFSET	40
@@ -6460,7 +6462,7 @@ static void Item_TextScroll_BuildLines ( itemDef_t* item )
 
 				// read letter...
 				//
-				uiLetter = trap_AnyLanguage_ReadCharFromString(psCurrentTextReadPos, &iAdvanceCount, &bIsTrailingPunctuation);
+				uiLetter = trap_AnyLanguage_ReadCharFromString_1_04(psCurrentTextReadPos, &iAdvanceCount, &bIsTrailingPunctuation);
 				psCurrentTextReadPos += iAdvanceCount;
 
 				// concat onto string so far...
@@ -7346,6 +7348,8 @@ int Key_GetProtocolKey(mvversion_t version, int key16) {
 	if (version != VERSION_1_02)
 		return key16;
 
+	// NOTE: We're not checking for K_CHAR_FLAG, as the UI module (at least under normal circumstances) does NOT give keys with K_CHAR_FLAG to the engine.
+
 	switch (key16) {
 	case A_TAB:
 		return K_TAB;
@@ -7607,8 +7611,13 @@ int Key_GetProtocolKey(mvversion_t version, int key16) {
 }
 
 int Key_GetProtocolKey15(mvversion_t version, int key15) {
+	int charFlag = (key15 & K_CHAR_FLAG);
+
 	if (version != VERSION_1_02)
 		return key15;
+
+	key15 &= ~K_CHAR_FLAG; // FIXME: Can something like (K_SHIFT | K_CHAR_FLAG) actually end up here or could we just return any (key15 & K_CHAR_FLAG) without conversion?
+	                       // Normal jk2mv should only send actual characters as (key15 | K_CHAR_FLAG), so we could return. But let's still attempt the conversion, in case we're running on a different version of the engine...
 
 	switch (key15) {
 	case K_TAB:
@@ -7866,7 +7875,7 @@ int Key_GetProtocolKey15(mvversion_t version, int key15) {
 	// -> Other way round when we are inside the qvm - Key_GetProtocolKey has to check for Key_GetProtocolKey15, NOT the other way round.
 	//if ( Key_GetProtocolKey(version, key15) != key15 ) return -1;
 
-	if ( key15 >= K_LAST_KEY ) return -1;
+	if ( key15 >= K_LAST_KEY && !charFlag ) return -1;
 
-	return key15;
+	return (charFlag ? (key15 | K_CHAR_FLAG) : key15);
 }

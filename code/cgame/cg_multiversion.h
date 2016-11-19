@@ -8,7 +8,7 @@ extern void MV_SetGameVersion( mvversion_t version );
 /* Function Pointers */
 extern qboolean	(*trap_Language_IsAsian)					(void);
 extern qboolean	(*trap_Language_UsesSpaces)					(void);
-extern unsigned	int (*trap_AnyLanguage_ReadCharFromString)	(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/);
+//extern unsigned	int (*trap_AnyLanguage_ReadCharFromString)	(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/);
 extern qboolean	(*trap_G2API_SetRootSurface)				(void *ghoul2, const int modelIndex, const char *surfaceName);
 extern qboolean	(*trap_G2API_SetSurfaceOnOff)				(void *ghoul2, const char *surfaceName, const int flags);
 extern qboolean	(*trap_G2API_SetNewOrigin)					(void *ghoul2, const int boltIndex);
@@ -28,5 +28,8 @@ extern void		(*trap_G2API_CollisionDetect)				(CollisionRecord_t *collRecMap, vo
 extern qboolean	(*trap_G2API_SetBoneAngles)					(void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime);
 extern void		(*trap_G2API_GetGLAName)					(void *ghoul2, int modelIndex, char *fillBuf);
 extern qboolean	(*trap_G2API_SetBoneAnim)					(void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame , const int blendTime);
+
+extern unsigned int trap_AnyLanguage_ReadCharFromString_1_04( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation );
+extern unsigned int trap_AnyLanguage_ReadCharFromString_1_02( const char **ppText );
 
 #endif //__CG_MULTIVERSION_H_INCLUDED___

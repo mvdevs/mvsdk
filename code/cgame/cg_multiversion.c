@@ -19,7 +19,7 @@ TODO:
 /* 1.02 functions */
 //qboolean	trap_Language_IsAsian_1_02					(void);
 //qboolean	trap_Language_UsesSpaces_1_02				(void);
-unsigned	int trap_AnyLanguage_ReadCharFromString_1_02(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/);
+unsigned	int trap_AnyLanguage_ReadCharFromString_1_02(const char **ppText);
 qboolean	trap_G2API_SetRootSurface_1_02				(void *ghoul2, const int modelIndex, const char *surfaceName);
 qboolean	trap_G2API_SetSurfaceOnOff_1_02				(void *ghoul2, const char *surfaceName, const int flags);
 qboolean	trap_G2API_SetNewOrigin_1_02				(void *ghoul2, const int boltIndex);
@@ -67,7 +67,7 @@ qboolean	trap_G2API_SetBoneAnim_1_04					(void *ghoul2, const int modelIndex, co
 /* Functions pointers */
 qboolean	(*trap_Language_IsAsian)					(void);
 qboolean	(*trap_Language_UsesSpaces)					(void);
-unsigned	int (*trap_AnyLanguage_ReadCharFromString)	(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/);
+//unsigned	int (*trap_AnyLanguage_ReadCharFromString)	(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/);
 qboolean	(*trap_G2API_SetRootSurface)				(void *ghoul2, const int modelIndex, const char *surfaceName);
 qboolean	(*trap_G2API_SetSurfaceOnOff)				(void *ghoul2, const char *surfaceName, const int flags);
 qboolean	(*trap_G2API_SetNewOrigin)					(void *ghoul2, const int boltIndex);
@@ -122,7 +122,7 @@ void MV_SetGameVersion( mvversion_t version )
 			/* The first two don't exist in 1.02 */
 			trap_Language_IsAsian					= trap_Language_IsAsian_DoesNotExistIn_1_02;
 			trap_Language_UsesSpaces				= trap_Language_UsesSpaces_DoesNotExistIn_1_02;
-			trap_AnyLanguage_ReadCharFromString		= trap_AnyLanguage_ReadCharFromString_1_02;
+			//trap_AnyLanguage_ReadCharFromString		= trap_AnyLanguage_ReadCharFromString_1_02;
 			trap_G2API_SetRootSurface				= trap_G2API_SetRootSurface_1_02;
 			trap_G2API_SetSurfaceOnOff				= trap_G2API_SetSurfaceOnOff_1_02;
 			trap_G2API_SetNewOrigin					= trap_G2API_SetNewOrigin_1_02;
@@ -148,7 +148,7 @@ void MV_SetGameVersion( mvversion_t version )
 		default:
 			trap_Language_IsAsian					= trap_Language_IsAsian_1_04;
 			trap_Language_UsesSpaces				= trap_Language_UsesSpaces_1_04;
-			trap_AnyLanguage_ReadCharFromString		= trap_AnyLanguage_ReadCharFromString_1_04;
+			//trap_AnyLanguage_ReadCharFromString		= trap_AnyLanguage_ReadCharFromString_1_04;
 			trap_G2API_SetRootSurface				= trap_G2API_SetRootSurface_1_04;
 			trap_G2API_SetSurfaceOnOff				= trap_G2API_SetSurfaceOnOff_1_04;
 			trap_G2API_SetNewOrigin					= trap_G2API_SetNewOrigin_1_04;

@@ -405,8 +405,15 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4
 			int iAdvanceCount;
 			psOutLastGood = psOut;			
 
-			uiLetter = trap_AnyLanguage_ReadCharFromString(psText, &iAdvanceCount, &bIsTrailingPunctuation);
-			psText += iAdvanceCount;
+			if ( jk2version == VERSION_1_02 )
+			{
+				uiLetter = trap_AnyLanguage_ReadCharFromString_1_02(&psText);
+			}
+			else
+			{
+				uiLetter = trap_AnyLanguage_ReadCharFromString_1_04(psText, &iAdvanceCount, &bIsTrailingPunctuation);
+				psText += iAdvanceCount;
+			}
 
 			if (uiLetter > 255)
 			{

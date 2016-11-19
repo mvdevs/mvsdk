@@ -37,6 +37,11 @@ void _UI_Refresh( int realtime );
 qboolean _UI_IsFullscreen( void );
 LIBEXPORT intptr_t vmMain( intptr_t command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4, intptr_t arg5, intptr_t arg6, intptr_t arg7, intptr_t arg8, intptr_t arg9, intptr_t arg10, intptr_t arg11  ) {
   int requestedMvApi = 0;
+  if ( jk2version == VERSION_UNDEF && command != UI_GETAPIVERSION )
+  { // Shouldn't happen under normal circumstances, but we had this case while debugging on old engine binaries...
+	  Com_Printf("vmMain [UI]: first call to vmMain had a command != UI_GETAPIVERSION\n");
+	  MV_UiDetectVersion(); // Try detecting the version now, otherwise we might be missing syscalls...
+  }
   switch ( command ) {
 	  case UI_GETAPIVERSION:
 		  return /*UI_API_VERSION*/MV_UiDetectVersion();
@@ -494,8 +499,15 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
 			int iAdvanceCount;
 			psOutLastGood = psOut;
 			
-			uiLetter = trap_AnyLanguage_ReadCharFromString(psText, &iAdvanceCount, NULL);
-			psText += iAdvanceCount;
+			if ( jk2version == VERSION_1_02 )
+			{
+				uiLetter = trap_AnyLanguage_ReadCharFromString_1_02(&psText);
+			}
+			else
+			{
+				uiLetter = trap_AnyLanguage_ReadCharFromString_1_04(psText, &iAdvanceCount, NULL);
+				psText += iAdvanceCount;
+			}
 
 			if (uiLetter > 255)
 			{
@@ -6566,7 +6578,7 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.uiDC.Font_DrawString = trap_R_Font_DrawString;
 	uiInfo.uiDC.Language_IsAsian = trap_Language_IsAsian;
 	uiInfo.uiDC.Language_UsesSpaces = trap_Language_UsesSpaces;
-	uiInfo.uiDC.AnyLanguage_ReadCharFromString = trap_AnyLanguage_ReadCharFromString;
+	//uiInfo.uiDC.AnyLanguage_ReadCharFromString = *trap_AnyLanguage_ReadCharFromString*/;
 	uiInfo.uiDC.ownerDrawItem = &UI_OwnerDraw;
 	uiInfo.uiDC.getValue = &UI_GetValue;
 	uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;

@@ -18,7 +18,7 @@ TODO:
 /* 1.02 functions */
 //qboolean		trap_Language_IsAsian_1_02					(void);
 //qboolean		trap_Language_UsesSpaces_1_02				(void);
-unsigned int	trap_AnyLanguage_ReadCharFromString_1_02	(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation);
+unsigned int	trap_AnyLanguage_ReadCharFromString_1_02	(const char **ppText);
 
 void			trap_R_ModelBounds_1_02						(clipHandle_t model, vec3_t mins, vec3_t maxs);
 int				trap_LAN_GetServerCount_1_02				(int source);
@@ -96,7 +96,7 @@ void			trap_R_RemapShader_1_04						(const char *oldShader, const char *newShade
 /* Function pointers */
 qboolean		(*trap_Language_IsAsian)					(void);
 qboolean		(*trap_Language_UsesSpaces)					(void);
-unsigned int	(*trap_AnyLanguage_ReadCharFromString)		(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation);
+//unsigned int	(*trap_AnyLanguage_ReadCharFromString)		(const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation);
 
 void			(*trap_R_ModelBounds)						(clipHandle_t model, vec3_t mins, vec3_t maxs);
 int				(*trap_LAN_GetServerCount)					(int source);
@@ -172,7 +172,7 @@ void MV_SetGameVersion( mvversion_t version )
 			trap_Language_IsAsian				= trap_Language_IsAsian_DoesNotExistIn_1_02;
 			trap_Language_UsesSpaces			= trap_Language_UsesSpaces_DoesNotExistIn_1_02;
 
-			trap_AnyLanguage_ReadCharFromString	= trap_AnyLanguage_ReadCharFromString_1_02;
+			/*trap_AnyLanguage_ReadCharFromString	= trap_AnyLanguage_ReadCharFromString_1_02;*/
 
 			trap_R_ModelBounds					= trap_R_ModelBounds_1_02;
 			trap_LAN_GetServerCount				= trap_LAN_GetServerCount_1_02;
@@ -213,7 +213,7 @@ void MV_SetGameVersion( mvversion_t version )
 		default:
 			trap_Language_IsAsian				= trap_Language_IsAsian_1_04;
 			trap_Language_UsesSpaces			= trap_Language_UsesSpaces_1_04;
-			trap_AnyLanguage_ReadCharFromString	= trap_AnyLanguage_ReadCharFromString_1_04;
+			/*trap_AnyLanguage_ReadCharFromString	= trap_AnyLanguage_ReadCharFromString_1_04;*/
 
 			trap_R_ModelBounds					= trap_R_ModelBounds_1_04;
 			trap_LAN_GetServerCount				= trap_LAN_GetServerCount_1_04;

@@ -262,9 +262,9 @@ unsigned int trap_AnyLanguage_ReadCharFromString_1_04( const char *psText, int *
 }
 
 /* 1.02 */
-unsigned int trap_AnyLanguage_ReadCharFromString_1_02( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/ )
+unsigned int trap_AnyLanguage_ReadCharFromString_1_02( const char **ppText )
 {
-	return syscall( CG_ANYLANGUAGE_READCHARFROMSTRING_1_02, psText, piAdvanceCount, pbIsTrailingPunctuation);
+	return syscall( CG_ANYLANGUAGE_READCHARFROMSTRING_1_02, ppText);
 }
 
 void	trap_R_ClearScene( void ) {
