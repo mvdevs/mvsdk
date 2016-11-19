@@ -659,6 +659,7 @@ extern	vec4_t		colorDkBlue;
 #define Q_COLOR_ESCAPE	'^'
 // you MUST have the last bit on here about colour strings being less than 7 or taiwanese strings register as colour!!!!
 #define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE && *((p)+1) <= '7' && *((p)+1) >= '0' )
+#define Q_IsColorString_1_02(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE ) // 1.02 ColorStrings
 
 
 #define COLOR_BLACK		'0'
@@ -1003,9 +1004,9 @@ void	Q_strncpyz( char *dest, const char *src, int destsize );
 void	Q_strcat( char *dest, int size, const char *src );
 
 // strlen that discounts Quake color sequences
-int Q_PrintStrlen( const char *string );
+int Q_PrintStrlen( const char *string, qboolean use102color );
 // removes color sequences from string
-char *Q_CleanStr( char *string );
+char *Q_CleanStr( char *string, qboolean use102color );
 
 //=============================================
 

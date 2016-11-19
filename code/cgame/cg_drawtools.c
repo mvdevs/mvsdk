@@ -212,7 +212,7 @@ Coordinates are at 640 by 480 virtual resolution
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars )
 {
-	if (jk2version != VERSION_1_02 && trap_Language_IsAsian())
+	if (jk2version != VERSION_1_02 && trap_Language_IsAsian()) // JK2MV: This was originally only checked for 1.04, but as 1.03 already had the required syscall let's do it for 1.03 and 1.04
 	{
 		// hack-a-doodle-do (post-release quick fix code)...
 		//
@@ -241,7 +241,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 			s = string;
 			xx = x;
 			while ( *s ) {
-				if ( Q_IsColorString( s ) ) {
+				if ( (jk2gameplay == VERSION_1_02 ? Q_IsColorString_1_02(s) : Q_IsColorString(s)) ) {
 					s += 2;
 					continue;
 				}
@@ -256,7 +256,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		xx = x;
 		trap_R_SetColor( setColor );
 		while ( *s ) {
-			if ( Q_IsColorString( s ) ) {
+			if ( (jk2gameplay == VERSION_1_02 ? Q_IsColorString_1_02(s) : Q_IsColorString(s)) ) {
 				if ( !forceColor ) {
 					memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
 					color[3] = setColor[3];
@@ -309,7 +309,7 @@ int CG_DrawStrlen( const char *str ) {
 	int count = 0;
 
 	while ( *s ) {
-		if ( Q_IsColorString( s ) ) {
+		if ( (jk2gameplay == VERSION_1_02 ? Q_IsColorString_1_02(s) : Q_IsColorString(s)) ) {
 			s += 2;
 		} else {
 			count++;

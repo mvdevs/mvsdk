@@ -463,7 +463,7 @@ static void CG_AddToTeamChat( const char *str ) {
 			ls = NULL;
 		}
 
-		if ( Q_IsColorString( str ) ) {
+		if ( (jk2gameplay == VERSION_1_02 ? Q_IsColorString_1_02(str) : Q_IsColorString(str)) ) {
 			*p++ = *str++;
 			lastcolor = *str;
 			*p++ = *str++;

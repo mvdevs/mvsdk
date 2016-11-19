@@ -427,7 +427,7 @@ void G_AddRandomBot( int team ) {
 				else teamstr = "";
 				strncpy(netname, value, sizeof(netname)-1);
 				netname[sizeof(netname)-1] = '\0';
-				Q_CleanStr(netname);
+				Q_CleanStr(netname, (qboolean)(jk2version == VERSION_1_02));
 				trap_SendConsoleCommand( EXEC_INSERT, va("addbot %s %f %s %i\n", netname, skill, teamstr, 0) );
 				return;
 			}
@@ -457,7 +457,7 @@ int G_RemoveRandomBot( int team ) {
 			continue;
 		}
 		strcpy(netname, cl->pers.netname);
-		Q_CleanStr(netname);
+		Q_CleanStr(netname, (qboolean)(jk2version == VERSION_1_02));
 		trap_SendConsoleCommand( EXEC_INSERT, va("kick %s\n", netname) );
 		return qtrue;
 	}
