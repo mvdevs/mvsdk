@@ -21,7 +21,7 @@ void CG_ClearLightStyles (void)
 
 	for(i=0;i<MAX_LIGHT_STYLES*3;i++)
 	{
-		CG_SetLightstyle (i);
+		CG_UpdateConfigString( CS_LIGHT_STYLES + i, qtrue );
 	}
 }
 

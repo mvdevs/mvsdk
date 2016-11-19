@@ -129,11 +129,9 @@ This is called explicitly when the gamestate is first received,
 and whenever the server updates any serverinfo flagged cvars
 ================
 */
-void CG_ParseServerinfo( void ) {
-	const char	*info;
+static void CG_ParseServerinfo( const char *info ) {
 	char	*mapname;
 
-	info = CG_ConfigString( CS_SERVERINFO );
 	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
 	trap_Cvar_Set("g_gametype", va("%i", cgs.gametype));
 	cgs.needpass = atoi( Info_ValueForKey( info, "needpass" ) );
@@ -171,94 +169,18 @@ void CG_ParseServerinfo( void ) {
 	trap_Cvar_Set ( "ui_about_botminplayers", Info_ValueForKey ( info, "bot_minplayers" ) );
 }
 
-/*
-==================
-CG_ParseWarmup
-==================
-*/
-static void CG_ParseWarmup( void ) {
-	const char	*info;
-	int			warmup;
-
-	info = CG_ConfigString( CS_WARMUP );
-
-	warmup = atoi( info );
-	cg.warmupCount = -1;
-
-	cg.warmup = warmup;
-}
-
-/*
-================
-CG_SetConfigValues
-
-Called on load to set the initial values from configure strings
-================
-*/
-void CG_SetConfigValues( void ) 
-{
-	const char *s;
-	const char *str;
-
-	cgs.scores1 = atoi( CG_ConfigString( CS_SCORES1 ) );
-	cgs.scores2 = atoi( CG_ConfigString( CS_SCORES2 ) );
-	cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
-	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
-		s = CG_ConfigString( CS_FLAGSTATUS );
-		cgs.redflag = s[0] - '0';
-		cgs.blueflag = s[1] - '0';
-	}
-	cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
-
-	// Track who the jedi master is
-	cgs.jediMaster = atoi ( CG_ConfigString ( CS_CLIENT_JEDIMASTER ) );
-	cgs.duelWinner = atoi ( CG_ConfigString ( CS_CLIENT_DUELWINNER ) );
-
-	str = CG_ConfigString(CS_CLIENT_DUELISTS);
-
-	if (str && str[0])
-	{
-		char buf[64];
-		int c = 0;
-		int i = 0;
-
-		while (str[i] && str[i] != '|')
-		{
-			buf[c] = str[i];
-			c++;
-			i++;
-		}
-		buf[c] = 0;
-
-		cgs.duelist1 = atoi ( buf );
-		c = 0;
-
-		i++;
-		while (str[i])
-		{
-			buf[c] = str[i];
-			c++;
-			i++;
-		}
-		buf[c] = 0;
-
-		cgs.duelist2 = atoi ( buf );
-	}
-}
 
 /*
 =====================
 CG_ShaderStateChanged
 =====================
 */
-void CG_ShaderStateChanged(void) {
+static void CG_ShaderStateChanged( const char *o ) {
 	char originalShader[MAX_QPATH];
 	char newShader[MAX_QPATH];
 	char timeOffset[16];
-	const char *o;
 	char *n,*t;
 
-	o = CG_ConfigString( CS_SHADERSTATE );
 	while (o && *o) {
 		n = strstr(o, "=");
 		if (n && *n) {
@@ -293,7 +215,6 @@ CG_ConfigStringModified
 ================
 */
 static void CG_ConfigStringModified( void ) {
-	const char	*str;
 	int		num;
 
 	num = atoi( CG_Argv( 1 ) );
@@ -302,112 +223,159 @@ static void CG_ConfigStringModified( void ) {
 	// new configstring already integrated
 	trap_GetGameState( &cgs.gameState );
 
-	// look up the individual string that was modified
-	str = CG_ConfigString( num );
+	CG_UpdateConfigString( num, qfalse );
+}
 
-	// do something with it if necessary
-	if ( num == CS_MUSIC ) {
-		CG_StartMusic( qtrue );
-	} else if ( num == CS_SERVERINFO ) {
-		CG_ParseServerinfo();
-	} else if ( num == CS_WARMUP ) {
-		CG_ParseWarmup();
-	} else if ( num == CS_SCORES1 ) {
-		cgs.scores1 = atoi( str );
-	} else if ( num == CS_SCORES2 ) {
-		cgs.scores2 = atoi( str );
-	} else if ( num == CS_CLIENT_JEDIMASTER ) {
-		cgs.jediMaster = atoi ( str );
-	} else if ( num == CS_CLIENT_DUELWINNER ) {
-		cgs.duelWinner = atoi ( str );
-	} else if ( num == CS_CLIENT_DUELISTS ) {
-		char buf[64];
-		int c = 0;
-		int i = 0;
+void CG_UpdateConfigString( int num, qboolean init )
+{
+	const char *str = CG_ConfigString( num );
 
-		while (str[i] && str[i] != '|')
-		{
-			buf[c] = str[i];
-			c++;
-			i++;
+	if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS )
+	{
+		if ( !init || str[0] ) {
+			cgs.gameModels[ num-CS_MODELS ] = trap_R_RegisterModel( str );
 		}
-		buf[c] = 0;
-
-		cgs.duelist1 = atoi ( buf );
-		c = 0;
-
-		i++;
-		while (str[i])
-		{
-			buf[c] = str[i];
-			c++;
-			i++;
+		// GHOUL2 Insert start
+	}
+	else if ( num >= CS_CHARSKINS && num < CS_CHARSKINS+MAX_CHARSKINS )
+	{
+		if ( !init || str[0] ) {
+			cgs.skins[ num-CS_CHARSKINS ] = trap_R_RegisterSkin( str );
 		}
-		buf[c] = 0;
-
-		cgs.duelist2 = atoi ( buf );
-	} else if ( num == CS_LEVEL_START_TIME ) {
-		cgs.levelStartTime = atoi( str );
-	} else if ( num == CS_VOTE_TIME ) {
-		cgs.voteTime = atoi( str );
-		cgs.voteModified = qtrue;
-	} else if ( num == CS_VOTE_YES ) {
-		cgs.voteYes = atoi( str );
-		cgs.voteModified = qtrue;
-	} else if ( num == CS_VOTE_NO ) {
-		cgs.voteNo = atoi( str );
-		cgs.voteModified = qtrue;
-	} else if ( num == CS_VOTE_STRING ) {
-		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
-	} else if ( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
-		cgs.teamVoteTime[num-CS_TEAMVOTE_TIME] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_TIME] = qtrue;
-	} else if ( num >= CS_TEAMVOTE_YES && num <= CS_TEAMVOTE_YES + 1) {
-		cgs.teamVoteYes[num-CS_TEAMVOTE_YES] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_YES] = qtrue;
-	} else if ( num >= CS_TEAMVOTE_NO && num <= CS_TEAMVOTE_NO + 1) {
-		cgs.teamVoteNo[num-CS_TEAMVOTE_NO] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_NO] = qtrue;
-	} else if ( num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1) {
-		Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString ) );
-	} else if ( num == CS_INTERMISSION ) {
-		cg.intermissionStarted = atoi( str );
-	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
-		cgs.gameModels[ num-CS_MODELS ] = trap_R_RegisterModel( str );
-// GHOUL2 Insert start
-	} else if ( num >= CS_CHARSKINS && num < CS_CHARSKINS+MAX_CHARSKINS ) {
-		cgs.skins[ num-CS_CHARSKINS ] = trap_R_RegisterSkin( str );
-// Ghoul2 Insert end
-	} else if ( num >= CS_SOUNDS && num < CS_SOUNDS+MAX_SOUNDS ) {
-		if ( str[0] != '*' ) {	// player specific sounds don't register here
-			cgs.gameSounds[ num-CS_SOUNDS] = trap_S_RegisterSound( str );
+		// Ghoul2 Insert end
+	}
+	else if ( num >= CS_SOUNDS && num < CS_SOUNDS+MAX_SOUNDS )
+	{
+		if ( (!init || str[0]) && str[0] != '*' ) {	// player specific sounds don't register here
+			cgs.gameSounds[ num-CS_SOUNDS ] = trap_S_RegisterSound( str );
 		}
-	} else if ( num >= CS_EFFECTS && num < CS_SOUNDS+MAX_SOUNDS ) {
-		if ( str[0] != '*' ) {	// player specific sounds don't register here
-			cgs.gameEffects[ num-CS_EFFECTS] = trap_FX_RegisterEffect( str );
+	}
+	else if ( num >= CS_EFFECTS && num < CS_EFFECTS+MAX_FX )
+	{
+		if ( (!init || str[0]) /*&& str[0] != '*'*/ ) {
+			cgs.gameEffects[ num-CS_EFFECTS ] = trap_FX_RegisterEffect( str );
 		}
-	} else if ( num >= CS_PLAYERS && num < CS_PLAYERS+MAX_CLIENTS ) {
-		CG_NewClientInfo( num - CS_PLAYERS, qtrue);
+	}
+	else if ( num >= CS_PLAYERS && num < CS_PLAYERS+MAX_CLIENTS )
+	{
+		CG_NewClientInfo( num - CS_PLAYERS, !init );
 		CG_BuildSpectatorString();
-	} else if ( num == CS_FLAGSTATUS ) {
-		if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
-			// format is rb where its red/blue, 0 is at base, 1 is taken, 2 is dropped
-			cgs.redflag = str[0] - '0';
-			cgs.blueflag = str[1] - '0';
-		}
 	}
-	else if ( num == CS_SHADERSTATE ) {
-		CG_ShaderStateChanged();
-	}
-	else if ( num >= CS_LIGHT_STYLES && num < CS_LIGHT_STYLES + (MAX_LIGHT_STYLES * 3))
+	else if ( num >= CS_LIGHT_STYLES && num < CS_LIGHT_STYLES + (MAX_LIGHT_STYLES * 3) )
 	{
 		CG_SetLightstyle(num - CS_LIGHT_STYLES);
 	}
-	else if ( num == CS_MVSDK )
+	else
 	{
-		MV_LoadSettings();
+		switch ( num ) {
+		case CS_MUSIC:
+			CG_StartMusic( !init );
+			break;
+		case CS_SERVERINFO:
+			CG_ParseServerinfo( str );
+			break;
+		case CS_WARMUP:
+			cg.warmupCount = -1;
+			cg.warmup = atoi( str );
+			break;
+		case CS_SCORES1:
+			cgs.scores1 = atoi( str );
+			break;
+		case CS_SCORES2:
+			cgs.scores2 = atoi( str );
+			break;
+		case CS_CLIENT_JEDIMASTER:
+			cgs.jediMaster = atoi ( str );
+			break;
+		case CS_CLIENT_DUELWINNER:
+			cgs.duelWinner = atoi ( str );
+			break;
+		case CS_CLIENT_DUELISTS:
+		{
+			char buf[64];
+			int c = 0;
+			int i = 0;
+
+			while (str[i] && str[i] != '|')
+			{
+				buf[c] = str[i];
+				c++;
+				i++;
+			}
+			buf[c] = 0;
+
+			cgs.duelist1 = atoi ( buf );
+			c = 0;
+
+			i++;
+			while (str[i])
+			{
+				buf[c] = str[i];
+				c++;
+				i++;
+			}
+			buf[c] = 0;
+
+			cgs.duelist2 = atoi ( buf );
+			break;
+		}
+		case CS_LEVEL_START_TIME:
+			cgs.levelStartTime = atoi( str );
+			break;
+		case CS_VOTE_TIME:
+			cgs.voteTime = atoi( str );
+			cgs.voteModified = qtrue;
+			break;
+		case CS_VOTE_YES:
+			cgs.voteYes = atoi( str );
+			cgs.voteModified = qtrue;
+			break;
+		case CS_VOTE_NO:
+			cgs.voteNo = atoi( str );
+			cgs.voteModified = qtrue;
+			break;
+		case CS_VOTE_STRING:
+			Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
+			break;
+		case CS_TEAMVOTE_TIME:
+		case CS_TEAMVOTE_TIME + 1:
+			cgs.teamVoteTime[num-CS_TEAMVOTE_TIME] = atoi( str );
+			cgs.teamVoteModified[num-CS_TEAMVOTE_TIME] = qtrue;
+			break;
+		case CS_TEAMVOTE_YES:
+		case CS_TEAMVOTE_YES + 1:
+			cgs.teamVoteYes[num-CS_TEAMVOTE_YES] = atoi( str );
+			cgs.teamVoteModified[num-CS_TEAMVOTE_YES] = qtrue;
+			break;
+		case CS_TEAMVOTE_NO:
+		case CS_TEAMVOTE_NO + 1:
+			cgs.teamVoteNo[num-CS_TEAMVOTE_NO] = atoi( str );
+			cgs.teamVoteModified[num-CS_TEAMVOTE_NO] = qtrue;
+			break;
+		case CS_TEAMVOTE_STRING:
+		case CS_TEAMVOTE_STRING + 1:
+			Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString ) );
+			break;
+		case CS_INTERMISSION:
+			cg.intermissionStarted = atoi( str );
+			break;
+		case CS_FLAGSTATUS:
+			if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
+				// format is rb where its red/blue, 0 is at base, 1 is taken, 2 is dropped
+				cgs.redflag = str[0] - '0';
+				cgs.blueflag = str[1] - '0';
+			}
+			break;
+		case CS_SHADERSTATE:
+			CG_ShaderStateChanged( str );
+			break;
+		case CS_MVSDK:
+			MV_LoadSettings( str );
+			break;
+		default:
+			break;
+		}
 	}
-		
 }
 
 
