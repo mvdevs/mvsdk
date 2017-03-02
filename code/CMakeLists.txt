@@ -3,6 +3,10 @@ if(NOT InMV)
 	message(FATAL_ERROR "Use the top-level cmake script!")
 endif(NOT InMV)
 
+# mv_setup.h preparation
+set(MVGLOBALIncludeDirs ${MVGLOBALIncludeDirs} ${CMAKE_BINARY_DIR})
+configure_file("mv_setup.h.in" "${CMAKE_BINARY_DIR}/mv_setup.h" @ONLY)
+
 add_subdirectory("${SRCDir}/game")
 add_subdirectory("${SRCDir}/cgame")
 add_subdirectory("${SRCDir}/ui")

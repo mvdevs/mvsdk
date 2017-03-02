@@ -8,13 +8,21 @@ set(SRCDir "${CMAKE_SOURCE_DIR}/code")
 set(QVMDir "${CMAKE_BINARY_DIR}/out/qvm")
 
 # Custom CMake Modules
-#list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_SOURCE_DIR}/tools")
+list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_SOURCE_DIR}/cmake")
 
 # Project name & version
 set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
 set(ProjectName "JK2MV SDK" CACHE STRING "Project Name")
-project(${ProjectName})
 set(ProjectURL "https://jk2mv.org")
+project(${ProjectName})
+
+include(GetGitRevisionDescription)
+git_describe(MVSDK_VERSION --tags)
+if(NOT MVSDK_VERSION)
+	set(MVSDK_VERSION "unknown")
+endif()
+
+message(STATUS "${ProjectName} Version: ${MVSDK_VERSION}")
 
 # Languages
 enable_language(C)
