@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 # For checks in subdirectories
-set(InMV TRUE)
+set(InMVSDK TRUE)
 
 # Paths
 set(SRCDir "${CMAKE_SOURCE_DIR}/code")
