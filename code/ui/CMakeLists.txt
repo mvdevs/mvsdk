@@ -1,4 +1,4 @@
-# Make sure the user is not executing this script directly
+﻿# Make sure the user is not executing this script directly
 if(NOT InMVSDK)
 	message(FATAL_ERROR "Use the top-level cmake script!")
 endif(NOT InMVSDK)
@@ -65,4 +65,7 @@ set_property(TARGET ${MVUI} APPEND PROPERTY COMPILE_DEFINITIONS
 )
 
 set_target_properties(${MVUI} PROPERTIES INCLUDE_DIRECTORIES "${MVUIIncludeDirs}")
-set_target_properties(${MVUI} PROPERTIES PROJECT_LABEL "JK2MV - UI Module")
+set_target_properties(${MVUI} PROPERTIES PROJECT_LABEL "UI Module")
+if(InMV)
+	set_property(TARGET ${MVUI} PROPERTY FOLDER "Modules")
+endif()

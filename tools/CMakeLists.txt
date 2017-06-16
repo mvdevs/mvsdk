@@ -1,7 +1,7 @@
 # Make sure the user is not executing this script directly
-if(NOT InMV)
+if(NOT InMVSDK)
 	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InMV)
+endif(NOT InMVSDK)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tools)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tools)

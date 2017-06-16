@@ -1,4 +1,4 @@
-# Make sure the user is not executing this script directly
+﻿# Make sure the user is not executing this script directly
 if(NOT InMVSDK)
 	message(FATAL_ERROR "Use the top-level cmake script!")
 endif(NOT InMVSDK)
@@ -111,4 +111,7 @@ set_property(TARGET ${MVCGAME} APPEND PROPERTY COMPILE_DEFINITIONS
 )
 
 set_target_properties(${MVCGAME} PROPERTIES INCLUDE_DIRECTORIES "${MVCGAMEIncludeDirs}")
-set_target_properties(${MVCGAME} PROPERTIES PROJECT_LABEL "JK2MV - CGame Module")
+set_target_properties(${MVCGAME} PROPERTIES PROJECT_LABEL "CGame Module")
+if(InMV)
+	set_property(TARGET ${MVCGAME} PROPERTY FOLDER "Modules")
+endif()

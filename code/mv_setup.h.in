@@ -1,6 +1,0 @@
-#ifndef MV_SETUP_H
-#define MV_SETUP_H
-
-#define MVSDK_VERSION "@MVSDK_VERSION@"
-
-#endif /* MV_SETUP_H */
