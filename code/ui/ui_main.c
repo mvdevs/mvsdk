@@ -16,6 +16,8 @@ USER INTERFACE MAIN
 #include "../qcommon/game_version.h"
 #include "ui_force.h"
 
+#include "mv_setup.h"
+
 /*
 ================
 vmMain
@@ -7238,6 +7240,8 @@ vmCvar_t	ui_realWarmUp;
 vmCvar_t	ui_serverStatusTimeOut;
 vmCvar_t	s_language;
 
+vmCvar_t	ui_MVSDK;
+
 // bk001129 - made static to avoid aliasing
 static cvarTable_t		cvarTable[] = {
 	{ &ui_ffa_fraglimit, "ui_ffa_fraglimit", "20", CVAR_ARCHIVE },
@@ -7366,6 +7370,8 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
 	{ &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
 	{ &s_language, "s_language", "english", CVAR_ARCHIVE | CVAR_NORESTART},
+
+	{ &ui_MVSDK, "ui_MVSDK", MVSDK_VERSION, CVAR_ROM | CVAR_USERINFO },
 };
 
 // bk001129 - made static to avoid aliasing

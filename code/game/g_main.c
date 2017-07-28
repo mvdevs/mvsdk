@@ -3,6 +3,8 @@
 
 #include "g_local.h"
 
+#include "mv_setup.h"
+
 level_locals_t	level;
 
 typedef struct {
@@ -133,6 +135,8 @@ vmCvar_t	mv_fixturretcrash;
 vmCvar_t	mv_connectionlimit;
 vmCvar_t	mv_connectinglimit;
 vmCvar_t	mv_forcePowerDisableMode;
+
+vmCvar_t	g_MVSDK;
 
 int gDuelist1 = -1;
 int gDuelist2 = -1;
@@ -289,6 +293,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &mv_connectionlimit, "mv_connectionlimit", "0", CVAR_ARCHIVE, 0, qfalse },
 
 	{ &mv_forcePowerDisableMode, "mv_forcePowerDisableMode", "1", CVAR_ARCHIVE, 0, qfalse }, // Relevant for 1.02 only.
+
+	{ &g_MVSDK, "g_MVSDK", MVSDK_VERSION, CVAR_ROM | CVAR_SERVERINFO, 0, qfalse },
 };
 
 // bk001129 - made static to avoid aliasing

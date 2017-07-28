@@ -3,6 +3,8 @@
 // cg_main.c -- initialization and primary entry point for cgame
 #include "cg_local.h"
 
+#include "mv_setup.h"
+
 #include "../ui/ui_shared.h"
 // display context for new ui stuff
 displayContextDef_t cgDC;
@@ -565,6 +567,8 @@ vmCvar_t	ui_myteam;
 vmCvar_t	mv_fixbrokenmodelsclient;
 vmCvar_t	cg_drawPlayerSprites;
 
+vmCvar_t	cg_MVSDK;
+
 typedef struct {
 	vmCvar_t	*vmCvar;
 	char		*cvarName;
@@ -714,6 +718,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &mv_fixbrokenmodelsclient, "mv_fixbrokenmodelsclient", "2", CVAR_ARCHIVE },
 	{ &cg_drawPlayerSprites, "cg_drawPlayerSprites", "3", CVAR_ARCHIVE },
+
+	{ &cg_MVSDK, "cg_MVSDK", MVSDK_VERSION, CVAR_ROM | CVAR_USERINFO },
 
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 /*
