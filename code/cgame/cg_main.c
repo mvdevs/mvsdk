@@ -2624,7 +2624,9 @@ Ghoul2 Insert End
 
 	// Update config strings
 	for ( i = 0; i < CS_MODELS; i++ ) {
-		CG_UpdateConfigString( i, qtrue );
+		if ( i != CS_SHADERSTATE ) {
+			CG_UpdateConfigString( i, qtrue );
+		}
 	}
 
 	// load the new map
@@ -2668,6 +2670,8 @@ Ghoul2 Insert End
 	CG_LoadingString( "" );
 
 	CG_InitTeamChat();
+
+	CG_UpdateConfigString( CS_SHADERSTATE, qtrue );
 
 	trap_S_ClearLoopingSounds( qtrue );
 }
