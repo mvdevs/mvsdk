@@ -538,6 +538,8 @@ typedef struct {
 
 	int				legsAnim;
 	int				torsoAnim;
+
+	mvversion_t		jk2gameplay;
 } clientInfo_t;
 
 
