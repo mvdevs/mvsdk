@@ -3,19 +3,16 @@
 # For checks in subdirectories
 set(InMVSDK TRUE)
 
-# Paths
-set(SRCDir "${CMAKE_CURRENT_SOURCE_DIR}/code")
-set(QVMDir "${CMAKE_BINARY_DIR}/out/vm")
-
 # Custom CMake Modules
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-# Project name & version
+# Project & Versioning
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 set(MVSDK "JK2MV SDK")
 set(MVSDKURL "https://jk2mv.org")
 if(NOT InMV)
 	set(ProjectName ${MVSDK} CACHE STRING "Project Name")
-	set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
 	project(${ProjectName})
 endif()
 
@@ -30,7 +27,10 @@ message(STATUS "${MVSDK} Version: ${MVSDK_VERSION}")
 
 # Languages
 enable_language(C)
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+if(CMAKE_CONFIGURATION_TYPES)
+	set(MultiConfigGenerator TRUE)
+endif()
 
 # Customizable options
 if(NOT InMV)
@@ -103,9 +103,26 @@ set(CPP "q3cpp")
 set(RCC "q3rcc")
 set(ASM "q3asm")
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
+# Directories
+set(SRCDir "${CMAKE_CURRENT_SOURCE_DIR}/code")
+set(QVMDir "${CMAKE_BINARY_DIR}/out/vm")
+
+if(MultiConfigGenerator)
+	# Visual Studio, Xcode etc. support selecting build type in the IDE and automatically append
+	# the configuration type to the path
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
+else()
+	if(NOT CMAKE_BUILD_TYPE AND NOT InMV)
+		message(STATUS "No build type selected, default to Release")
+		set(CMAKE_BUILD_TYPE "Release")
+	endif()
+
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out/${CMAKE_BUILD_TYPE})
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out/${CMAKE_BUILD_TYPE})
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out/${CMAKE_BUILD_TYPE})
+endif()
 
 # Compiler defines / settings
 set(GlobalDefines ${GlobalDefines} "MISSIONPACK")
@@ -197,11 +214,6 @@ if (NOT InMV)
 	else()
 		message(FATAL_ERROR "Unsupported compiler")
 	endif()
-endif()
-
-if(NOT CMAKE_BUILD_TYPE)
-	message(STATUS "No build type selected, default to Release")
-	set(CMAKE_BUILD_TYPE "Release")
 endif()
 
 if(BuildQVMs)
