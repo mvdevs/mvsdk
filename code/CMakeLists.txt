@@ -107,10 +107,10 @@ if(BuildQVMs)
 		add_zip_command(${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3 ${OUTFILE}
 			DIR "${CMAKE_CURRENT_BINARY_DIR}"
 			FILES "${AssetsFiles}"
-			DEPENDS "${AssetsFiles}" qvms
+			DEPENDS qvms
 		)
 
-		add_custom_target(assetsmv2 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3" ${AssetsFiles})
+		add_custom_target(assetsmv2 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3")
 		set_property(TARGET assetsmv2 PROPERTY FOLDER "Modules")
 
 		if(WIN32)
