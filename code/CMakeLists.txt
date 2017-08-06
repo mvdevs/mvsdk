@@ -97,11 +97,17 @@ if(BuildQVMs)
 		source_group("assetsmv2" FILES ${AssetsFiles})
 
 		# generate assetsmv2.pk3
+		if(MultiConfigGenerator)
+			set(OUTFILE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>/base/assetsmv2.pk3)
+		else()
+			set(OUTFILE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/base/assetsmv2.pk3)
+		endif()
+
 		include(InstallZIP)
-		add_zip_command("${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3"
+		add_zip_command(${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3 ${OUTFILE}
 			DIR "${CMAKE_CURRENT_BINARY_DIR}"
 			FILES "${AssetsFiles}"
-			DEPENDS ${AssetsFiles}
+			DEPENDS "${AssetsFiles}" qvms
 		)
 
 		add_custom_target(assetsmv2 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3" ${AssetsFiles})
@@ -109,7 +115,9 @@ if(BuildQVMs)
 
 		if(WIN32)
 			install(FILES ${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3 DESTINATION "base")
-		elseif(NOT APPLE)
+		elseif(APPLE)
+			install(FILES ${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3 DESTINATION "jk2mvmp.app/Contents/MacOS/base")
+		else()
 			install(FILES ${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3 DESTINATION "share/jk2mv/base")
 		endif()
 	endif()
