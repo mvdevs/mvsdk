@@ -61,7 +61,7 @@ setup(int argc, char **argv)
 	fp = "<stdin>";
 	fd = 0;
 	if (optind<argc) {
-		dp = basepath( argv[optind] );
+		//dp = basepath( argv[optind] );
 		fp = (char*)newstring((uchar*)argv[optind], strlen(argv[optind]), 0);
 		if ((fd = open(fp, 0)) <= 0)
 			error(FATAL, "Can't open input file %s", fp);
