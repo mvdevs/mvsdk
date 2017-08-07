@@ -1167,12 +1167,15 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 				CG_Printf("CGame: Server gave unknown jk2gameplay [Fall-back to 1.04]\n");
 				break;
 		}
+	}
 
-		if ( cg.clientNum == clientNum )
-		{ // If this was about our own gameplay change the settings...
-			if ( newInfo.jk2gameplay != ci->jk2gameplay ) CG_Printf("CGame: Setting gameplay to 1.0%i\n", newInfo.jk2gameplay);
-			MV_SetGamePlay( newInfo.jk2gameplay );
-		}
+	// If we have no mvgp value use our current default
+	if ( newInfo.jk2gameplay == VERSION_UNDEF ) newInfo.jk2gameplay = jk2gameplay;
+
+	if ( cg.clientNum == clientNum && newInfo.jk2gameplay != jk2gameplay )
+	{ // If this was about our own gameplay change the settings...
+		CG_Printf("CGame: Setting gameplay to 1.0%i\n", newInfo.jk2gameplay);
+		MV_SetGamePlay( newInfo.jk2gameplay );
 	}
 
 	newInfo.ATST = wasATST;
