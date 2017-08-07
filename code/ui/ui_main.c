@@ -1297,7 +1297,7 @@ static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int 
 		i = min;
 	}
 
-	s = (char *)UI_GetStripEdString("INGAMETEXT", forceMasteryLevels[val]);
+	s = (char *)UI_GetStripEdString("INGAMETEXT", forceMasteryLevels[i]);
 	Text_Paint(rect->x, rect->y, scale, color, s, 0, 0, textStyle, iMenuFont);
 }
 
