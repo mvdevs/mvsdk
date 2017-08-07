@@ -440,6 +440,25 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 					retmove = transitionMove[saberMoveData[curmove].endQuad][saberMoveData[newmove].startQuad];
 					break;
 				//transitioning from a return
+				case LS_K1_T_:
+				case LS_K1_TR:
+				case LS_K1_TL:
+				case LS_K1_BR:
+				case LS_K1_BL:
+				case LS_V1_BR:
+				case LS_V1__R:
+				case LS_V1_TR:
+				case LS_V1_T_:
+				case LS_V1_TL:
+				case LS_V1__L:
+				case LS_V1_BL:
+				case LS_V1_B_:
+				case LS_H1_T_:
+				case LS_H1_TR:
+				case LS_H1_TL:
+				case LS_H1_BR:
+				case LS_H1_BL:
+					if ( jk2gameplay == VERSION_1_02 ) break;
 				case LS_R_TL2BR:
 				case LS_R_L2R:
 				case LS_R_BL2TR:
@@ -466,25 +485,6 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 				case LS_BOUNCE_LL:
 				*/
 				//transitioning from a parry/reflection/knockaway/broken parry
-				case LS_K1_T_:
-				case LS_K1_TR:
-				case LS_K1_TL:
-				case LS_K1_BR:
-				case LS_K1_BL:
-				case LS_V1_BR:
-				case LS_V1__R:
-				case LS_V1_TR:
-				case LS_V1_T_:
-				case LS_V1_TL:
-				case LS_V1__L:
-				case LS_V1_BL:
-				case LS_V1_B_:
-				case LS_H1_T_:
-				case LS_H1_TR:
-				case LS_H1_TL:
-				case LS_H1_BR:
-				case LS_H1_BL:
-					if ( jk2gameplay == VERSION_1_02 ) break;
 				case LS_PARRY_UP:
 				case LS_PARRY_UR:
 				case LS_PARRY_UL:
