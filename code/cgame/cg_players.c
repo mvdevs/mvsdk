@@ -496,7 +496,7 @@ retryModel:
 				}
 
 				//rww - Set the animation again because it just got reset due to the model change
-				trap_G2API_SetBoneAnim(ci->ghoul2Model, 0, (jk2gameplay == VERSION_1_02 ? "upper_lumbar" : "lower_lumbar"), anim->firstFrame + anim->numFrames-1, anim->firstFrame + anim->numFrames, flags, 1.0f, cg.time, -1, 150);
+				trap_G2API_SetBoneAnim(ci->ghoul2Model, 0, (ci->jk2gameplay == VERSION_1_02 ? "upper_lumbar" : "lower_lumbar"), anim->firstFrame + anim->numFrames-1, anim->firstFrame + anim->numFrames, flags, 1.0f, cg.time, -1, 150);
 
 				cg_entities[clientNum].currentState.torsoAnim = 0;
 			}
@@ -841,6 +841,7 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci, int clientNum ) 
 			&& !Q_stricmp( ci->blueTeam, match->blueTeam ) 
 			&& !Q_stricmp( ci->redTeam, match->redTeam )
 			&& (cgs.gametype < GT_TEAM || ci->team == match->team) 
+			&& ci->jk2gameplay == match->jk2gameplay
 			&& match->ghoul2Model
 			&& match->bolt_head) //if the bolts haven't been initialized, this "match" is useless to us
 		{
@@ -1148,27 +1149,33 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 
 	// JK2MV: jk2gameplay
 	v = Info_ValueForKey( configstring, "mvgp" );
-	if ( strlen(v) && cg.clientNum == clientNum )
-	{ // Currently we only care for our own gameplay, but we could read other player's gameplay if we need it...
-		mvversion_t newGameplay;
+	if ( strlen(v) )
+	{
 		switch ( atoi(v) )
 		{
 			case VERSION_1_02:
-				newGameplay = VERSION_1_02;
+				newInfo.jk2gameplay = VERSION_1_02;
 				break;
 			case VERSION_1_03:
-				newGameplay = VERSION_1_03;
+				newInfo.jk2gameplay = VERSION_1_03;
 				break;
 			case VERSION_1_04:
-				newGameplay = VERSION_1_04;
+				newInfo.jk2gameplay = VERSION_1_04;
 				break;
 			default:
-				newGameplay = VERSION_1_04;
+				newInfo.jk2gameplay = VERSION_1_04;
 				CG_Printf("CGame: Server gave unknown jk2gameplay [Fall-back to 1.04]\n");
 				break;
 		}
-		if ( jk2gameplay != newGameplay ) CG_Printf("CGame: Setting gameplay to 1.0%i\n", newGameplay);
-		MV_SetGamePlay( newGameplay );
+	}
+
+	// If we have no mvgp value use our current default
+	if ( newInfo.jk2gameplay == VERSION_UNDEF ) newInfo.jk2gameplay = jk2gameplay;
+
+	if ( cg.clientNum == clientNum && newInfo.jk2gameplay != jk2gameplay )
+	{ // If this was about our own gameplay change the settings...
+		CG_Printf("CGame: Setting gameplay to 1.0%i\n", newInfo.jk2gameplay);
+		MV_SetGamePlay( newInfo.jk2gameplay );
 	}
 
 	newInfo.ATST = wasATST;
@@ -1199,7 +1206,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 		{ //rww - don't defer your own client info ever, unless really low on memory
 			CG_LoadClientInfo( &newInfo );
 		}
-		else if ( forceDefer || ( cg_deferPlayers.integer && !cg_buildScript.integer && !cg.loading ) ) {
+		else if ( (forceDefer || ( cg_deferPlayers.integer && !cg_buildScript.integer && !cg.loading )) && ci->jk2gameplay == newInfo.jk2gameplay ) { // DON'T DEFER on gameplay changes
 			// keep whatever they had if it won't violate team skins
 			CG_SetDeferredClientInfo( &newInfo );
 			// if we are low on memory, leave them with this model
@@ -1281,7 +1288,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 			}
 
 			//rww - Set the animation again because it just got reset due to the model change
-			trap_G2API_SetBoneAnim(ci->ghoul2Model, 0, (jk2gameplay == VERSION_1_02 ? "upper_lumbar" : "lower_lumbar"), firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed, cg.time, setFrame, 150);
+			trap_G2API_SetBoneAnim(ci->ghoul2Model, 0, (ci->jk2gameplay == VERSION_1_02 ? "upper_lumbar" : "lower_lumbar"), firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed, cg.time, setFrame, 150);
 
 			cg_entities[clientNum].currentState.torsoAnim = 0;
 		}
@@ -1603,7 +1610,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 
 		animSpeed *= animSpeedMult;
 
-		if ( jk2gameplay != VERSION_1_02 ) BG_SaberStartTransAnim(cent->currentState.fireflag, newAnimation, &animSpeed);
+		if ( ci->jk2gameplay != VERSION_1_02 ) BG_SaberStartTransAnim(cent->currentState.fireflag, newAnimation, &animSpeed);
 
 		if (torsoOnly)
 		{
@@ -1633,21 +1640,21 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 
 			if (torsoOnly)
 			{
-				if ( jk2gameplay != VERSION_1_02 && (cent->currentState.torsoAnim&~ANIM_TOGGLEBIT) == (cent->currentState.legsAnim&~ANIM_TOGGLEBIT) && cent->pe.legs.frame >= anim->firstFrame && cent->pe.legs.frame <= (anim->firstFrame + anim->numFrames))
+				if ( ci->jk2gameplay != VERSION_1_02 && (cent->currentState.torsoAnim&~ANIM_TOGGLEBIT) == (cent->currentState.legsAnim&~ANIM_TOGGLEBIT) && cent->pe.legs.frame >= anim->firstFrame && cent->pe.legs.frame <= (anim->firstFrame + anim->numFrames))
 				{
 					trap_G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", anim->firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed,cg.time, cent->pe.legs.frame, blendTime);
 					beginFrame = cent->pe.legs.frame;
 				}
 				else
 				{
-					trap_G2API_SetBoneAnim(cent->ghoul2, 0, (jk2gameplay == VERSION_1_02 ? "upper_lumbar" : "lower_lumbar"), anim->firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed,cg.time, -1, blendTime);
+					trap_G2API_SetBoneAnim(cent->ghoul2, 0, (ci->jk2gameplay == VERSION_1_02 ? "upper_lumbar" : "lower_lumbar"), anim->firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed,cg.time, -1, blendTime);
 				}
 				cgs.clientinfo[cent->currentState.number].torsoAnim = newAnimation;
 			}
 			else
 			{
 				trap_G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", anim->firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed, cg.time, -1, blendTime);
-				if ( jk2gameplay == VERSION_1_02 ) cgs.clientinfo[cent->currentState.number].torsoAnim = newAnimation;
+				if ( ci->jk2gameplay == VERSION_1_02 ) cgs.clientinfo[cent->currentState.number].torsoAnim = newAnimation;
 				cgs.clientinfo[cent->currentState.number].legsAnim = newAnimation;
 			}
 
@@ -1907,7 +1914,7 @@ static void CG_RunLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf,
 	{
 		int flags = BONE_ANIM_OVERRIDE_FREEZE; //|BONE_ANIM_BLEND;
 		float animSpeed = 1.0f;
-		trap_G2API_SetBoneAnim(cent->ghoul2, 0, (jk2gameplay == VERSION_1_02 ? "upper_lumbar" : "lower_lumbar"), cent->currentState.forceFrame, cent->currentState.forceFrame+1, flags, animSpeed, cg.time, -1, 150);
+		trap_G2API_SetBoneAnim(cent->ghoul2, 0, (ci->jk2gameplay == VERSION_1_02 ? "upper_lumbar" : "lower_lumbar"), cent->currentState.forceFrame, cent->currentState.forceFrame+1, flags, animSpeed, cg.time, -1, 150);
 		trap_G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", cent->currentState.forceFrame, cent->currentState.forceFrame+1, flags, animSpeed, cg.time, -1, 150);
 		trap_G2API_SetBoneAnim(cent->ghoul2, 0, "Motion", cent->currentState.forceFrame, cent->currentState.forceFrame+1, flags, animSpeed, cg.time, -1, 150);
 
@@ -2538,7 +2545,7 @@ void CG_G2ClientSpineAngles( centity_t *cent, vec3_t viewAngles, const vec3_t an
 		!CG_InKnockDown(cent->currentState.legsAnim) &&
 		!CG_InKnockDown(cgs.clientinfo[cent->currentState.number].torsoAnim) &&
 		!CG_InKnockDown(cgs.clientinfo[cent->currentState.number].legsAnim) 
-		) || jk2gameplay == VERSION_1_03)
+		) || cgs.clientinfo[cent->currentState.number].jk2gameplay == VERSION_1_03)
 		&&
 
 		!BG_FlippingAnim( cgs.clientinfo[cent->currentState.number].legsAnim&~ANIM_TOGGLEBIT ) &&
@@ -7382,7 +7389,7 @@ doEssentialThree:
 		}
 
 		trap_G2API_SetBoneAnim(legs.ghoul2, 0, "model_root", cent->miscTime, cent->miscTime, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, cent->miscTime, -1);
-		trap_G2API_SetBoneAnim(legs.ghoul2, 0, (jk2gameplay == VERSION_1_02 ? "upper_lumbar" : "lower_lumbar"), cent->miscTime, cent->miscTime, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, cent->miscTime, -1);
+		trap_G2API_SetBoneAnim(legs.ghoul2, 0, (ci->jk2gameplay == VERSION_1_02 ? "upper_lumbar" : "lower_lumbar"), cent->miscTime, cent->miscTime, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, cent->miscTime, -1);
 		trap_G2API_SetBoneAnim(legs.ghoul2, 0, "Motion", cent->miscTime, cent->miscTime, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, cent->miscTime, -1);
 
 		VectorCopy(cent->currentState.origin2, hitLoc);
@@ -7540,7 +7547,7 @@ doEssentialThree:
 	}
 	//if (cent->currentState.forcePowersActive & (1 << FP_ABSORB))
 	//Showing only when the power has been active (absorbed something) recently now, instead of always.
-	if ( (jk2gameplay == VERSION_1_02 && cent->currentState.forcePowersActive & (1 << FP_ABSORB)) || (jk2gameplay != VERSION_1_02 && cg_entities[cent->currentState.number].teamPowerEffectTime > cg.time && cg_entities[cent->currentState.number].teamPowerType == TFP_ABSORB) )
+	if ( (cgs.clientinfo[cent->currentState.number].jk2gameplay == VERSION_1_02 && cent->currentState.forcePowersActive & (1 << FP_ABSORB)) || (cgs.clientinfo[cent->currentState.number].jk2gameplay != VERSION_1_02 && cg_entities[cent->currentState.number].teamPowerEffectTime > cg.time && cg_entities[cent->currentState.number].teamPowerType == TFP_ABSORB) )
 	{ //aborb is represented by blue..
 		legs.shaderRGBA[0] = 0;
 		legs.shaderRGBA[1] = 0;
