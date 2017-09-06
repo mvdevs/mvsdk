@@ -1484,9 +1484,7 @@ void BG_CycleForce(playerState_t *ps, int direction)
 	int presel = i;
 	int foundnext = -1;
 
-	if (!(ps->fd.forcePowersKnown & (1 << x)) ||
-		x >= NUM_FORCE_POWERS ||
-		x == -1)
+	if ( x >= NUM_FORCE_POWERS || x == -1)
 	{ //apparently we have no valid force powers
 		return;
 	}
