@@ -519,6 +519,9 @@ typedef struct {
 	int			bodyQueIndex;			// dead bodies
 	gentity_t	*bodyQue[BODY_QUEUE_SIZE];
 	int			portalSequence;
+
+	// MVSDK
+	qboolean	bboxEncoding;
 } level_locals_t;
 
 
@@ -817,9 +820,14 @@ void QDECL G_Printf( const char *fmt, ... );
 Q_NORETURN void QDECL G_Error( const char *fmt, ... );
 const char *G_GetStripEdString(char *refSection, char *refName);
 
+void MV_UpdateMvsdkConfigstring( char *key, char *value );
+void MV_UpdateSvFlags( void );
+
 // On linux rand() behaves different than on Winodws or in a qvm, ...
 void mysrand( unsigned seed );
 int myrand( void );
+
+void MV_BBoxToTime2( gentity_t *ent );
 
 //
 // g_client.c
@@ -1068,6 +1076,8 @@ extern	vmCvar_t	mv_fixturretcrash;
 extern	vmCvar_t	mv_connectionlimit;
 extern	vmCvar_t	mv_connectinglimit;
 extern	vmCvar_t	mv_forcePowerDisableMode;
+
+extern	vmCvar_t	g_submodelWorkaround;
 
 void	trap_Printf( const char *fmt );
 Q_NORETURN void	trap_Error( const char *fmt );

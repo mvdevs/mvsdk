@@ -44,7 +44,12 @@
 
 #define SHIELD_HALFTHICKNESS		4
 
-#define MVSDK_BBOX				1
+// mvsdk_svFlags
+#define MVSDK_SVFLAG_BBOX                   (1)             // Set by the server in mvsdk_svFlags to signal bbox data in time2
+#define MVSDK_SVFLAG_SUBMODEL_WORKAROUND    (1 << 1)        // Set by the server in mvsdk_svFlags to signal that negative submodels are most likely net-overflows and not intentional
+
+// mvsdk_cgFlags
+#define MVSDK_CGFLAG_SUBMODEL_WORKAROUND    (1)             // Set by the client in mvsdk_cgFlags to inform the server that it has a workaround for up to 255 submodels (instead of default 127)
 
 //
 // config strings are a general means of communicating variable length strings

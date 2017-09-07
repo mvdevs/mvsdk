@@ -568,6 +568,7 @@ vmCvar_t	mv_fixbrokenmodelsclient;
 vmCvar_t	cg_drawPlayerSprites;
 
 vmCvar_t	cg_MVSDK;
+vmCvar_t	mvsdk_cgFlags;
 
 typedef struct {
 	vmCvar_t	*vmCvar;
@@ -772,6 +773,9 @@ void CG_RegisterCvars( void ) {
 	trap_Cvar_Register(NULL, "ui_about_hostname",		"0", CVAR_ROM|CVAR_INTERNAL );
 	trap_Cvar_Register(NULL, "ui_about_needpass",		"0", CVAR_ROM|CVAR_INTERNAL );
 	trap_Cvar_Register(NULL, "ui_about_botminplayers",	"0", CVAR_ROM|CVAR_INTERNAL );
+
+	// mvsdk_cgFlags
+	MV_UpdateCgFlags();
 }
 
 /*																																			
@@ -2367,9 +2371,54 @@ forceTicPos_t ammoTicPos[] =
  69,  34, -10,  10, "gfx/hud/ammo_tick7", 0,
 };
 
+
+/*
+=================
+MV_UpdateCgFlags
+
+Called when registering cvars and updating specific cvars and updates the mvsdk_cgFlags accoding to the current settings
+
+At the time of initial implementation there is only one cgFlag that is always active, so the function is not required, yet.
+However in future versions users might be able to disable some of the features, so the cgFlags need to be adjusted in such cases
+=================
+*/
+void MV_UpdateCgFlags( void )
+{
+	// mvsdk_cgFlags - Used to inform the server about available mvsdk clientside features
+	static qboolean registered = qfalse;
+	char *value;
+	int intValue = 0;
+
+	// Check for the features and determine the flags
+	intValue |= MVSDK_CGFLAG_SUBMODEL_WORKAROUND;
+
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// !!! Forks of MVSDK should NOT modify the mvsdk_cgFlags                          !!!
+	// !!! Removal, replacement or adding of new flags might lead to incompatibilities !!!
+	// !!! Forks should define their own userinfo cvar instead of modifying this       !!!
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+	// If the current cgFlags match the intValue we can return
+	if ( registered && mvsdk_cgFlags.integer == intValue ) return;
+
+	// We need a string when registering/setting the cvar
+	value = va("%i", intValue);
+
+	// Register/update the cvar
+	if ( !registered )
+	{ // First time calling this, register the cvar as rom, internal and userinfo for the server to see, but without users manually changing it
+		trap_Cvar_Register(&mvsdk_cgFlags, "mvsdk_cgFlags", value, CVAR_ROM|CVAR_INTERNAL|CVAR_USERINFO);
+		registered = qtrue;
+	}
+	else
+	{ // Update the cvar
+		trap_Cvar_Set( "mvsdk_cgFlags", value );
+	}
+}
+
 void MV_LoadSettings( const char *info )
-{ // Load additional settings (like cgFlags) if the server supports additional mvsdk features
-	cgs.mvsdk_cgFlags = atoi(Info_ValueForKey( info, "mvsdk_cgFlags" ));
+{ // Load additional settings (like svFlags) if the server supports additional mvsdk features
+	cgs.mvsdk_svFlags = atoi(Info_ValueForKey( info, "mvsdk_svFlags" ));
 }
 
 

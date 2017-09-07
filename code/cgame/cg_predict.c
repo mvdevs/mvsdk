@@ -87,6 +87,11 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 
 		if ( ent->solid == SOLID_BMODEL ) {
 			// special value for bmodel
+
+			// modelindex is transfered as signed 8-bit integer (byte), making submodels > 127 appear as negative numbers on the client.
+			// As negative calls to trap_CM_InlineModel lead to errors let's try to compensate the modelindex here if the server tells us to.
+			if ( ent->modelindex < 0 && cgs.mvsdk_svFlags & MVSDK_SVFLAG_SUBMODEL_WORKAROUND ) ent->modelindex += 256;
+
 			cmodel = trap_CM_InlineModel( ent->modelindex );
 			VectorCopy( cent->lerpAngles, angles );
 			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, origin );
@@ -118,8 +123,8 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 				zd = ((ent->solid>>8) & 255);
 				zu = ((ent->solid>>16) & 255) - 32;
 
-				if ( cgs.mvsdk_cgFlags & MVSDK_BBOX && ent->time2 && ent->number >= MAX_CLIENTS )
-				{ // If the server set the MVSDK_BBOX flag it sends bbox infos through time2
+				if ( cgs.mvsdk_svFlags & MVSDK_SVFLAG_BBOX && ent->time2 && ent->number >= MAX_CLIENTS )
+				{ // If the server set the MVSDK_SVFLAG_BBOX flag it sends bbox infos through time2
 					int maxs1, mins0, mins1;
 
 					maxs1 = (ent->time2 & 255);
@@ -204,6 +209,10 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 		if (ent->solid != SOLID_BMODEL) { // special value for bmodel
 			continue;
 		}
+
+		// modelindex is transfered as signed 8-bit integer (byte), making submodels > 127 appear as negative numbers on the client.
+		// As negative calls to trap_CM_InlineModel lead to errors let's try to compensate the modelindex here if the server tells us to.
+		if ( ent->modelindex < 0 && cgs.mvsdk_svFlags & MVSDK_SVFLAG_SUBMODEL_WORKAROUND ) ent->modelindex += 256;
 
 		cmodel = trap_CM_InlineModel( ent->modelindex );
 		if ( !cmodel ) {
@@ -434,6 +443,10 @@ static void CG_TouchTriggerPrediction( void ) {
 		if ( ent->solid != SOLID_BMODEL ) {
 			continue;
 		}
+
+		// modelindex is transfered as signed 8-bit integer (byte), making submodels > 127 appear as negative numbers on the client.
+		// As negative calls to trap_CM_InlineModel lead to errors let's try to compensate the modelindex here if the server tells us to.
+		if ( ent->modelindex < 0 && cgs.mvsdk_svFlags & MVSDK_SVFLAG_SUBMODEL_WORKAROUND ) ent->modelindex += 256;
 
 		cmodel = trap_CM_InlineModel( ent->modelindex );
 		if ( !cmodel ) {

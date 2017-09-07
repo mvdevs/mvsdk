@@ -1403,7 +1403,7 @@ Ghoul2 Insert End
 	// effects
 	cgEffects_t		effects;
 
-	int				mvsdk_cgFlags;
+	int				mvsdk_svFlags;
 
 } cgs_t;
 
@@ -1591,6 +1591,7 @@ void CG_PrevInventory_f(void);
 void CG_NextForcePower_f(void);
 void CG_PrevForcePower_f(void);
 void MV_LoadSettings( const char *info );
+void MV_UpdateCgFlags( void );
 
 //
 // cg_view.c
