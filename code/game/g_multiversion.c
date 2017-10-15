@@ -122,10 +122,10 @@ void MV_VersionMagic( qboolean revert )
 {
 	if ( jk2version == VERSION_1_02 )
 	{ // Do the magic
-		const size_t section1 = (size_t)((char *)&g_clients[0].ps.forceRestricted - (char *)&g_clients[0].ps);
-		const size_t section2 = (size_t)((char *)(&g_clients[0].ps + 1) - (char *)&g_clients[0].ps.saberIndex);
-		const size_t section3 = (size_t)((char *)&g_ps[0].saberIndex - (char *)&g_ps[0]);
-		const size_t section4 = (size_t)((char *)(&g_ps[0] + 1) - (char *)&g_ps[0].saberIndex);
+		static const size_t section1 = (size_t)((char *)&((playerState_t*)NULL)->forceRestricted);
+		static const size_t section2 = (size_t)((char *)(&((gclient_t*)NULL)->ps) + sizeof(playerState_t) - (char *)&((gclient_t*)NULL)->ps.saberIndex);
+		static const size_t section3 = (size_t)((char *)&((playerState_1_02_t*)NULL)->saberIndex);
+		static const size_t section4 = (size_t)((char *)(&((playerState_1_02_t*)NULL)[1]) - (char *)&((playerState_1_02_t*)NULL)->saberIndex);
 
 		gentity_t *ent;
 		gentity_t *entEnd = &g_entities[level.num_entities];
@@ -148,8 +148,6 @@ void MV_VersionMagic( qboolean revert )
 					// memset( &(g_clients[i].ps.forceRestricted), 0, ((size_t)&(g_clients[i].ps.saberIndex) - (size_t)&(g_clients[i].ps.forceRestricted)) ); // We don't need this, as the engine only got the 1.02 struct. By not doing this we can these internally...
 					memcpy( &ps->saberIndex, &g_ps[i].saberIndex, section2);
 				}
-
-#define MV_MapAnimation104(anim) (animMappingTable_1_02_to_1_04[(anim)&~ANIM_TOGGLEBIT] | ((anim)&ANIM_TOGGLEBIT))
 
 				/* Convert the animations */
 				/* NOTE: When converting from 1.02 to 1.04 we have to convert the playerState struct BEFORE the animations. When converting from 1.04 to 1.02 we have to convert the playerState struct AFTER the animations. */
@@ -190,8 +188,6 @@ void MV_VersionMagic( qboolean revert )
 				if ( !ent->inuse ) continue;
 
 				ps = &ent->client->ps;
-
-#define MV_MapAnimation102(anim) (animMappingTable_1_04_to_1_02[(anim)&~ANIM_TOGGLEBIT] | ((anim)&ANIM_TOGGLEBIT))
 
 				/* Convert the animations */
 				/* NOTE: When converting from 1.02 to 1.04 we have to convert the playerState struct BEFORE the animations. When converting from 1.04 to 1.02 we have to convert the playerState struct AFTER the animations. */

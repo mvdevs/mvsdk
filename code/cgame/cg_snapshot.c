@@ -41,8 +41,8 @@ static void CG_TransitionEntity( centity_t *cent ) {
 
 	if ( jk2version == VERSION_1_02 )
 	{ // JK2MV: Version Magic!
-		MV_MapAnimation( cent->currentState.torsoAnim, qfalse );
-		MV_MapAnimation( cent->currentState.legsAnim, qfalse );
+		cent->currentState.torsoAnim = MV_MapAnimation104( cent->currentState.torsoAnim );
+		cent->currentState.legsAnim = MV_MapAnimation104( cent->currentState.legsAnim );
 	}
 
 	// reset if the entity wasn't in the last frame or was teleported
@@ -103,8 +103,8 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 
 		if ( jk2version == VERSION_1_02 )
 		{ // JK2MV: Version Magic!
-			MV_MapAnimation( cent->currentState.torsoAnim, qfalse );
-			MV_MapAnimation( cent->currentState.legsAnim, qfalse );
+			cent->currentState.torsoAnim = MV_MapAnimation104( cent->currentState.torsoAnim );
+			cent->currentState.legsAnim = MV_MapAnimation104( cent->currentState.legsAnim );
 		}
 
 		CG_ResetEntity( cent );
@@ -295,28 +295,36 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 		if ( r ) {
 			if ( jk2version == VERSION_1_02 )
 			{ // JK2MV: Multiversion Magic
+				static const size_t section1 = (size_t)((char *)&((snapshot_t*)NULL)->ps);
+				static const size_t section2 = (size_t)((char *)&((playerState_t*)NULL)->forceRestricted);
+				static const size_t section3 = (size_t)((char *)&((playerState_t*)NULL)->saberIndex - (char *)&((playerState_t*)NULL)->forceRestricted);
+				static const size_t section4 = (size_t)((char *)(&((snapshot_t*)NULL)->ps) + sizeof(playerState_t) - (char *)&((snapshot_t*)NULL)->ps.saberIndex);
+				static const size_t section5 = (size_t)((char *)(&(((snapshot_t*)NULL)[1])) - (char *)&((snapshot_t*)NULL)->numEntities);
+
 				/* Convert the snapshot (mainly because of the playerState) */
-				memcpy( dest, &(activeSnapshot_1_02), (((size_t)&(activeSnapshot_1_02.ps)) - (size_t)&(activeSnapshot_1_02)) ); // Copy everything till ps
-				memcpy( &(dest->ps), &(activeSnapshot_1_02.ps), (((size_t)&(dest->ps.forceRestricted)) - (size_t)&(dest->ps)) ); // Copy everything till ps.forceRestricted
-				memset( &(dest->ps.forceRestricted), 0, ((size_t)&(dest->ps.saberIndex) - (size_t)&(dest->ps.forceRestricted)) ); // 0 everything from ps.forceRestricted till ps.saberIndex
-				memcpy( &(dest->ps.saberIndex), &(activeSnapshot_1_02.ps.saberIndex), ((size_t)&(&(dest->ps))[1] - (size_t)&(dest->ps.saberIndex)) ); // Copy everything starting with ps.saberIndex
-				memcpy( &dest->numEntities, &(activeSnapshot_1_02.numEntities), ((size_t)&(dest)[1] - (size_t)&(dest->numEntities)) ); // Copy everything after ps
+				memcpy( dest, &(activeSnapshot_1_02), section1 ); // Copy everything till ps
+				memcpy( &(dest->ps), &(activeSnapshot_1_02.ps), section2 ); // Copy everything till ps.forceRestricted
+				memset( &(dest->ps.forceRestricted), 0, section3 ); // 0 everything from ps.forceRestricted till ps.saberIndex
+				memcpy( &(dest->ps.saberIndex), &(activeSnapshot_1_02.ps.saberIndex), section4 ); // Copy everything starting with ps.saberIndex
+				memcpy( &dest->numEntities, &(activeSnapshot_1_02.numEntities), section5 ); // Copy everything after ps
 
 				/* Convert the animations */
-				MV_MapAnimation( dest->ps.legsAnim, qfalse );
-				MV_MapAnimation( dest->ps.legsAnimExecute, qfalse );
-				MV_MapAnimation( dest->ps.torsoAnim, qfalse );
-				MV_MapAnimation( dest->ps.torsoAnimExecute, qfalse );
+				dest->ps.legsAnim = MV_MapAnimation104(dest->ps.legsAnim);
+				dest->ps.legsAnimExecute = MV_MapAnimation104(dest->ps.legsAnimExecute);
+				dest->ps.torsoAnim = MV_MapAnimation104(dest->ps.torsoAnim);
+				dest->ps.torsoAnimExecute = MV_MapAnimation104(dest->ps.torsoAnimExecute);
 
 				/* Only convert forceDodgeAnim if it really is an animation (forceHandExtend being either HANDEXTEND_TAUNT or HANDEXTEND_DODGE) */
-				if ( dest->ps.forceHandExtend == HANDEXTEND_TAUNT || dest->ps.forceHandExtend == HANDEXTEND_DODGE ) MV_MapAnimation( dest->ps.forceDodgeAnim, qfalse );
+				if ( dest->ps.forceHandExtend == HANDEXTEND_TAUNT || dest->ps.forceHandExtend == HANDEXTEND_DODGE ) dest->ps.forceDodgeAnim = MV_MapAnimation104(dest->ps.forceDodgeAnim);
 
 				/* The following two seem to be unused, but maybe custom cgames make use of them (well, fullAnimExecute seems to not even be set at least once - could probably just leave that one out) */
-				MV_MapAnimation( dest->ps.fullAnimExecute, qfalse );
-				MV_MapAnimation( dest->ps.saberAttackSequence, qfalse );
+				dest->ps.fullAnimExecute = MV_MapAnimation104(dest->ps.fullAnimExecute);
+				dest->ps.saberAttackSequence = MV_MapAnimation104(dest->ps.saberAttackSequence);
 
 				/* Convert the saberblocks */
-				MV_MapSaberBlocked( dest->ps.saberBlocked, qfalse );
+				if (dest->ps.saberBlocked > BLOCKED_NONE) {
+					dest->ps.saberBlocked++;
+				}
 			}
 			CG_AddLagometerSnapshotInfo( dest );
 			return dest;
