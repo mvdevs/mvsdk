@@ -178,6 +178,12 @@ equ acos									-114	; UI_ACOS
 equ asin									-115	; UI_ASIN 
 
 
-; JK2MV Syscalls
-equ trap_MVAPI_GetCurrentGameversion		-705    ;MVAPI_GET_VERSION
+; JK2MV Syscalls [Universal]
 equ trap_MVAPI_ControlFixes					-704	;MVAPI_CONTROL_FIXES
+equ trap_MVAPI_GetVersion					-705    ;MVAPI_GET_VERSION
+equ trap_FS_FLock							-709	;MVAPI_FS_FLOCK
+equ trap_MVAPI_SetVersion					-710	;MVAPI_SET_VERSION
+
+; JK2MV Syscalls [UI]
+equ trap_R_AddRefEntityToScene2				-707	;UI_MVAPI_R_ADDREFENTITYTOSCENE2
+equ trap_MVAPI_SetVirtualScreen				-708	;UI_MVAPI_SETVIRTUALSCREEN

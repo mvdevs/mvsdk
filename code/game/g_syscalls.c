@@ -1002,32 +1002,42 @@ Ghoul2 Insert End
 */
 
 /* JK2MV Syscalls */
-int trap_MVAPI_GetCurrentGameversion( void )
-{
-	return syscall( MVAPI_GET_VERSION );
-}
-
-qboolean trap_MVAPI_ControlFixes( mvfix_t fixes )
+qboolean trap_MVAPI_ControlFixes( int fixes )
 {
 	return syscall( MVAPI_CONTROL_FIXES, fixes );
 }
 
-qboolean trap_MVAPI_LocateGameData( mvsharedEntity_t *mvEnts, int numGEntities, int sizeofmvsharedEntity_t )
+int trap_MVAPI_GetVersion( void )
 {
-	return syscall( MVAPI_LOCATE_GAME_DATA, mvEnts, numGEntities, sizeofmvsharedEntity_t );
+	return syscall( MVAPI_GET_VERSION );
+}
+
+int trap_FS_FLock( fileHandle_t h, flockCmd_t cmd, qboolean nb )
+{
+	return syscall( MVAPI_FS_FLOCK, h, cmd, nb );
+}
+
+void trap_MVAPI_SetVersion( mvversion_t version )
+{
+	syscall( MVAPI_SET_VERSION, version );
 }
 
 qboolean trap_MVAPI_SendConnectionlessPacket( const mvaddr_t *addr, const char *message )
 {
-	return syscall( MVAPI_SEND_CONNECTIONLESSPACKET, addr, message );
+	return syscall( G_MVAPI_SEND_CONNECTIONLESSPACKET, addr, message );
 }
 
 qboolean trap_MVAPI_GetConnectionlessPacket( mvaddr_t *addr, char *buf, unsigned int bufsize )
 {
-	return syscall( MVAPI_GET_CONNECTIONLESSPACKET, addr, buf, bufsize );
+	return syscall( G_MVAPI_GET_CONNECTIONLESSPACKET, addr, buf, bufsize );
+}
+
+qboolean trap_MVAPI_LocateGameData( mvsharedEntity_t *mvEnts, int numGEntities, int sizeofmvsharedEntity_t )
+{
+	return syscall( G_MVAPI_LOCATE_GAME_DATA, mvEnts, numGEntities, sizeofmvsharedEntity_t );
 }
 
 qboolean trap_MVAPI_DisableStructConversion( qboolean disable )
 {
-	return syscall( MVAPI_DISABLE_STRUCT_CONVERSION, disable );
+	return syscall( G_MVAPI_DISABLE_STRUCT_CONVERSION, disable );
 }

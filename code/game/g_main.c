@@ -474,7 +474,7 @@ void MVAPI_AfterInit(void)
 	G_InitGame( Init_levelTime, Init_randomSeed, Init_restart );
 
 	// Disable those JK2MV Engine fixes we can take care of in the VM
-	trap_MVAPI_ControlFixes( MVFIX_NAMECRASH | MVFIX_FORCECRASH | MVFIX_GALAKING | MVFIX_BROKENMODEL | MVFIX_TURRETCRASH | MVFIX_CHARGEJUMP | MVFIX_SPEEDHACK );
+	trap_MVAPI_ControlFixes( MVFIX_NAMECRASH | MVFIX_FORCECRASH | MVFIX_GALAKING | MVFIX_BROKENMODEL | MVFIX_TURRETCRASH | MVFIX_CHARGEJUMP | MVFIX_SPEEDHACK | MVFIX_SABERSTEALING );
 }
 
 /*
@@ -715,16 +715,16 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 		if ( mvapi && jk2version == VERSION_UNDEF )
 		{ // This shouldn't happen as well, because jk2mv > 1.1 sets its version cvar according to the original jk2mp's version-string, but you never know...
-			switch ( trap_MVAPI_GetCurrentGameversion() )
+			switch ( trap_MVAPI_GetVersion() )
 			{
 				case VERSION_1_02:
-					jk2version = trap_MVAPI_GetCurrentGameversion();
+					jk2version = trap_MVAPI_GetVersion();
 					break;
 				case VERSION_1_03:
-					jk2version = trap_MVAPI_GetCurrentGameversion();
+					jk2version = trap_MVAPI_GetVersion();
 					break;
 				case VERSION_1_04:
-					jk2version = trap_MVAPI_GetCurrentGameversion();
+					jk2version = trap_MVAPI_GetVersion();
 					break;
 				default:
 					jk2version = VERSION_UNDEF;

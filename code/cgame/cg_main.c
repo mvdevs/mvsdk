@@ -2440,7 +2440,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	jk2version = VERSION_UNDEF;
 	if ( mvapi )
 	{ // JK2MV >= 1.1
-		switch ( trap_MVAPI_GetCurrentGameversion() )
+		switch ( trap_MVAPI_GetVersion() )
 		{
 			case VERSION_1_02:
 				jk2version = VERSION_1_02;

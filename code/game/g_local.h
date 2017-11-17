@@ -1310,13 +1310,22 @@ extern qboolean mvStructConversionDisabled;
 int MVAPI_Init( int apilevel );
 void MVAPI_AfterInit( void );
 
-// JK2MV Syscalls
-int trap_MVAPI_GetCurrentGameversion( void );
-qboolean trap_MVAPI_ControlFixes( mvfix_t fixes );
-qboolean trap_MVAPI_LocateGameData( mvsharedEntity_t *mvEnts, int numGEntities, int sizeofmvsharedEntity_t );
-qboolean trap_MVAPI_SendConnectionlessPacket( const mvaddr_t *addr, const char *message );
-qboolean trap_MVAPI_GetConnectionlessPacket( mvaddr_t *addr, char *buf, unsigned int bufsize );
-qboolean trap_MVAPI_DisableStructConversion( qboolean disable );
+
+// JK2MV Syscalls [Universal]
+/* Level 1 */
+qboolean trap_MVAPI_ControlFixes( int fixes );                                                                    // Level: 1
+int trap_MVAPI_GetVersion( void );                                                                                // Level: 1
+/* Level 3 */
+int trap_FS_FLock( fileHandle_t h, flockCmd_t cmd, qboolean nb );                                                 // Level: 3
+void trap_MVAPI_SetVersion( mvversion_t version );                                                                // Level: 3
+
+// JK2MV Syscalls [Game]
+/* Level 1 */
+qboolean trap_MVAPI_SendConnectionlessPacket( const mvaddr_t *addr, const char *message );                        // Level: 1
+qboolean trap_MVAPI_GetConnectionlessPacket( mvaddr_t *addr, char *buf, unsigned int bufsize );                   // Level: 1
+qboolean trap_MVAPI_LocateGameData( mvsharedEntity_t *mvEnts, int numGEntities, int sizeofmvsharedEntity_t );     // Level: 1
+/* Level 2 */
+qboolean trap_MVAPI_DisableStructConversion( qboolean disable );                                                  // Level: 2
 
 #include "../api/mvapi.h"
 #include "g_multiversion.h"

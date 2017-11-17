@@ -148,7 +148,7 @@ int MV_UiDetectVersion( void )
 	trap_Cvar_VariableStringBuffer( "mv_apienabled", buffer, sizeof(buffer) );
 	if ( strlen(buffer) && atoi(buffer) > 0 )
 	{ // JK2MV >= 1.1
-		switch ( trap_MVAPI_GetCurrentGameversion() )
+		switch ( trap_MVAPI_GetVersion() )
 		{
 			case VERSION_1_02:
 				jk2version = VERSION_1_02;

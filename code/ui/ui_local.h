@@ -1165,9 +1165,18 @@ extern int mvapi;
 int MVAPI_Init( int apilevel );
 void MVAPI_AfterInit( void );
 
-// JK2MV Syscalls
-int trap_MVAPI_GetCurrentGameversion( void );
-qboolean trap_MVAPI_ControlFixes( mvfix_t fixes );
+// JK2MV Syscalls [Universal]
+/* Level 1 */
+qboolean trap_MVAPI_ControlFixes( int fixes );                       // Level: 1
+int trap_MVAPI_GetVersion( void );                                   // Level: 1
+/* Level 3 */
+int trap_FS_FLock( fileHandle_t h, flockCmd_t cmd, qboolean nb );    // Level: 3
+void trap_MVAPI_SetVersion( mvversion_t version );                   // Level: 3
+
+// JK2MV Syscalls [UI]
+/* Level 3 */
+void trap_R_AddRefEntityToScene2( const refEntity_t *re );           // Level: 3
+void trap_MVAPI_SetVirtualScreen( float w, float h );                // Level: 3
 
 int MV_UiDetectVersion( void );
 

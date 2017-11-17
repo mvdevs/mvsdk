@@ -878,12 +878,32 @@ Ghoul2 Insert End
 */
 
 /* JK2MV Syscalls */
-int trap_MVAPI_GetCurrentGameversion( void )
+qboolean trap_MVAPI_ControlFixes( int fixes )
+{
+	return syscall( MVAPI_CONTROL_FIXES, fixes );
+}
+
+int trap_MVAPI_GetVersion( void )
 {
 	return syscall( MVAPI_GET_VERSION );
 }
 
-qboolean trap_MVAPI_ControlFixes( mvfix_t fixes )
+int trap_FS_FLock( fileHandle_t h, flockCmd_t cmd, qboolean nb )
 {
-	return syscall( MVAPI_CONTROL_FIXES, fixes );
+	return syscall( MVAPI_FS_FLOCK, h, cmd, nb );
+}
+
+void trap_MVAPI_SetVersion( mvversion_t version )
+{
+	syscall( MVAPI_SET_VERSION, version );
+}
+
+void trap_R_AddRefEntityToScene2( const refEntity_t *re )
+{
+	syscall( CG_MVAPI_R_ADDREFENTITYTOSCENE2, re );
+}
+
+void trap_MVAPI_SetVirtualScreen( float w, float h )
+{
+	syscall( CG_MVAPI_SETVIRTUALSCREEN, w, h );
 }

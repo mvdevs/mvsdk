@@ -243,10 +243,14 @@ equ ceil												-112	; G_CEIL
 equ acos												-115	; G_ACOS 
 equ asin												-116	; G_ASIN 
 
-; JK2MV Syscalls
-equ trap_MVAPI_DisableStructConversion					-706	;MVAPI_DISABLE_STRUCT_CONVERSION
-equ trap_MVAPI_GetCurrentGameversion					-705    ;MVAPI_GET_VERSION
+; JK2MV Syscalls [Universal]
 equ trap_MVAPI_ControlFixes								-704	;MVAPI_CONTROL_FIXES
-equ trap_MVAPI_LocateGameData							-703	;MVAPI_LOCATE_GAME_DATA
-equ trap_MVAPI_SendConnectionlessPacket					-701	;MVAPI_SEND_CONNECTIONLESSPACKET
-equ trap_MVAPI_GetConnectionlessPacket					-702	;MVAPI_GET_CONNECTIONLESSPACKET
+equ trap_MVAPI_GetVersion								-705    ;MVAPI_GET_VERSION
+equ trap_FS_FLock										-709	;MVAPI_FS_FLOCK
+equ trap_MVAPI_SetVersion								-710	;MVAPI_SET_VERSION
+
+; JK2MV Syscalls [Game]
+equ trap_MVAPI_SendConnectionlessPacket					-701	;G_MVAPI_SEND_CONNECTIONLESSPACKET
+equ trap_MVAPI_GetConnectionlessPacket					-702	;G_MVAPI_GET_CONNECTIONLESSPACKET
+equ trap_MVAPI_LocateGameData							-703	;G_MVAPI_LOCATE_GAME_DATA
+equ trap_MVAPI_DisableStructConversion					-706	;G_MVAPI_DISABLE_STRUCT_CONVERSION
