@@ -36,3 +36,8 @@ extern void MV_SetGamePlay( mvversion_t version );
 
 #endif // #ifndef JK2_UI
 
+#ifndef JK2_GAME
+extern int Key_GetProtocolKey(mvversion_t version, int key16);
+extern int Key_GetProtocolKey15(mvversion_t version, int key15);
+#endif // #ifndef JK2_GAME
+

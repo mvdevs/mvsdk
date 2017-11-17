@@ -419,7 +419,7 @@ int trap_MemoryRemaining( void ) {
 	return syscall( CG_MEMORY_REMAINING );
 }
 
-qboolean trap_Key_IsDown( int keynum ) {
+qboolean trap_Key_IsDown_real( int keynum ) {
 	return syscall( CG_KEY_ISDOWN, keynum );
 }
 
@@ -431,7 +431,7 @@ void trap_Key_SetCatcher( int catcher ) {
 	syscall( CG_KEY_SETCATCHER, catcher );
 }
 
-int trap_Key_GetKey( const char *binding ) {
+int trap_Key_GetKey_real( const char *binding ) {
 	return syscall( CG_KEY_GETKEY, binding );
 }
 

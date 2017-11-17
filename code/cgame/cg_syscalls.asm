@@ -89,10 +89,10 @@ equ trap_SetClientForceAngle					-228	; CG_SETCLIENTFORCEANGLE
 equ trap_SetClientTurnExtent					-229	; CG_SETCLIENTTURNEXTENT 
 equ trap_OpenUIMenu								-230	; CG_OPENUIMENU 
 equ trap_MemoryRemaining						-233	; CG_MEMORY_REMAINING 
-equ trap_Key_IsDown								-234	; CG_KEY_ISDOWN 
+equ trap_Key_IsDown_real						-234	; CG_KEY_ISDOWN 
 equ trap_Key_GetCatcher							-235	; CG_KEY_GETCATCHER 
 equ trap_Key_SetCatcher							-236	; CG_KEY_SETCATCHER 
-equ trap_Key_GetKey								-237	; CG_KEY_GETKEY 
+equ trap_Key_GetKey_real						-237	; CG_KEY_GETKEY 
 equ trap_PC_AddGlobalDefine						-238	; CG_PC_ADD_GLOBAL_DEFINE 
 equ trap_PC_LoadSource							-239	; CG_PC_LOAD_SOURCE 
 equ trap_PC_FreeSource							-240	; CG_PC_FREE_SOURCE 

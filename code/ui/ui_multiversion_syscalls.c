@@ -1,12 +1,5 @@
 //ui_multiversion_syscalls.c
 
-/*
-This file contains functions with the names of the original trap_* methods.
-These functions call the multiversion functions before calling the (renamed) original functions.
-
-I didn't intend to "rename & replace" all the trap_* functions,
-but given that they're different depending on whether we build qvms or native libraries I am going with this approach now.
-*/
 #include "ui_local.h"
 #include "ui_multiversion_syscalls.h"
 

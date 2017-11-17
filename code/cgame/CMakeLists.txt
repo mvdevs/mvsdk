@@ -14,6 +14,7 @@ set(MVCGAMEHEADERS
 	"${SRCDir}/cgame/fx_local.h"
 	"${SRCDir}/cgame/tr_types.h"
 	"${SRCDir}/cgame/cg_multiversion.h"
+	"${SRCDir}/cgame/cg_multiversion_syscalls.h"
 
 	"${SRCDir}/game/anims.h"
 	"${SRCDir}/game/bg_local.h"
@@ -66,6 +67,7 @@ set(MVCGAMESOURCES
 	"${SRCDir}/cgame/fx_heavyrepeater.c"
 	"${SRCDir}/cgame/fx_rocketlauncher.c"
 	"${SRCDir}/cgame/cg_multiversion.c"
+	"${SRCDir}/cgame/cg_multiversion_syscalls.c"
 	"${SRCDir}/game/bg_multiversion.c"
 	"${SRCDir}/game/animMappingTable.c"
 

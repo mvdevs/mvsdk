@@ -501,7 +501,4 @@ qboolean	trap_SP_RegisterServer( const char *package );
 qboolean	trap_SP_Register(char *file );
 int trap_SP_GetStringTextString(const char *text, char *buffer, int bufferLength);
 
-int Key_GetProtocolKey(mvversion_t version, int key16);
-int Key_GetProtocolKey15(mvversion_t version, int key15);
-
 #endif
