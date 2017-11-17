@@ -135,13 +135,27 @@ int MVAPI_Init(int apilevel)
 
 void MVAPI_AfterInit(void)
 {
+	if ( mvapi >= 3 )
+	{ // If the apilevel supports it tell the engine that we're using 1.04 structs etc. internally
+		// Get the inital version
+		jk2startversion = trap_MVAPI_GetVersion();
+		// Set the version to 1.04
+		trap_MVAPI_SetVersion( VERSION_1_04 );
+		// Get the current version (should always be 1.04)
+		jk2version = trap_MVAPI_GetVersion();
+
+		// Set gameplay and version
+		MV_SetGameVersion( jk2version );
+		MV_SetGamePlay( jk2startversion );
+	}
+
 	// Call _UI_Init now, because we delayed it earilier
 	_UI_Init( Init_inGameLoad );
 }
 
 int MV_UiDetectVersion( void )
 {
-	char buffer[80];
+	char buffer[32];
 	// JK2MV: Let's detect which version of the engine we are running in...
 	jk2version = VERSION_UNDEF;
 
@@ -180,6 +194,7 @@ int MV_UiDetectVersion( void )
 	
 	if ( jk2version == VERSION_UNDEF ) trap_Error("MVSDK: Unable to detect jk2version [UI].\n");
 	Com_Printf("jk2version [UI]: 1.0%i\n", jk2version);
+	jk2startversion = jk2version;
 	MV_SetGameVersion(jk2version); // Set the GameVersion...
 
 	switch( jk2version )
@@ -2495,13 +2510,13 @@ static void UI_BuildPlayerList() {
 
 		if (info[0]) {
 			Q_strncpyz( uiInfo.playerNames[uiInfo.playerCount], Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
-			Q_CleanStr( uiInfo.playerNames[uiInfo.playerCount], (qboolean)(jk2version == VERSION_1_02) );
+			Q_CleanStr( uiInfo.playerNames[uiInfo.playerCount], (qboolean)(jk2startversion == VERSION_1_02) );
 			uiInfo.playerIndexes[uiInfo.playerCount] = n;
 			uiInfo.playerCount++;
 			team2 = atoi(Info_ValueForKey(info, "t"));
 			if (team2 == team && n != uiInfo.playerNumber) {
 				Q_strncpyz( uiInfo.teamNames[uiInfo.myTeamCount], Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
-				Q_CleanStr( uiInfo.teamNames[uiInfo.myTeamCount], (qboolean)(jk2version == VERSION_1_02) );
+				Q_CleanStr( uiInfo.teamNames[uiInfo.myTeamCount], (qboolean)(jk2startversion == VERSION_1_02) );
 				uiInfo.teamClientNums[uiInfo.myTeamCount] = n;
 				if (uiInfo.playerNumber == n) {
 					playerTeamNumber = uiInfo.myTeamCount;
@@ -5346,7 +5361,7 @@ static void UI_BuildFindPlayerList(qboolean force) {
 		uiInfo.numFoundPlayerServers = 0;
 		uiInfo.currentFoundPlayerServer = 0;
 		trap_Cvar_VariableStringBuffer( "ui_findPlayer", uiInfo.findPlayerName, sizeof(uiInfo.findPlayerName));
-		Q_CleanStr(uiInfo.findPlayerName, (qboolean)(jk2version == VERSION_1_02));
+		Q_CleanStr(uiInfo.findPlayerName, (qboolean)(jk2startversion == VERSION_1_02));
 		// should have a string of some length
 		if (!strlen(uiInfo.findPlayerName)) {
 			uiInfo.nextFindPlayerRefresh = 0;
@@ -5383,7 +5398,7 @@ static void UI_BuildFindPlayerList(qboolean force) {
 					}
 					// clean string first
 					Q_strncpyz(name, info.lines[j][3], sizeof(name));
-					Q_CleanStr(name, (qboolean)(jk2version == VERSION_1_02));
+					Q_CleanStr(name, (qboolean)(jk2startversion == VERSION_1_02));
 					// if the player name is a substring
 					if (stristr(name, uiInfo.findPlayerName)) {
 						// add to found server list if we have space (always leave space for a line with the number found)

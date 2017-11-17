@@ -464,7 +464,20 @@ int MVAPI_Init(int apilevel)
 
 void MVAPI_AfterInit(void)
 {
-	if ( mvapi >= 2 )
+	if ( mvapi >= 3 )
+	{ // If the apilevel supports it tell the engine that we're using 1.04 structs etc. internally
+		// Get the inital version
+		jk2startversion = trap_MVAPI_GetVersion();
+		// Set the version to 1.04
+		trap_MVAPI_SetVersion( VERSION_1_04 );
+		// Get the current version (should always be 1.04)
+		jk2version = trap_MVAPI_GetVersion();
+
+		// Set gameplay and version
+		MV_SetGameVersion( jk2version );
+		MV_SetGamePlay( jk2startversion );
+	}
+	else if ( mvapi >= 2 )
 	{ // If the mvapi supports it tell the engine that we are using the post 1.02 structs internally and don't waste any time converting structs
 		mvStructConversionDisabled = qtrue;
 		trap_MVAPI_DisableStructConversion( mvStructConversionDisabled );
@@ -685,56 +698,43 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_Printf ("gamename: %s\n", GAMEVERSION);
 	G_Printf ("gamedate: %s\n", __DATE__);
 	
-	// JK2MV: Let's detect which version of the engine we are running in...
-	if ( !jk2version )
-	{ //We don't know the version of the server, yet...
-		char version[128];
+	if ( jk2version == VERSION_UNDEF )
+	{ // We don't know the version of the server, yet...
+		// JK2MV with api?
+		if ( mvapi ) jk2version = trap_MVAPI_GetVersion();
 
-		trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
-		jk2version = VERSION_UNDEF;
+		if ( jk2version == VERSION_UNDEF )
+		{
+			char version[128];
 
-		//It might be not the exact versionString, but as some servers have different versionStrings we just check whether the versionNumber is included in the versionString or not...
-		if ( strstr(version, "JK2MP") )
-		{ // Seems to be JK2MP
-			     if ( strstr(version, "1.02") ) jk2version = VERSION_1_02;
-			else if ( strstr(version, "1.03") ) jk2version = VERSION_1_03;
-			else if ( strstr(version, "1.04") ) jk2version = VERSION_1_04;
-			else
-			{
-				jk2version = VERSION_1_04;
-				G_Printf("MVSDK: Unable to detect jk2mp version, setting to 1.04 compatibility.\n");
+			trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+
+			// Not checking for exact strings, as those are different on every build. Instead we check if the version is in the string.
+			if ( strstr(version, "JK2MP") )
+			{ // Seems to be JK2MP or JK2MV > 1.1
+					 if ( strstr(version, "1.02") ) jk2version = VERSION_1_02;
+				else if ( strstr(version, "1.03") ) jk2version = VERSION_1_03;
+				else if ( strstr(version, "1.04") ) jk2version = VERSION_1_04;
+				else
+				{
+					jk2version = VERSION_1_04;
+					G_Printf("MVSDK: Unable to detect jk2mp version, setting to 1.04 compatibility.\n");
+				}
 			}
-		}
-		else if ( strstr(version, "JK2MV") )
-		{ // Seems to be jk2mv, but an old version, try to find the version by reading the mv_serverversion cvar
-			trap_Cvar_VariableStringBuffer("mv_serverversion", version, sizeof(version));
-			     if ( !Q_stricmp(version, "1.02") ) jk2version = VERSION_1_02;
-			else if ( !Q_stricmp(version, "1.03") ) jk2version = VERSION_1_03;
-			else if ( !Q_stricmp(version, "1.04") ) jk2version = VERSION_1_04;
-		}
-
-		if ( mvapi && jk2version == VERSION_UNDEF )
-		{ // This shouldn't happen as well, because jk2mv > 1.1 sets its version cvar according to the original jk2mp's version-string, but you never know...
-			switch ( trap_MVAPI_GetVersion() )
-			{
-				case VERSION_1_02:
-					jk2version = trap_MVAPI_GetVersion();
-					break;
-				case VERSION_1_03:
-					jk2version = trap_MVAPI_GetVersion();
-					break;
-				case VERSION_1_04:
-					jk2version = trap_MVAPI_GetVersion();
-					break;
-				default:
-					jk2version = VERSION_UNDEF;
+			else if ( strstr(version, "JK2MV") )
+			{ // Seems to be jk2mv, but an old version, try to find the version by reading the mv_serverversion cvar
+				trap_Cvar_VariableStringBuffer("mv_serverversion", version, sizeof(version));
+					 if ( !Q_stricmp(version, "1.02") ) jk2version = VERSION_1_02;
+				else if ( !Q_stricmp(version, "1.03") ) jk2version = VERSION_1_03;
+				else if ( !Q_stricmp(version, "1.04") ) jk2version = VERSION_1_04;
 			}
 		}
 
 		if ( jk2version == VERSION_UNDEF ) G_Error("MVSDK: Unable to detect jk2version [Game].\n");
-		G_Printf("jk2version [Game]: 1.0%i\n", jk2version);
+		jk2startversion = jk2version;
 		MV_SetGameVersion(jk2version);
 	}
+	G_Printf("jk2version [Game]: 1.0%i\n", jk2version);
 
 	srand( randomSeed );
 	mysrand( randomSeed ); // On linux rand() behaves different than on Winodws or in a qvm, ...

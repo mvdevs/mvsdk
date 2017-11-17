@@ -305,6 +305,20 @@ int MVAPI_Init(int apilevel)
 
 void MVAPI_AfterInit(void)
 {
+	if ( mvapi >= 3 )
+	{ // If the apilevel supports it tell the engine that we're using 1.04 structs etc. internally
+		// Get the inital version
+		jk2startversion = trap_MVAPI_GetVersion();
+		// Set the version to 1.04
+		trap_MVAPI_SetVersion( VERSION_1_04 );
+		// Get the current version (should always be 1.04)
+		jk2version = trap_MVAPI_GetVersion();
+
+		// Set gameplay and version
+		MV_SetGameVersion( jk2version );
+		MV_SetGamePlay( jk2startversion );
+	}
+
 	// Call CG_Init now, because we delayed it earilier
 	CG_Init( Init_serverMessageNum, Init_serverCommandSequence, Init_clientNum );
 
@@ -2436,37 +2450,29 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	
 	// JK2MV: Let's detect which version of the engine we are running in...
 	// In theory CG_ParseServerinfo is the perfect place for this, but as the first thing CG_Init does is trying to get shared memory we have to perform our check even before that...
-	// FIXME: by putting me into an own function or something
-	jk2version = VERSION_UNDEF;
-	if ( mvapi )
-	{ // JK2MV >= 1.1
-		switch ( trap_MVAPI_GetVersion() )
-		{
-			case VERSION_1_02:
-				jk2version = VERSION_1_02;
-				break;
-			case VERSION_1_03:
-				jk2version = VERSION_1_03;
-				break;
-			case VERSION_1_04:
-				jk2version = VERSION_1_04;
-				break;
-			default:
-				jk2version = VERSION_UNDEF;
-		}
-	}
-
 	if ( jk2version == VERSION_UNDEF )
-	{ // Still undefined?
-		char version[128];
+	{ // We don't know the version of the server, yet...
+		// JK2MV with api?
+		if ( mvapi ) jk2version = trap_MVAPI_GetVersion();
 
-		trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
-		
-		if ( strstr(version, "JK2MP") )
-		{ // JK2MP
-			     if ( strstr(version, "1.02") ) jk2version = VERSION_1_02;
-			else if ( strstr(version, "1.03") ) jk2version = VERSION_1_03;
-			else if ( strstr(version, "1.04") ) jk2version = VERSION_1_04;
+		if ( jk2version == VERSION_UNDEF )
+		{
+			char version[128];
+
+			trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+
+			// Not checking for exact strings, as those are different on every build. Instead we check if the version is in the string.
+			if ( strstr(version, "JK2MP") )
+			{ // Seems to be JK2MP or JK2MV > 1.1
+				     if ( strstr(version, "1.02") ) jk2version = VERSION_1_02;
+				else if ( strstr(version, "1.03") ) jk2version = VERSION_1_03;
+				else if ( strstr(version, "1.04") ) jk2version = VERSION_1_04;
+				else
+				{
+					jk2version = VERSION_1_04;
+					CG_Printf("MVSDK: Unable to detect jk2mp version, setting to 1.04 compatibility.\n");
+				}
+			}
 		}
 
 		if ( jk2version == VERSION_UNDEF )
@@ -2479,7 +2485,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 			info = CG_ConfigString( CS_SERVERINFO );
 			version = Info_ValueForKey( info, "version" );
 		
-			// It might be not the exact versionString, but as some servers have different versionStrings we just check wether the versionNumber is included in the versionString or not...
+			// Not checking for exact strings, as those are different on every build. Instead we check if the version is in the string.
 			if ( strstr(version, "JK2MP") )
 			{ // JK2MP
 				     if ( strstr(version, "1.02") ) jk2version = VERSION_1_02;
@@ -2487,11 +2493,12 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 				else if ( strstr(version, "1.04") ) jk2version = VERSION_1_04;
 			}
 		}
-	}
 
-	if ( jk2version == VERSION_UNDEF ) CG_Error("MVSDK: Unable to detect jk2version [CGame].\n");
+		if ( jk2version == VERSION_UNDEF ) CG_Error("MVSDK: Unable to detect jk2version [CGame].\n");
+		jk2startversion = jk2version;
+		MV_SetGameVersion(jk2version);
+	}
 	CG_Printf("jk2version [CGame]: 1.0%i\n", jk2version);
-	MV_SetGameVersion(jk2version);
 
 	trap_CG_RegisterSharedMemory(cg.sharedBuffer);
 

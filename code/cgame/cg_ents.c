@@ -524,8 +524,8 @@ static void CG_General( centity_t *cent ) {
 		}
 		else
 		{
-			if ( jk2version == VERSION_1_04 ) clEnt = &cg_entities[cent->currentState.otherEntityNum2];
-			else							  clEnt = &cg_entities[cent->currentState.modelindex2];
+			if ( jk2startversion == VERSION_1_04 ) clEnt = &cg_entities[cent->currentState.otherEntityNum2];
+			else								   clEnt = &cg_entities[cent->currentState.modelindex2];
 		}
 
 		if (!dismember_settings)

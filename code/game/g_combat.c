@@ -2736,8 +2736,8 @@ void G_Dismember( gentity_t *ent, vec3_t point, int limbType, float limbRollBase
 	else
 	{
 		limb->s.modelindex = -1;
-		if ( jk2version == VERSION_1_04 ) limb->s.otherEntityNum2 = ent->s.number;
-		else							  limb->s.modelindex2 = ent->s.number;
+		if ( jk2startversion == VERSION_1_04 ) limb->s.otherEntityNum2 = ent->s.number;
+		else								   limb->s.modelindex2 = ent->s.number;
 	}
 
 	trap_LinkEntity( limb );

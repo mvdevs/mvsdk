@@ -39,7 +39,7 @@ static void CG_TransitionEntity( centity_t *cent ) {
 	cent->currentState = cent->nextState;
 	cent->currentValid = qtrue;
 
-	if ( jk2version == VERSION_1_02 )
+	if ( jk2startversion == VERSION_1_02 )
 	{ // JK2MV: Version Magic!
 		cent->currentState.torsoAnim = MV_MapAnimation104( cent->currentState.torsoAnim );
 		cent->currentState.legsAnim = MV_MapAnimation104( cent->currentState.legsAnim );
@@ -101,7 +101,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 		cent->interpolate = qfalse;
 		cent->currentValid = qtrue;
 
-		if ( jk2version == VERSION_1_02 )
+		if ( jk2startversion == VERSION_1_02 )
 		{ // JK2MV: Version Magic!
 			cent->currentState.torsoAnim = MV_MapAnimation104( cent->currentState.torsoAnim );
 			cent->currentState.legsAnim = MV_MapAnimation104( cent->currentState.legsAnim );
@@ -307,7 +307,9 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 				memset( &(dest->ps.forceRestricted), 0, section3 ); // 0 everything from ps.forceRestricted till ps.saberIndex
 				memcpy( &(dest->ps.saberIndex), &(activeSnapshot_1_02.ps.saberIndex), section4 ); // Copy everything starting with ps.saberIndex
 				memcpy( &dest->numEntities, &(activeSnapshot_1_02.numEntities), section5 ); // Copy everything after ps
-
+			}
+			if ( jk2startversion == VERSION_1_02 )
+			{
 				/* Convert the animations */
 				dest->ps.legsAnim = MV_MapAnimation104(dest->ps.legsAnim);
 				dest->ps.legsAnimExecute = MV_MapAnimation104(dest->ps.legsAnimExecute);

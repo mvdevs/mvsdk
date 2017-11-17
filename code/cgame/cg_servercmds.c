@@ -431,7 +431,7 @@ static void CG_AddToTeamChat( const char *str ) {
 			ls = NULL;
 		}
 
-		if ( (jk2version == VERSION_1_02 ? Q_IsColorString_1_02(str) : Q_IsColorString(str)) ) {
+		if ( (jk2startversion == VERSION_1_02 ? Q_IsColorString_1_02(str) : Q_IsColorString(str)) ) {
 			*p++ = *str++;
 			lastcolor = *str;
 			*p++ = *str++;

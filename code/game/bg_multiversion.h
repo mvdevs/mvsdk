@@ -6,6 +6,7 @@
 /* Variables */
 extern mvversion_t jk2version;
 extern mvversion_t jk2gameplay;
+extern mvversion_t jk2startversion;
 
 #ifndef JK2_UI // Not defined for UI, but still in bg_* for game and cgame
 extern animNumber_1_02_t animMappingTable_1_04_to_1_02[MAX_TOTALANIMATIONS];
@@ -28,9 +29,9 @@ extern void MV_SetGamePlay( mvversion_t version );
 //extern int MV_VersionMagic_g2ModelParts( int limbType );
 #ifndef MV_VersionMagic_g2ModelParts
 #ifdef JK2_GAME
-	#define MV_VersionMagic_g2ModelParts( limbType ) ( jk2version != VERSION_1_02 ? limbType : (limbType >= G2_MODELPART_RHAND ? limbType-1 : limbType) )
+	#define MV_VersionMagic_g2ModelParts( limbType ) ( jk2startversion != VERSION_1_02 ? limbType : (limbType >= G2_MODELPART_RHAND ? limbType-1 : limbType) )
 #elif JK2_CGAME
-	#define MV_VersionMagic_g2ModelParts( limbType ) ( jk2version != VERSION_1_02 ? limbType : (limbType >= G2_MODELPART_RHAND ? limbType+1 : limbType) )
+	#define MV_VersionMagic_g2ModelParts( limbType ) ( jk2startversion != VERSION_1_02 ? limbType : (limbType >= G2_MODELPART_RHAND ? limbType+1 : limbType) )
 #endif // #ifdef JK2_GAME
 #endif // #ifndef MV_VersionMagic_g2ModelParts
 

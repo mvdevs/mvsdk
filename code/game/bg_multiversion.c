@@ -9,8 +9,9 @@
 #include "../ui/ui_local.h"
 #endif
 
-mvversion_t	jk2version	= VERSION_UNDEF;
-mvversion_t	jk2gameplay	= VERSION_UNDEF;
+mvversion_t	jk2version      = VERSION_UNDEF;  // Current engine gameversion
+mvversion_t	jk2gameplay     = VERSION_UNDEF;  // Current gameplay to apply
+mvversion_t	jk2startversion = VERSION_UNDEF;  // Gameversion the engine had when the module was loaded
 
 #ifndef JK2_UI // Not defined for UI, but still in bg_* for game and cgame
 /* Additional functions */

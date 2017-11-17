@@ -1812,14 +1812,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 			}
 			else {
 				Q_strncpyz(leader, arg2, sizeof(leader));
-				Q_CleanStr(leader, (qboolean)(jk2version == VERSION_1_02));
+				Q_CleanStr(leader, (qboolean)(jk2startversion == VERSION_1_02));
 				for ( i = 0 ; i < level.maxclients ; i++ ) {
 					if ( level.clients[i].pers.connected == CON_DISCONNECTED )
 						continue;
 					if (level.clients[i].sess.sessionTeam != team)
 						continue;
 					Q_strncpyz(netname, level.clients[i].pers.netname, sizeof(netname));
-					Q_CleanStr(netname, (qboolean)(jk2version == VERSION_1_02));
+					Q_CleanStr(netname, (qboolean)(jk2startversion == VERSION_1_02));
 					if ( !Q_stricmp(netname, leader) ) {
 						break;
 					}

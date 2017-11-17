@@ -4543,7 +4543,7 @@ void PmoveSingle (pmove_t *pmove) {
 	// if talk button is down, dissallow all other input
 	// this is to prevent any possible intercept proxy from
 	// adding fake talk balloons
-	if ( pmove->cmd.buttons & BUTTON_TALK && jk2version != VERSION_1_02 ) { // JK2MV: 1.02 people are used to walk around with open console, 1.03 and 1.04 can't do that. Let's make this depending on the actual version we're running, not the gameplay...
+	if ( pmove->cmd.buttons & BUTTON_TALK && jk2startversion != VERSION_1_02 ) { // JK2MV: 1.02 people are used to walk around with open console, 1.03 and 1.04 can't do that. Let's make this depending on the actual version we're running, not the gameplay...
 		// keep the talk button set tho for when the cmd.serverTime > 66 msec
 		// and the same cmd is used multiple times in Pmove
 		pmove->cmd.buttons = BUTTON_TALK;

@@ -432,7 +432,7 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 		i++;
 	}
 
-	if ( jk2version == VERSION_1_02
+	if ( jk2startversion == VERSION_1_02
 #ifdef JK2_GAME
 		&& mv_forcePowerDisableMode.integer
 #endif //JK2_GAME

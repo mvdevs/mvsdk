@@ -273,7 +273,7 @@ void G_G2ClientSpineAngles_1_02( gentity_t *ent, vec3_t viewAngles, const vec3_t
 }
 void G_G2ClientSpineAngles( gentity_t *ent, vec3_t viewAngles, const vec3_t angles, vec3_t thoracicAngles, vec3_t ulAngles, vec3_t llAngles )
 {
-	if ( jk2version == VERSION_1_02 || jk2gameplay == VERSION_1_02 ) // JK2MV: FIXME: TODO: We seem not to have "trap_G2API_GetBoltMatrix_NoRecNoRot" in 1.02, so it makes no sense to use the 1.04 version of this function, even when we have 1.04 gameplay in 1.02. However we could alter the JK2MV API to support it...
+	if ( jk2version == VERSION_1_02 || jk2gameplay == VERSION_1_02 ) // If either the gameplay demands 1.02 here or if the jk2version is 1.02 and doesn't offer the neccessary syscalls for 1.04 behaviour we are going to call 1.02 behaviour.
 	{
 		G_G2ClientSpineAngles_1_02( ent, viewAngles, angles, thoracicAngles, ulAngles, llAngles );
 		return;
@@ -1472,7 +1472,7 @@ qboolean G_ClientIdleInWorld(gentity_t *ent)
 #ifdef G2_COLLISION_ENABLED
 qboolean G_G2TraceCollide(trace_t *tr, vec3_t lastValidStart, vec3_t lastValidEnd, vec3_t traceMins, vec3_t traceMaxs)
 {
-	if (!g_saberGhoul2Collision.integer || jk2version == VERSION_1_02) // JK2MV: TODO: JK2 1.02 neither had saberGhoul2Collision, nor the trap_G2API_CollisionDetect syscall. However we could add support for that syscall in the JK2MV API.
+	if (!g_saberGhoul2Collision.integer || jk2version == VERSION_1_02)
 	{
 		return qfalse;
 	}
@@ -4246,7 +4246,7 @@ int WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, int mod, qboolea
 	if (self->client->ps.fd.forcePowerLevel[FP_SABERDEFEND] == FORCE_LEVEL_3)
 	{
 #ifdef G2_COLLISION_ENABLED
-		if (g_saberGhoul2Collision.integer && jk2version != VERSION_1_02) // JK2MV: FIXME: 1.02 doesn't support G2_COLLISION, because it's missing a syscall, however we could add a check later to make this available on jk2mv servers. Let's keep this disabled for now while running in 1.02 mode...
+		if (g_saberGhoul2Collision.integer && jk2version != VERSION_1_02)
 		{
 			blockFactor = 0.3f;
 		}
