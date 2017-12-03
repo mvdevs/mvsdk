@@ -2434,7 +2434,7 @@ qboolean BG_OutOfMemory ( void )
 	return bg_poolSize >= MAX_POOL_SIZE;
 }
 
-// JK2MV: 1.03 bg_misc.c functions. Not sure if we need them later on. // FIXME
+// MVSDK: 1.03 bg_misc.c functions. Not sure if we need them later on. // FIXME
 /*
 ==================
 BG_SwingAngles

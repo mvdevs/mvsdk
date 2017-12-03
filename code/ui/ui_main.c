@@ -156,7 +156,7 @@ void MVAPI_AfterInit(void)
 int MV_UiDetectVersion( void )
 {
 	char buffer[32];
-	// JK2MV: Let's detect which version of the engine we are running in...
+	// MVSDK: Let's detect which version of the engine we are running in...
 	jk2version = VERSION_UNDEF;
 
 	trap_Cvar_VariableStringBuffer( "mv_apienabled", buffer, sizeof(buffer) );
@@ -1446,8 +1446,6 @@ qboolean UI_HasSetSaberOnly( void )
 	{ //set to 0 
 		return qfalse;
 	}
-
-	trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) );
 
 	if (gametype == GT_TOURNAMENT)
 	{

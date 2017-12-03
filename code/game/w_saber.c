@@ -84,11 +84,11 @@ void SaberUpdateSelf(gentity_t *ent)
 	if (g_entities[ent->r.ownerNum].client->ps.saberInFlight && g_entities[ent->r.ownerNum].health > 0)
 	{ //let The Master take care of us now (we'll get treated like a missile until we return)
 		ent->nextthink = level.time;
-		/*if ( jk2gameplay == VERSION_1_04 )*/ ent->bolt_Head = PROPER_THROWN_VALUE; // JK2MV: This shouldn't affect gameplay.
+		/*if ( jk2gameplay == VERSION_1_04 )*/ ent->bolt_Head = PROPER_THROWN_VALUE; // MVSDK: This shouldn't affect gameplay.
 		return;
 	}
 
-	/*if ( jk2gameplay == VERSION_1_04 )*/ ent->bolt_Head = 0; // JK2MV: This shouldn't affect gameplay.
+	/*if ( jk2gameplay == VERSION_1_04 )*/ ent->bolt_Head = 0; // MVSDK: This shouldn't affect gameplay.
 
 	if (g_entities[ent->r.ownerNum].client->ps.usingATST)
 	{ //using atst
@@ -167,7 +167,7 @@ void WP_SaberInitBladeData( gentity_t *ent )
 	saberent->touch = SaberGotHit;
 
 	saberent->think = SaberUpdateSelf;
-	/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // JK2MV: This shouldn't affect gameplay.
+	/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // MVSDK: This shouldn't affect gameplay.
 	saberent->nextthink = level.time + 50;
 
 	saberSpinSound = G_SoundIndex("sound/weapons/saber/saberspin.wav");
@@ -1551,7 +1551,7 @@ qboolean G_SaberInBackAttack(int move)
 
 
 qboolean CheckSaberDamage_1_02(gentity_t *self, vec3_t saberStart, vec3_t saberEnd, qboolean doInterpolate)
-{ // JK2MV: This functions seems to be very different in 1.02, it even has less parameters than in 1.03 or 1.04...
+{ // MVSDK: This functions seems to be very different in 1.02, it even has less parameters than in 1.03 or 1.04...
 	trace_t tr;
 	vec3_t dir;
 	int dmg = 0;
@@ -3071,7 +3071,7 @@ void saberBackToOwner(gentity_t *saberent)
 	{ //He's dead, just go back to our normal saber status
 		saberent->touch = SaberGotHit;
 		saberent->think = SaberUpdateSelf;
-		/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // JK2MV: This shouldn't affect gameplay.
+		/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // MVSDK: This shouldn't affect gameplay.
 		saberent->nextthink = level.time;
 
 		MakeDeadSaber(saberent);
@@ -3138,7 +3138,7 @@ void saberBackToOwner(gentity_t *saberent)
 		saberent->touch = SaberGotHit;
 
 		saberent->think = SaberUpdateSelf;
-		/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // JK2MV: This shouldn't affect gameplay.
+		/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // MVSDK: This shouldn't affect gameplay.
 		saberent->nextthink = level.time + 50;
 
 		return;
@@ -3227,7 +3227,7 @@ void saberFirstThrown(gentity_t *saberent)
 	{ //He's dead, just go back to our normal saber status
 		saberent->touch = SaberGotHit;
 		saberent->think = SaberUpdateSelf;
-		/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // JK2MV: This shouldn't affect gameplay.
+		/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // MVSDK: This shouldn't affect gameplay.
 		saberent->nextthink = level.time;
 
 		MakeDeadSaber(saberent);
@@ -3486,7 +3486,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 
 	//immediately store these values so we don't have to recalculate this again
 	if ( jk2gameplay != VERSION_1_02 )
-	{ // JK2MV: FIXME: As I do not know for sure if this is just an optimization or actually affects gameplay I am going to disable this in 1.02...
+	{ // MVSDK: FIXME: As I do not know for sure if this is just an optimization or actually affects gameplay I am going to disable this in 1.02...
 		VectorCopy(boltOrigin, self->client->lastSaberBase_Always);
 		VectorCopy(boltOrigin, self->client->lastSaberDir_Always);
 		self->client->lastSaberStorageTime = level.time;
@@ -3571,7 +3571,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 				saberent->s.solid = 2;
 				saberent->r.contents = CONTENTS_LIGHTSABER;
 
-				/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // JK2MV: This shouldn't affect gameplay.
+				/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // MVSDK: This shouldn't affect gameplay.
 
 				VectorSet( saberent->r.mins, -24.0f, -24.0f, -8.0f );
 				VectorSet( saberent->r.maxs, 24.0f, 24.0f, 8.0f );

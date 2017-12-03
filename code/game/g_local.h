@@ -9,7 +9,7 @@
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
-#define	GAMEVERSION	"basejkmv"
+#define	GAMEVERSION	"basemv"
 
 #define BODY_QUEUE_SIZE		8
 
@@ -1301,7 +1301,7 @@ qboolean	trap_ROFF_Purge_Ent( int entID );
 
 #include "g_multiversion_syscalls.h"
 
-#define SABER_BOX_SIZE /*16.0f*/(jk2gameplay == VERSION_1_02 ? 8.0f : 16.0f) //JK2MV: Moved from w_saber.c
+#define SABER_BOX_SIZE /*16.0f*/(jk2gameplay == VERSION_1_02 ? 8.0f : 16.0f) //MVSDK: Moved from w_saber.c
 
 extern int mvapi;
 extern qboolean mvStructConversionDisabled;
@@ -1315,6 +1315,7 @@ void MVAPI_AfterInit( void );
 /* Level 1 */
 qboolean trap_MVAPI_ControlFixes( int fixes );                                                                    // Level: 1
 int trap_MVAPI_GetVersion( void );                                                                                // Level: 1
+
 /* Level 3 */
 int trap_FS_FLock( fileHandle_t h, flockCmd_t cmd, qboolean nb );                                                 // Level: 3
 void trap_MVAPI_SetVersion( mvversion_t version );                                                                // Level: 3
@@ -1324,6 +1325,7 @@ void trap_MVAPI_SetVersion( mvversion_t version );                              
 qboolean trap_MVAPI_SendConnectionlessPacket( const mvaddr_t *addr, const char *message );                        // Level: 1
 qboolean trap_MVAPI_GetConnectionlessPacket( mvaddr_t *addr, char *buf, unsigned int bufsize );                   // Level: 1
 qboolean trap_MVAPI_LocateGameData( mvsharedEntity_t *mvEnts, int numGEntities, int sizeofmvsharedEntity_t );     // Level: 1
+
 /* Level 2 */
 qboolean trap_MVAPI_DisableStructConversion( qboolean disable );                                                  // Level: 2
 

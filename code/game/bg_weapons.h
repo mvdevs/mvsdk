@@ -85,7 +85,7 @@ typedef struct  ammoData_s
 } ammoData_t;
 
 
-// JK2MV: weaponData is now a pointer to the weaponData of the currently played version (gameplay-wise)
+// MVSDK:: weaponData is now a pointer to the weaponData of the currently played version (gameplay-wise)
 extern weaponData_t weaponData_1_02[WP_NUM_WEAPONS];
 extern weaponData_t weaponData_1_03[WP_NUM_WEAPONS];
 extern weaponData_t weaponData_1_04[WP_NUM_WEAPONS];

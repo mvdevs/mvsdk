@@ -40,7 +40,7 @@ static void CG_TransitionEntity( centity_t *cent ) {
 	cent->currentValid = qtrue;
 
 	if ( jk2startversion == VERSION_1_02 )
-	{ // JK2MV: Version Magic!
+	{ // MVSDK: Version Magic!
 		cent->currentState.torsoAnim = MV_MapAnimation104( cent->currentState.torsoAnim );
 		cent->currentState.legsAnim = MV_MapAnimation104( cent->currentState.legsAnim );
 	}
@@ -102,7 +102,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 		cent->currentValid = qtrue;
 
 		if ( jk2startversion == VERSION_1_02 )
-		{ // JK2MV: Version Magic!
+		{ // MVSDK: Version Magic!
 			cent->currentState.torsoAnim = MV_MapAnimation104( cent->currentState.torsoAnim );
 			cent->currentState.legsAnim = MV_MapAnimation104( cent->currentState.legsAnim );
 		}
@@ -256,7 +256,7 @@ times if the client system fails to return a
 valid snapshot.
 ========================
 */
-snapshot_1_02_t	activeSnapshot_1_02; // JK2MV: Only used to receive the new snapshot. We're copying the content over as soon as we have the new snapshot... // Global variable for the qvm compiler...
+snapshot_1_02_t	activeSnapshot_1_02; // MVSDK: Only used to receive the new snapshot. We're copying the content over as soon as we have the new snapshot... // Global variable for the qvm compiler...
 static snapshot_t *CG_ReadNextSnapshot( void ) {
 	qboolean	r;
 	snapshot_t	*dest;
@@ -278,7 +278,7 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 		cgs.processedSnapshotNum++;
 
 		if ( jk2version == VERSION_1_02 )
-		{ // JK2MV: Multiversion magic!
+		{ // MVSDK: Multiversion magic!
 			r = trap_GetSnapshot( cgs.processedSnapshotNum, (snapshot_t*)&activeSnapshot_1_02 );
 		}
 		else
@@ -294,7 +294,7 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 		// if it succeeded, return
 		if ( r ) {
 			if ( jk2version == VERSION_1_02 )
-			{ // JK2MV: Multiversion Magic
+			{ // MVSDK: Multiversion Magic
 				static const size_t section1 = (size_t)((char *)&((snapshot_t*)NULL)->ps);
 				static const size_t section2 = (size_t)((char *)&((playerState_t*)NULL)->forceRestricted);
 				static const size_t section3 = (size_t)((char *)&((playerState_t*)NULL)->saberIndex - (char *)&((playerState_t*)NULL)->forceRestricted);

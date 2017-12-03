@@ -2726,7 +2726,7 @@ void G_Dismember( gentity_t *ent, vec3_t point, int limbType, float limbRollBase
 	limb->s.apos.trTime = level.time;
 	limb->s.apos.trType = TR_LINEAR;
 
-	limb->s.modelGhoul2 = /*limbType*/MV_VersionMagic_g2ModelParts(limbType); // JK2MV: As we don't need the "modelGhoul2" of this limb on the serverside anymore we can just convert it to the appropriate value of the jk2version we are running in, without the need to convert it back later...
+	limb->s.modelGhoul2 = /*limbType*/MV_VersionMagic_g2ModelParts(limbType); // MVSDK: As we don't need the "modelGhoul2" of this limb on the serverside anymore we can just convert it to the appropriate value of the jk2version we are running in, without the need to convert it back later...
 	limb->s.g2radius = 200;
 	if (ent->client)
 	{

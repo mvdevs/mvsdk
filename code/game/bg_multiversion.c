@@ -193,7 +193,7 @@ void MV_SetGamePlay( mvversion_t version )
 #ifndef JK2_GAME
 
 
-// JK2MV: Multiversion Keys...
+// MVSDK: Multiversion Keys...
 int Key_GetProtocolKey(mvversion_t version, int key16) {
 	if (version != VERSION_1_02)
 		return key16;

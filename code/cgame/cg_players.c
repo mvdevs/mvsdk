@@ -1147,7 +1147,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	v = Info_ValueForKey( configstring, "forcepowers" );
 	Q_strncpyz( newInfo.forcePowers, v, sizeof( newInfo.forcePowers ) );
 
-	// JK2MV: jk2gameplay
+	// MVSDK: jk2gameplay
 	v = Info_ValueForKey( configstring, "mvgp" );
 	if ( strlen(v) )
 	{
@@ -6480,7 +6480,7 @@ doEssentialTwo:
 	CG_PlayerAnimation( cent, &legs.oldframe, &legs.frame, &legs.backlerp,
 		 &torso.oldframe, &torso.frame, &torso.backlerp );
 
-	// JK2MV: FIXME: TODO: Did not having the correct values cause different behaviour in pre 1.04 jk2?
+	// MVSDK: FIXME: TODO: Did not having the correct values cause different behaviour in pre 1.04 jk2?
 	//Need these set because we use them in other functions (cent pointer differs from cg_entities values)
 	cg_entities[cent->currentState.number].pe.torso.frame = cent->pe.torso.frame;
 	cg_entities[cent->currentState.number].pe.legs.frame = cent->pe.legs.frame;

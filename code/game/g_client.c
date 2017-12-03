@@ -1763,7 +1763,7 @@ void ClientSpawn(gentity_t *ent) {
 		{
 			saberent->touch = SaberGotHit;
 			saberent->think = SaberUpdateSelf;
-			/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // JK2MV: This shouldn't affect gameplay.
+			/*if ( jk2gameplay == VERSION_1_04 )*/ saberent->bolt_Head = 0; // MVSDK: This shouldn't affect gameplay.
 			saberent->nextthink = level.time;
 
 			MakeDeadSaber(saberent);
@@ -2056,7 +2056,7 @@ void ClientSpawn(gentity_t *ent) {
 		}
 		else
 		{//jediVmerc is incompatible with this gametype, turn it off!
-			if ( jk2gameplay == VERSION_1_04 ) trap_Cvar_Set( "g_jediVmerc", "0" ); // JK2MV: I don't know what happens if you try jediVmerc with one of the incompatible gametypes, but maybe you end up with some special kind of jedi-master gametype... // FIXME: Check if jediVmerc with incompatible gametypes has some bad side-effects.
+			if ( jk2gameplay == VERSION_1_04 ) trap_Cvar_Set( "g_jediVmerc", "0" ); // MVSDK: I don't know what happens if you try jediVmerc with one of the incompatible gametypes, but maybe you end up with some special kind of jedi-master gametype... // FIXME: Check if jediVmerc with incompatible gametypes has some bad side-effects.
 			if (g_gametype.integer == GT_HOLOCRON)
 			{
 				//always get free saber level 1 in holocron

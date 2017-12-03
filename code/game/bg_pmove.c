@@ -1536,7 +1536,7 @@ static void PM_FlyMove( void ) {
 
 	scale = PM_CmdScale( &pm->cmd );
 	
-	if ( jk2gameplay != VERSION_1_02 && pm->ps->pm_type == PM_SPECTATOR && pm->cmd.buttons & BUTTON_ALT_ATTACK) { // JK2MV: FIXME: Should we really disable this in 1.02-mode? Probably going to re-enable it soon anyway...
+	if ( pm->ps->pm_type == PM_SPECTATOR && pm->cmd.buttons & BUTTON_ALT_ATTACK) { // MVSDK: 1.03+ feature, but let's enable it on 1.02 as well.
 		//turbo boost
 		scale *= 10;
 	}
@@ -1547,7 +1547,7 @@ static void PM_FlyMove( void ) {
 	if ( !scale ) {
 		wishvel[0] = 0;
 		wishvel[1] = 0;
-		wishvel[2] = ( jk2gameplay == VERSION_1_02 ? 0 : pm->ps->speed * (pm->cmd.upmove/127.0f) ); // JK2MV: FIXME: Should we really disable this in 1.02-mode? Probably going to re-enable it soon anyway...
+		wishvel[2] = pm->ps->speed * (pm->cmd.upmove/127.0f); // MVSDK: 1.02 originally put this to 0, but let's use 1.03+ behaviour for this as well.
 	} else {
 		for (i=0 ; i<3 ; i++) {
 			wishvel[i] = scale * pml.forward[i]*pm->cmd.forwardmove + scale * pml.right[i]*pm->cmd.rightmove;
@@ -1918,7 +1918,7 @@ static int PM_TryRoll( void )
 
 	if ( BG_SaberInAttack( pm->ps->saberMove ) || BG_SaberInSpecialAttack( pm->ps->torsoAnim ) 
 		|| BG_SpinningSaberAnim( pm->ps->legsAnim ) 
-		|| (jk2gameplay != VERSION_1_02 && PM_SaberInStart( pm->ps->saberMove )) ) // JK2MV: In 1.02 everyone except client 0 could roll during SaberInStart. In 1.03 and later nobody could roll during SaberInStart. 1.02 people consider client 0 being unable to roll as client 0 bug, so let him roll, too.
+		|| (jk2gameplay != VERSION_1_02 && PM_SaberInStart( pm->ps->saberMove )) ) // MVSDK: In 1.02 everyone except client 0 could roll during SaberInStart. In 1.03 and later nobody could roll during SaberInStart. 1.02 people consider client 0 being unable to roll as client 0 bug, so let him roll, too.
 	{//attacking or spinning (or, if player, starting an attack)
 		return 0;
 	}
@@ -2630,7 +2630,7 @@ static void PM_Footsteps( void ) {
 
 		// airborne leaves position in cycle intact, but doesn't advance
 		if ( pm->waterlevel > 1 )
-		{ // JK2MV: Swimming is broken in 1.02, but let's NOT port the brokeness back in here for 1.02-gameplay. Most 1.02 mods apply the 1.04 behaviour anyway.
+		{ // MVSDK: Swimming is broken in 1.02, but let's NOT port the brokeness back in here for 1.02-gameplay. Most 1.02 mods apply the 1.04 behaviour anyway.
 			if (pm->xyspeed > 60)
 			{
 				PM_ContinueLegsAnim( BOTH_SWIMFORWARD );
@@ -3417,7 +3417,7 @@ static void PM_Weapon( void )
 		case HANDEXTEND_KNOCKDOWN:
 			if (pm->ps->forceDodgeAnim)
 			{
-				if (pm->ps->forceDodgeAnim > 4 && jk2gameplay == VERSION_1_04) // JK2MV: This should be enough to have the "seperateOnTorso" behaviour only with 1.04 gameplay
+				if (pm->ps->forceDodgeAnim > 4 && jk2gameplay == VERSION_1_04) // MVSDK: This should be enough to have the "seperateOnTorso" behaviour only with 1.04 gameplay
 				{ //this means that we want to play a sepereate anim on the torso
 					int originalDAnim = pm->ps->forceDodgeAnim-8; //-8 is the original legs anim
 					if (originalDAnim == 2)
@@ -4543,7 +4543,7 @@ void PmoveSingle (pmove_t *pmove) {
 	// if talk button is down, dissallow all other input
 	// this is to prevent any possible intercept proxy from
 	// adding fake talk balloons
-	if ( pmove->cmd.buttons & BUTTON_TALK && jk2startversion != VERSION_1_02 ) { // JK2MV: 1.02 people are used to walk around with open console, 1.03 and 1.04 can't do that. Let's make this depending on the actual version we're running, not the gameplay...
+	if ( pmove->cmd.buttons & BUTTON_TALK && jk2startversion != VERSION_1_02 ) { // MVSDK: 1.02 people are used to walk around with open console, 1.03 and 1.04 can't do that. Let's make this depending on the actual version we're running, not the gameplay...
 		// keep the talk button set tho for when the cmd.serverTime > 66 msec
 		// and the same cmd is used multiple times in Pmove
 		pmove->cmd.buttons = BUTTON_TALK;
@@ -4577,7 +4577,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	if ((pm->ps->saberMove == LS_A_JUMP_T__B_ || pm->ps->saberMove == LS_A_LUNGE ||
 		((pm->ps->saberMove == LS_A_BACK_CR || pm->ps->saberMove == LS_A_BACK ||
-		pm->ps->saberMove == LS_A_BACKSTAB) && jk2gameplay == VERSION_1_04)) && jk2gameplay != VERSION_1_02) // JK2MV: One of the place where 1.02, 1.03 and 1.04 are all different!
+		pm->ps->saberMove == LS_A_BACKSTAB) && jk2gameplay == VERSION_1_04)) && jk2gameplay != VERSION_1_02) // MVSDK: One of the place where 1.02, 1.03 and 1.04 are all different!
 	{
 		PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
 	}

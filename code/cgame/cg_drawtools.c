@@ -212,7 +212,7 @@ Coordinates are at 640 by 480 virtual resolution
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars )
 {
-	if (jk2version != VERSION_1_02 && trap_Language_IsAsian()) // JK2MV: This was originally only checked for 1.04, but as 1.03 already had the required syscall let's do it for 1.03 and 1.04
+	if (jk2version != VERSION_1_02 && trap_Language_IsAsian()) // MVSDK: This was originally only checked for 1.04, but as 1.03 already had the required syscall let's do it for 1.03 and 1.04
 	{
 		// hack-a-doodle-do (post-release quick fix code)...
 		//

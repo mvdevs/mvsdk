@@ -794,7 +794,7 @@ static void CG_General( centity_t *cent ) {
 				trap_G2API_GiveMeVectorFromMatrix(&matrix, ORIGIN, boltOrg);
 				trap_G2API_GiveMeVectorFromMatrix(&matrix, NEGATIVE_Y, boltAng);
 
-				if (!boltAng[0] && !boltAng[1] && !boltAng[2]) // JK2MV: FIXME: TODO: Exists only in jk2 1.04. Check if this only got influence on visual effects or something else...
+				if (!boltAng[0] && !boltAng[1] && !boltAng[2]) // MVSDK: Originally only existed on jk2 1.04.
 				{
 					boltAng[1] = 1;
 				}

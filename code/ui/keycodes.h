@@ -346,7 +346,7 @@ typedef enum
 // distinguished by or'ing in K_CHAR_FLAG (ugly)
 #define	K_CHAR_FLAG		1024
 
-// JK2MV: 1.02 keycodes
+// MVSDK: 1.02 keycodes
 typedef enum {
 	K_TAB = 9,
 	K_ENTER = 13,
