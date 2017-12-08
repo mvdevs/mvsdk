@@ -76,6 +76,7 @@ static	vec3_t	muzzle;
 #define FLECHETTE_VEL				3500
 #define FLECHETTE_SIZE				1
 #define FLECHETTE_MINE_RADIUS_CHECK	256
+#define FLECHETTE_ALT_SHOTS			2
 #define FLECHETTE_ALT_DAMAGE		60
 #define FLECHETTE_ALT_SPLASH_DAM	60
 #define FLECHETTE_ALT_SPLASH_RAD	128
@@ -1467,7 +1468,7 @@ static void WP_FlechetteAltFire( gentity_t *self )
 
 	WP_TraceSetStart( self, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
 
-	for ( i = 0; i < 2; i++ )
+	for ( i = 0; i < FLECHETTE_ALT_SHOTS; i++ )
 	{
 		VectorCopy( angs, dir );
 
@@ -2759,7 +2760,7 @@ void FireWeapon( gentity_t *ent, qboolean altFire ) {
 	if( ent->s.weapon != WP_SABER && ent->s.weapon != WP_STUN_BATON ) 
 	{
 		if( ent->s.weapon == WP_FLECHETTE ) {
-			ent->client->accuracy_shots += FLECHETTE_SHOTS;
+			ent->client->accuracy_shots += altFire ? FLECHETTE_ALT_SHOTS : FLECHETTE_SHOTS;
 		} else {
 			ent->client->accuracy_shots++;
 		}
