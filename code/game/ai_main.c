@@ -2321,7 +2321,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 
 			if (ent->s.weapon == WP_ROCKET_LAUNCHER &&
 				(ent->r.ownerNum == bs->client ||
-				(ent->r.ownerNum > 0 && ent->r.ownerNum < MAX_CLIENTS &&
+				(ent->r.ownerNum >= 0 && ent->r.ownerNum < MAX_CLIENTS &&
 				g_entities[ent->r.ownerNum].client && OnSameTeam(&g_entities[bs->client], &g_entities[ent->r.ownerNum]))) )
 			{ //don't be afraid of your own rockets or your teammates' rockets
 				factor = 0;
