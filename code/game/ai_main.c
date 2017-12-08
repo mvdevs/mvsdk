@@ -241,7 +241,7 @@ void BotOrder(gentity_t *ent, int clientnum, int ordernum)
 	}
 	else
 	{
-		while (i < MAX_CLIENTS)
+		while (i <= MAX_CLIENTS)
 		{
 			if (botstates[i] && OnSameTeam(ent, &g_entities[i]))
 			{
@@ -5363,7 +5363,7 @@ gentity_t *CheckForFriendInLOF(bot_state_t *bs)
 
 	trap_Trace(&tr, trfrom, mins, maxs, trto, bs->client, MASK_PLAYERSOLID);
 
-	if (tr.fraction != 1 && tr.entityNum <= MAX_CLIENTS)
+	if (tr.fraction != 1 && tr.entityNum < MAX_CLIENTS)
 	{
 		trent = &g_entities[tr.entityNum];
 
