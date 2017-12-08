@@ -645,6 +645,7 @@ void G_FreeEntity( gentity_t *ed ) {
 		}
 	}
 
+	memset (mv_entities + (ed - g_entities), 0, sizeof(mv_entities[0]));
 	memset (ed, 0, sizeof(*ed));
 	ed->classname = "freed";
 	ed->freetime = level.time;
