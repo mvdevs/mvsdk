@@ -3584,7 +3584,7 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item) {
 			newLinePtr = p+1;
 			newLineWidth = textWidth;
 		}
-		textWidth = DC->textWidth(buff, item->textscale, 0);
+		textWidth = DC->textWidth(buff, item->textscale, item->iMenuFont);
 		if ( (newLine && textWidth > item->window.rect.w) || *p == '\n' || *p == '\0') {
 			if (len) {
 				if (item->textalignment == ITEM_ALIGN_LEFT) {
