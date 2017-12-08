@@ -237,7 +237,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 retryModel:
 	if (ci->ATST && clientNum == -1)
 	{
-		Com_sprintf(ci->teamName, sizeof(ci->teamName), teamName);
+		Q_strncpyz(ci->teamName, teamName, sizeof(ci->teamName));
 		return qtrue;
 	}
 
