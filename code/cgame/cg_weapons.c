@@ -85,7 +85,7 @@ Ghoul2 Insert End
 */
 	if (item->icon)
 	{
-		itemInfo->icon = trap_R_RegisterShader( item->icon );
+		itemInfo->icon = trap_R_RegisterShaderNoMip( item->icon );
 	}
 	else
 	{
