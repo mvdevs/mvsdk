@@ -917,7 +917,7 @@ static void G_UpdateForceSightBroadcasts ( gentity_t *self )
 
 		// Turn on the broadcast bit for the master and since there is only one
 		// master we are done
-		self->r.broadcastClients[ent->s.clientNum/32] |= (1 << (ent->s.clientNum%32));
+		self->r.broadcastClients[ent->s.number/32] |= (1 << (ent->s.number%32));
 	
 		break;
 	}
@@ -969,7 +969,7 @@ static void G_UpdateJediMasterBroadcasts ( gentity_t *self )
 
 		// Turn on the broadcast bit for the master and since there is only one
 		// master we are done
-		self->r.broadcastClients[ent->s.clientNum/32] |= (1 << (ent->s.clientNum%32));
+		self->r.broadcastClients[ent->s.number/32] |= (1 << (ent->s.number%32));
 	}
 }
 
