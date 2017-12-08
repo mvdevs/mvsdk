@@ -21,7 +21,6 @@ char	*cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
 	"*choke3.wav",
 	"*gasp.wav",
 	"*land1.wav",
-	"*falling1.wav",
 	"*taunt.wav"
 };
 
