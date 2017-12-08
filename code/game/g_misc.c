@@ -2852,7 +2852,7 @@ void G_SpawnExampleAnimEnt(vec3_t pos, int aeType, animentCustomInfo_t *aeInfo)
 	}
 	else
 	{
-		G_Error("Unknown AnimEnt type!\n");
+		G_Error("Unknown AnimEnt type!");
 	}
 
 	animEnt->s.g2radius = 100;

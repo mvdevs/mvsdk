@@ -731,7 +731,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 			}
 		}
 
-		if ( jk2version == VERSION_UNDEF ) G_Error("MVSDK: Unable to detect jk2version [Game].\n");
+		if ( jk2version == VERSION_UNDEF ) G_Error("MVSDK: Unable to detect jk2version [Game].");
 		G_Printf("jk2version [Game]: 1.0%i\n", jk2version);
 		MV_SetGameVersion(jk2version);
 	}

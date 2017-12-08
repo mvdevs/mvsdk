@@ -309,7 +309,7 @@ static void UI_SetLerpFrameAnimation( playerInfo_t *ci, lerpFrame_t *lf, int new
 	newAnimation &= ~ANIM_TOGGLEBIT;
 
 	if ( newAnimation < 0 || newAnimation >= MAX_ANIMATIONS ) {
-		trap_Error( va("Bad animation number: %i", newAnimation) );
+		Com_Error( ERR_DROP, "Bad animation number: %i", newAnimation );
 	}
 
 	anim = &ci->animations[ newAnimation ];
@@ -1091,7 +1091,7 @@ static qboolean UI_ParseAnimationFile( const char *filename, animation_t *animat
 	}
 
 	if ( i != MAX_ANIMATIONS ) {
-		Com_Printf( "Error parsing animation file: %s", filename );
+		Com_Printf( "Error parsing animation file: %s\n", filename );
 		return qfalse;
 	}
 
