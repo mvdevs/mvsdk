@@ -97,6 +97,7 @@ void UpdateTournamentInfo( void ) {
 		}
 		strcat( msg, buf );
 	}
+	Q_strcat( msg, sizeof(msg), "\n" );
 	trap_SendConsoleCommand( EXEC_APPEND, msg );
 }
 

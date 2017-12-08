@@ -19,7 +19,7 @@ void CG_TargetCommand_f( void ) {
 	}
 
 	trap_Argv( 1, test, 4 );
-	trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
+	trap_SendConsoleCommand( va( "gc %i %i\n", targetNum, atoi( test ) ) );
 }
 
 
@@ -237,7 +237,7 @@ static void CG_NextOrder_f( void ) {
 
 static void CG_ConfirmOrder_f (void ) {
 	trap_SendConsoleCommand(va("cmd vtell %d %s\n", cgs.acceptLeader, VOICECHAT_YES));
-	trap_SendConsoleCommand("+button5; wait; -button5");
+	trap_SendConsoleCommand("+button5; wait; -button5\n");
 	if (cg.time < cgs.acceptOrderTime) {
 		trap_SendClientCommand(va("teamtask %d\n", cgs.acceptTask));
 		cgs.acceptOrderTime = 0;
@@ -246,7 +246,7 @@ static void CG_ConfirmOrder_f (void ) {
 
 static void CG_DenyOrder_f (void ) {
 	trap_SendConsoleCommand(va("cmd vtell %d %s\n", cgs.acceptLeader, VOICECHAT_NO));
-	trap_SendConsoleCommand("+button6; wait; -button6");
+	trap_SendConsoleCommand("+button6; wait; -button6\n");
 	if (cg.time < cgs.acceptOrderTime) {
 		cgs.acceptOrderTime = 0;
 	}
