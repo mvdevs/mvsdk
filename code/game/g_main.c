@@ -340,19 +340,16 @@ LIBEXPORT intptr_t vmMain( intptr_t command, intptr_t arg0, intptr_t arg1, intpt
 	intptr_t retValue;
 	static int activeVMCalls = 0;
 
-#ifndef MV_SYSCALL_WRAPPER
-	if ( !activeVMCalls ) // If we're not using the wrapper functions it can happen that a syscalls triggers a VM_Call and we would try to convert data that has been converted already. So we need to keep track of this...
-#endif
+	if ( !activeVMCalls ) // If we're not using any wrapper functions it can happen that a syscall triggers a VM_Call and we would try to convert data that has been converted already. So we need to keep track of this...
 		MV_VersionMagic( qfalse );
 	activeVMCalls++;
 
 	retValue = JK2_vmMain( command, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11 );
 
 	activeVMCalls--;
-#ifndef MV_SYSCALL_WRAPPER
 	if ( !activeVMCalls ) 
-#endif
 		MV_VersionMagic( qtrue );
+
 	return retValue;
 }
 intptr_t JK2_vmMain( intptr_t command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4, intptr_t arg5, intptr_t arg6, intptr_t arg7, intptr_t arg8, intptr_t arg9, intptr_t arg10, intptr_t arg11  ) {
