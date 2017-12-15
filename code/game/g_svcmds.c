@@ -438,6 +438,7 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
+#if _DEBUG // Only in debug builds
 	if ( !Q_stricmp(cmd, "jk2gameplay") )
 	{
 		char arg1[MAX_TOKEN_CHARS];
@@ -462,6 +463,7 @@ qboolean	ConsoleCommand( void ) {
 		}
 		return qtrue;
 	}
+#endif
 
 	if (g_dedicated.integer) {
 		if (Q_stricmp (cmd, "say") == 0) {
