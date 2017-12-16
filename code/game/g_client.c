@@ -2229,7 +2229,12 @@ void ClientSpawn(gentity_t *ent) {
 	}
 
 	// run the presend to set anything else
-	ClientEndFrame( ent );
+	if ( ent->client->sess.spectatorState != SPECTATOR_FOLLOW )
+	{ // Only do this if we're not dealing with follow spectators to prevent two bugs:
+	  // 1) follow spectators turning into free spectators at map_restart, because the client they were following has a higher client number and isn't ingame, yet
+	  // 2) follow spectators corrupting their s.number in BG_PlayerStateToEntityState, cause they get the other client's playerState in ClientEndFrame
+		ClientEndFrame( ent );
+	}
 
 	// clear entity state values
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
