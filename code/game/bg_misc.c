@@ -1355,6 +1355,12 @@ qboolean BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_t
 		return qfalse;
 	}
 
+	if ( power == FP_SABERTHROW && (ps->weaponstate == WEAPON_RAISING || ps->weaponstate == WEAPON_DROPPING) )
+	{ // WP_SaberPositionUpdate doesn't handle saberthrow while in the above weaponstates. Instead the saber just flies away and never returns.
+	  // Changing WP_SaberPositionUpdate to handle saberthrow in those states would make it possible to throw the saber in situations it wasn't possible before, so instead we just disable throw in those weaponstates to prevent sabers from getting lost.
+		return qfalse;
+	}
+
 	return qtrue;
 }
 
