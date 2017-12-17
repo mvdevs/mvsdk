@@ -309,7 +309,7 @@ void CG_SagaRoundOver(centity_t *ent, int won)
 
 		if (CGSagaGetPairedValue(objectives, teamstr, appstring, 1))
 		{
-			Com_sprintf(soundstr, sizeof(soundstr), appstring);
+			Q_strncpyz(soundstr, appstring, sizeof(soundstr));
 		}
 		else
 		{

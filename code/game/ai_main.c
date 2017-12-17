@@ -241,7 +241,7 @@ void BotOrder(gentity_t *ent, int clientnum, int ordernum)
 	}
 	else
 	{
-		while (i < MAX_CLIENTS)
+		while (i <= MAX_CLIENTS)
 		{
 			if (botstates[i] && OnSameTeam(ent, &g_entities[i]))
 			{
@@ -2321,7 +2321,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 
 			if (ent->s.weapon == WP_ROCKET_LAUNCHER &&
 				(ent->r.ownerNum == bs->client ||
-				(ent->r.ownerNum > 0 && ent->r.ownerNum < MAX_CLIENTS &&
+				(ent->r.ownerNum >= 0 && ent->r.ownerNum < MAX_CLIENTS &&
 				g_entities[ent->r.ownerNum].client && OnSameTeam(&g_entities[bs->client], &g_entities[ent->r.ownerNum]))) )
 			{ //don't be afraid of your own rockets or your teammates' rockets
 				factor = 0;
@@ -5363,7 +5363,7 @@ gentity_t *CheckForFriendInLOF(bot_state_t *bs)
 
 	trap_Trace(&tr, trfrom, mins, maxs, trto, bs->client, MASK_PLAYERSOLID);
 
-	if (tr.fraction != 1 && tr.entityNum <= MAX_CLIENTS)
+	if (tr.fraction != 1 && tr.entityNum < MAX_CLIENTS)
 	{
 		trent = &g_entities[tr.entityNum];
 

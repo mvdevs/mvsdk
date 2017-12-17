@@ -21,7 +21,6 @@ char	*cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
 	"*choke3.wav",
 	"*gasp.wav",
 	"*land1.wav",
-	"*falling1.wav",
 	"*taunt.wav"
 };
 
@@ -237,7 +236,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 retryModel:
 	if (ci->ATST && clientNum == -1)
 	{
-		Com_sprintf(ci->teamName, sizeof(ci->teamName), teamName);
+		Q_strncpyz(ci->teamName, teamName, sizeof(ci->teamName));
 		return qtrue;
 	}
 

@@ -41,22 +41,22 @@ void CG_CheckOrderPending(void) {
 			case TEAMTASK_OFFENSE:
 				p1 = VOICECHAT_ONOFFENSE;
 				p2 = VOICECHAT_OFFENSE;
-				b = "+button7; wait; -button7";
+				b = "+button7; wait; -button7\n";
 			break;
 			case TEAMTASK_DEFENSE:
 				p1 = VOICECHAT_ONDEFENSE;
 				p2 = VOICECHAT_DEFEND;
-				b = "+button8; wait; -button8";
+				b = "+button8; wait; -button8\n";
 			break;					
 			case TEAMTASK_PATROL:
 				p1 = VOICECHAT_ONPATROL;
 				p2 = VOICECHAT_PATROL;
-				b = "+button9; wait; -button9";
+				b = "+button9; wait; -button9\n";
 			break;
 			case TEAMTASK_FOLLOW: 
 				p1 = VOICECHAT_ONFOLLOW;
 				p2 = VOICECHAT_FOLLOWME;
-				b = "+button10; wait; -button10";
+				b = "+button10; wait; -button10\n";
 			break;
 			case TEAMTASK_CAMP:
 				p1 = VOICECHAT_ONCAMPING;

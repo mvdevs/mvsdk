@@ -239,12 +239,12 @@ void AimAtTarget( gentity_t *self ) {
 	}
 
 	height = ent->s.origin[2] - origin[2];
-	gravity = g_gravity.value;
-	time = sqrt( height / ( .5 * gravity ) );
-	if ( !time ) {
+	if ( height <= 0 ) {
 		G_FreeEntity( self );
 		return;
 	}
+	gravity = g_gravity.value;
+	time = sqrt( height / ( .5 * gravity ) );
 
 	// set s.origin2 to the push velocity
 	VectorSubtract ( ent->s.origin, origin, self->s.origin2 );

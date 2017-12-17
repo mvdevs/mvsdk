@@ -85,7 +85,7 @@ Ghoul2 Insert End
 */
 	if (item->icon)
 	{
-		itemInfo->icon = trap_R_RegisterShader( item->icon );
+		itemInfo->icon = trap_R_RegisterShaderNoMip( item->icon );
 	}
 	else
 	{
@@ -1388,7 +1388,7 @@ void CG_Weapon_f( void ) {
 		if (cg.snap->ps.weaponTime < 1)
 		{
 			//trap_SendClientCommand("sv_saberswitch");
-			trap_SendConsoleCommand("sv_saberswitch");
+			trap_SendConsoleCommand("sv_saberswitch\n");
 		}
 		return;
 	}

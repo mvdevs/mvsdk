@@ -3307,7 +3307,7 @@ static void CG_DrawSpectator(void)
 		char text[1024];
 		int size = 64;
 
-		Com_sprintf(text, sizeof(text), "%s %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStripEdString("INGAMETEXT", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name);
+		Com_sprintf(text, sizeof(text), "%s" S_COLOR_WHITE " %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStripEdString("INGAMETEXT", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name);
 		CG_Text_Paint ( 320 - CG_Text_Width ( text, 1.0f, 3 ) / 2, 420, 1.0f, colorWhite, text, 0, 0, 0, 3 );
 
 
@@ -3373,7 +3373,7 @@ static void CG_DrawVote(void) {
 	trap_SP_GetStringTextString("MENUS0_YES", sYes, sizeof(sYes) );
 	trap_SP_GetStringTextString("MENUS0_NO",  sNo,  sizeof(sNo) );
 
-	s = va("VOTE(%i):%s %s:%i %s:%i", sec, cgs.voteString, sYes, cgs.voteYes, sNo, cgs.voteNo);
+	s = va("VOTE(%i):%s" S_COLOR_WHITE " %s:%i %s:%i", sec, cgs.voteString, sYes, cgs.voteYes, sNo, cgs.voteNo);
 	CG_DrawSmallString( 4, 58, s, 1.0F );
 	s = CG_GetStripEdString("INGAMETEXT", "OR_PRESS_ESC_THEN_CLICK_VOTE");	//	s = "or press ESC then click Vote";
 	CG_DrawSmallString( 4, 58 + SMALLCHAR_HEIGHT + 2, s, 1.0F );
@@ -3435,18 +3435,18 @@ static void CG_DrawTeamVote(void) {
 
 			voteIndex = atoi(voteIndexStr);
 
-			s = va("TEAMVOTE(%i):(Make %s the new team leader) yes:%i no:%i", sec, cgs.clientinfo[voteIndex].name,
+			s = va("TEAMVOTE(%i):(Make %s" S_COLOR_WHITE " the new team leader) yes:%i no:%i", sec, cgs.clientinfo[voteIndex].name,
 									cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset] );
 		}
 		else
 		{
-			s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
+			s = va("TEAMVOTE(%i):%s" S_COLOR_WHITE " yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
 									cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset] );
 		}
 	}
 	else
 	{
-		s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
+		s = va("TEAMVOTE(%i):%s" S_COLOR_WHITE " yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
 								cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset] );
 	}
 	CG_DrawSmallString( 4, 90, s, 1.0F );
@@ -3665,7 +3665,7 @@ static void CG_DrawWarmup( void ) {
 		}
 
 		if ( ci1 && ci2 ) {
-			s = va( "%s vs %s", ci1->name, ci2->name );
+			s = va( "%s" S_COLOR_WHITE " vs %s", ci1->name, ci2->name );
 			w = CG_Text_Width(s, 0.6f, FONT_MEDIUM);
 			CG_Text_Paint(320 - w / 2, 60, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE,FONT_MEDIUM);
 		}

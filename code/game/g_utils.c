@@ -645,6 +645,7 @@ void G_FreeEntity( gentity_t *ed ) {
 		}
 	}
 
+	memset (mv_entities + (ed - g_entities), 0, sizeof(mv_entities[0]));
 	memset (ed, 0, sizeof(*ed));
 	ed->classname = "freed";
 	ed->freetime = level.time;
@@ -913,10 +914,10 @@ void G_Sound( gentity_t *ent, int channel, int soundIndex ) {
 		te->s.saberEntityNum = channel;
 
 		if (g_entities[ent->client->ps.fd.killSoundEntIndex[channel-50]].inuse &&
-			ent->client->ps.fd.killSoundEntIndex[channel-50] > MAX_CLIENTS)
+			ent->client->ps.fd.killSoundEntIndex[channel-50] >= MAX_CLIENTS)
 		{
 			G_MuteSound(ent->client->ps.fd.killSoundEntIndex[channel-50], CHAN_VOICE);
-			if (ent->client->ps.fd.killSoundEntIndex[channel-50] > MAX_CLIENTS && g_entities[ent->client->ps.fd.killSoundEntIndex[channel-50]].inuse)
+			if (ent->client->ps.fd.killSoundEntIndex[channel-50] >= MAX_CLIENTS && g_entities[ent->client->ps.fd.killSoundEntIndex[channel-50]].inuse)
 			{
 				G_FreeEntity(&g_entities[ent->client->ps.fd.killSoundEntIndex[channel-50]]);
 			}

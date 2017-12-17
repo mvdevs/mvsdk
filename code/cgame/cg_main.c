@@ -1332,10 +1332,6 @@ static void CG_RegisterGraphics( void ) {
 	// precache status bar pics
 	CG_LoadingString( "game media" );
 
-	for ( i=0 ; i<11 ; i++) {
-		cgs.media.numberShaders[i] = trap_R_RegisterShader( sb_nums[i] );
-	}
-
 	cg.loadLCARSStage = 3;
 
 	for ( i=0; i < 11; i++ )
@@ -2494,7 +2490,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 			}
 		}
 
-		if ( jk2version == VERSION_UNDEF ) CG_Error("MVSDK: Unable to detect jk2version [CGame].\n");
+		if ( jk2version == VERSION_UNDEF ) CG_Error("MVSDK: Unable to detect jk2version [CGame].");
 		jk2startversion = jk2version;
 		MV_SetGameVersion(jk2version);
 	}
