@@ -472,4 +472,10 @@ typedef enum {
 	K_LAST_KEY		// this had better be <256!
 } key15_t;
 
+typedef struct mvKeyconversion_s
+{
+	key15_t     key15;
+	fakeAscii_t key16;
+} mvKeyconversion_t;
+
 #endif
