@@ -89,8 +89,11 @@ if(BuildQVMs)
 		configure_file("mv.info" "mv.info" COPYONLY)
 		set(AssetsFiles
 			"vm/jk2mpgame.qvm"
+            "vm/jk2mpgame.map"
 			"vm/cgame.qvm"
+            "vm/cgame.map"
 			"vm/ui.qvm"
+            "vm/ui.map"
 			"mv.info"
 		)
 
