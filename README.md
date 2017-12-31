@@ -2,12 +2,12 @@
 https://jk2mv.org
 
 JK2MV (Multi Version) is a modification for Jedi Knight II: Jedi Outcast. It supports all three game versions and comes with various features and optimizations.  
-The MVSDK contains the code of JK2MV's game, cgame and ui modules.
+The MVSDK (Multi Version - SDK) contains the code of JK2MV's game, cgame and ui modules.
 
 Main Features:
-- Supports 1.02, 1.03 & 1.04 in one mod
-- Fixes for all known security bugs
-- Tons of other fixes and improvements in the modules, see the changelog for detailed information
+- Game/CGame/UI support 1.02, 1.03 & 1.04 in a single module each
+- Fixes for many known bugs
+- Various other improvements, see the git history for detailed information
 - Opensource (GPLv2)
 
 # License
