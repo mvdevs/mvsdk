@@ -460,17 +460,17 @@ gentity_t *G_Spawn( void ) {
 	if ( i == ENTITYNUM_MAX_NORMAL )
 	{
 		gentity_t *found = NULL;
-		if ( mv_fixturretcrash.integer )
+		if ( g_mv_fixturretcrash.integer )
 		{ // TurretCrashFix - One last try!
 			G_Printf("G_Spawn: no free entities, trying to make room by deleting temp entities and missiles\n");
 			for ( i = MAX_CLIENTS; i < MAX_GENTITIES; i++ )
 			{
 				e = &g_entities[i];
 
-				if ( e && (e->s.eType == ET_EVENTS + EV_SABER_BLOCK || ((e->s.weapon == WP_TURRET || mv_fixturretcrash.integer == 2) && e->s.eType == ET_MISSILE)) )
+				if ( e && (e->s.eType == ET_EVENTS + EV_SABER_BLOCK || ((e->s.weapon == WP_TURRET || g_mv_fixturretcrash.integer == 2) && e->s.eType == ET_MISSILE)) )
 				{ // Delete all saber blocks and missiles...
-					// mv_fixturretcrash == 1 -> only missiles from the turret will be removed
-					// mv_fixturretcrash == 2 -> any missile will be removed
+					// g_mv_fixturretcrash == 1 -> only missiles from the turret will be removed
+					// g_mv_fixturretcrash == 2 -> any missile will be removed
 					if ( !found ) found = e;
 					G_FreeEntity(e);
 				}

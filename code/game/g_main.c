@@ -128,14 +128,14 @@ vmCvar_t	g_saberDebugPrint;
 vmCvar_t	g_austrian;
 
 // Fixes and multiversion cvars
-vmCvar_t	mv_fixgalaking;
-vmCvar_t	mv_fixbrokenmodels;
-vmCvar_t	mv_blockchargejump;
-vmCvar_t	mv_blockspeedhack;
-vmCvar_t	mv_fixturretcrash;
-vmCvar_t	mv_connectionlimit;
-vmCvar_t	mv_connectinglimit;
-vmCvar_t	mv_forcePowerDisableMode;
+vmCvar_t	g_mv_fixgalaking;
+vmCvar_t	g_mv_fixbrokenmodels;
+vmCvar_t	g_mv_blockchargejump;
+vmCvar_t	g_mv_blockspeedhack;
+vmCvar_t	g_mv_fixturretcrash;
+vmCvar_t	g_connectionlimit;
+vmCvar_t	g_connectinglimit;
+vmCvar_t	g_mv_forcePowerDisableMode;
 
 // New cvars
 vmCvar_t	g_submodelWorkaround;
@@ -288,15 +288,22 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_austrian, "g_austrian", "0", CVAR_ARCHIVE, 0, qfalse  },
 
-	{ &mv_fixgalaking, "mv_fixgalaking", "1", CVAR_ARCHIVE, 0, qfalse },
-	{ &mv_fixbrokenmodels, "mv_fixbrokenmodels", "1", CVAR_ARCHIVE, 0, qfalse },
-	{ &mv_blockchargejump, "mv_blockchargejump", "1", CVAR_ARCHIVE, 0, qfalse },
-	{ &mv_blockspeedhack, "mv_blockspeedhack", "1", CVAR_ARCHIVE, 0, qfalse },
-	{ &mv_fixturretcrash, "mv_fixturretcrash", "1", CVAR_ARCHIVE, 0, qfalse },
-	{ &mv_connectinglimit, "mv_connectinglimit", "3", CVAR_ARCHIVE, 0, qfalse },
-	{ &mv_connectionlimit, "mv_connectionlimit", "0", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_mv_fixgalaking, "mv_fixgalaking", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_mv_fixbrokenmodels, "mv_fixbrokenmodels", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_mv_blockchargejump, "mv_blockchargejump", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_mv_blockspeedhack, "mv_blockspeedhack", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_mv_fixturretcrash, "mv_fixturretcrash", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_connectinglimit, "g_connectinglimit", "3", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_connectionlimit, "g_connectionlimit", "0", CVAR_ARCHIVE, 0, qfalse },
 
-	{ &mv_forcePowerDisableMode, "mv_forcePowerDisableMode", "1", CVAR_ARCHIVE, 0, qfalse }, // Relevant for 1.02 only.
+	// The 1.02 client doesn't show the force selection menu if ANY force power is disabled. And the basejk 1.02 server sets saber attack to level 3,
+	// saber defense to level 3 and force jump to level 1, if ANY force power is disabled. This leads to some differences in g_forcePowerDisable
+	// behaviour between 1.02 and 1.03+. For instance disabling all powers except jump, saber attack and saber defense on 1.02 behaves the same as
+	// disabling all force powers on 1.03+. To stay compatible with existing configs mvsdk is going to handle g_forcePowerDisable like 1.02, when
+	// loaded in 1.02 mode and mv_forcePowerDisableMode is set. By disabling this cvar 1.03+ behaviour is going to be enabled in 1.02 mode, but
+	// base clients might have disadvantages, cause their ui doesn't allow them to assign force jump points, even when force jump is enabled.
+	// This cvar only has an effect when the startversion is 1.02.
+	{ &g_mv_forcePowerDisableMode, "mv_forcePowerDisableMode", "1", CVAR_ARCHIVE, 0, qfalse },
 
 	// g_submodelWorkaround is technically just setting a flag for mvsdk clients to apply the clientside workaround
 	// The cvar might seem more appropriate on cgame, but defaulting it to "0" on the client would make the workaround hardly usable

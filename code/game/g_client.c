@@ -1226,12 +1226,12 @@ void ClientUserinfoChanged( int clientNum ) {
 	}
 	
 	// GalakingFix
-	if ( mv_fixgalaking.integer && (!Q_stricmp(model, "galak_mech") || !Q_stricmpn(model, "galak_mech/", strlen("galak_mech/"))) )
+	if ( g_mv_fixgalaking.integer && (!Q_stricmp(model, "galak_mech") || !Q_stricmpn(model, "galak_mech/", strlen("galak_mech/"))) )
 	{
 		Q_strncpyz( model, "galak/default", sizeof(model) );
 	}
 	
-	if ( mv_fixbrokenmodels.integer && (!Q_stricmpn(model, "kyle/fpls", strlen("kyle/fpls")) || !Q_stricmp(model, "morgan") || (!Q_stricmpn(model, "morgan/", strlen("morgan/")) && (Q_stricmp(model, "morgan/default_mp") && Q_stricmp(model, "morgan/red") && Q_stricmp(model, "morgan/blue")))) )
+	if ( g_mv_fixbrokenmodels.integer && (!Q_stricmpn(model, "kyle/fpls", strlen("kyle/fpls")) || !Q_stricmp(model, "morgan") || (!Q_stricmpn(model, "morgan/", strlen("morgan/")) && (Q_stricmp(model, "morgan/default_mp") && Q_stricmp(model, "morgan/red") && Q_stricmp(model, "morgan/blue")))) )
 	{
 		Q_strncpyz( model, "kyle/default", sizeof(model) );
 	}
@@ -1402,7 +1402,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	if ( !firstTime ) MV_ReadSessionData( clientNum ); // If this isn't a "firstTime" read the stored IPs...
 	if ( mvSess->clientIP[0] == 0 && mvSess->clientIP[1] == 0 && mvSess->clientIP[2] == 0 && mvSess->clientIP[3] == 0 ) return "was dropped due to an internal error."; // Should never happen, but just in case...
 	
-	if ( mv_connectionlimit.integer && firstTime && !mvSess->localClient )
+	if ( g_connectionlimit.integer && firstTime && !mvSess->localClient )
 	{
 		mvclientSession_t	*mvSessOther;
 		gentity_t			*other;
@@ -1426,13 +1426,13 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 				}
 			}
 		}
-		if ( sameip >= mv_connectionlimit.integer )
+		if ( sameip >= g_connectionlimit.integer )
 		{
 			return "Too many connections from your IP.";
 		}
 	}
 
-	if ( mv_connectinglimit.integer != 0 && firstTime && !mvSess->localClient )
+	if ( g_connectinglimit.integer != 0 && firstTime && !mvSess->localClient )
 	{
 		mvclientSession_t	*mvSessOther;
 		gentity_t			*other;
@@ -1456,7 +1456,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 				}
 			}
 		}
-		if ( alreadyConnecting >= mv_connectinglimit.integer )
+		if ( alreadyConnecting >= g_connectinglimit.integer )
 		{
 			return "Too many players from your IP are trying to connect at the same time.";
 		}

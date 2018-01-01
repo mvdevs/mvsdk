@@ -1068,14 +1068,14 @@ extern	vmCvar_t	g_saberDebugPrint;
 
 extern	vmCvar_t	g_austrian;
 
-extern	vmCvar_t	mv_fixgalaking;
-extern	vmCvar_t	mv_fixbrokenmodels;
-extern	vmCvar_t	mv_blockchargejump;
-extern	vmCvar_t	mv_blockspeedhack;
-extern	vmCvar_t	mv_fixturretcrash;
-extern	vmCvar_t	mv_connectionlimit;
-extern	vmCvar_t	mv_connectinglimit;
-extern	vmCvar_t	mv_forcePowerDisableMode;
+extern	vmCvar_t	g_mv_fixgalaking;
+extern	vmCvar_t	g_mv_fixbrokenmodels;
+extern	vmCvar_t	g_mv_blockchargejump;
+extern	vmCvar_t	g_mv_blockspeedhack;
+extern	vmCvar_t	g_mv_fixturretcrash;
+extern	vmCvar_t	g_connectionlimit;
+extern	vmCvar_t	g_connectinglimit;
+extern	vmCvar_t	g_mv_forcePowerDisableMode;
 
 extern	vmCvar_t	g_submodelWorkaround;
 

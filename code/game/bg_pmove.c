@@ -4593,7 +4593,7 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_UpdateViewAngles( pm->ps, &pm->cmd );
 
 #ifdef JK2_GAME
-	if ( mv_blockspeedhack.integer )
+	if ( g_mv_blockspeedhack.integer )
 	{
 		float oldRoll = pm->ps->viewangles[ROLL];
 		pm->ps->viewangles[ROLL] = 0;

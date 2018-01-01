@@ -250,7 +250,7 @@ retryModel:
 		retriedAlready = qtrue;
 	}
 
-	if ( (mv_fixbrokenmodelsclient.integer == 1 || (mv_fixbrokenmodelsclient.integer && jk2startversion > VERSION_1_02)) && !CG_IsValidCharacterModel(modelName, skinName))
+	if ( (cg_mv_fixbrokenmodelsclient.integer == 1 || (cg_mv_fixbrokenmodelsclient.integer && jk2startversion > VERSION_1_02)) && !CG_IsValidCharacterModel(modelName, skinName))
 	{
 		modelName = "kyle";
 		skinName = "default";

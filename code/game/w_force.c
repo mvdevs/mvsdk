@@ -2039,7 +2039,7 @@ void ForceJumpCharge( gentity_t *self, usercmd_t *ucmd )
 { //I guess this is unused now. Was used for the "charge" jump type.
 	float forceJumpChargeInterval = forceJumpStrength[0] / (FORCE_JUMP_CHARGE_TIME/FRAMETIME);
 	
-	if ( mv_blockchargejump.integer )
+	if ( g_mv_blockchargejump.integer )
 	{
 		return;
 	}
@@ -2190,7 +2190,7 @@ void ForceJump( gentity_t *self, usercmd_t *ucmd )
 	float forceJumpChargeInterval;
 	vec3_t	jumpVel;
 
-	if ( mv_blockchargejump.integer )
+	if ( g_mv_blockchargejump.integer )
 	{
 		return;
 	}
