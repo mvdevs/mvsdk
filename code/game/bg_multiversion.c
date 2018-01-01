@@ -213,6 +213,7 @@ static mvKeyconversion_t mvKeyconversion[] =
 	{ K_RIGHTARROW, A_CURSOR_RIGHT },
 
 	{ K_ALT, A_ALT },
+	{ K_ALT, A_ALT2 }, // 1.02 only knows ALT, 1.03+ knows ALT and ALTGR
 	{ K_CTRL, A_CTRL },
 	{ K_SHIFT, A_SHIFT },
 	{ K_INS, A_INSERT },
@@ -338,12 +339,12 @@ int Key_GetProtocolKey_New(mvversion_t version, int key, qboolean to15, qboolean
 	{ // Find matching key
 		if ( (key == mvKeyconversion[i].key16 && to15) || (key == mvKeyconversion[i].key15 && !to15) )
 		{ // Found a match
-			return (to15 ? mvKeyconversion[i].key15 : mvKeyconversion[i].key16);
+			return (to15 ? (int)mvKeyconversion[i].key15 : (int)mvKeyconversion[i].key16);
 		}
 	}
 
 	// Prevent double entries for 1.02 (Example: if 1.02 asks for K_CTRL it will be as if it asked for A_CTRL, if 1.02 asks for something that has the same number as A_CTRL it will count as A_CTRL, too: the CTRL key is handled twice. Solution: check if key would get altered by the inverse replacement).
-	if ( !invert && Key_GetProtocolKey_New( version, key, !to15, qtrue ) != key ) return -1;
+	if ( !invert && Key_GetProtocolKey_New( version, key, (qboolean)!to15, qtrue ) != key ) return -1;
 
 	// Limit the maximum
 	if ( (to15 && key >= K_LAST_KEY) || (!to15 && key >= MAX_KEYS) ) return -1;
