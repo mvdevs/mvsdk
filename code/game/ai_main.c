@@ -1332,13 +1332,6 @@ void WPConstantRoutine(bot_state_t *bs)
 			bs->jumpTime = level.time + 100;
 		}
 #else
-		float heightDif = (bs->wpCurrent->origin[2] - bs->origin[2]+16);
-
-		if (bs->origin[2]+16 >= bs->wpCurrent->origin[2])
-		{ //then why exactly would we be force jumping?
-			heightDif = 0;
-		}
-
 		if (bs->cur_ps.fd.forceJumpCharge < (forceJumpStrength[bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION]]-100))
 		{
 			bs->forceJumpChargeTime = level.time + 200;
@@ -2677,7 +2670,7 @@ int CTFTakesPriority(bot_state_t *bs)
 	int enemyFlag = 0;
 	int myFlag = 0;
 	int enemyHasOurFlag = 0;
-	int weHaveEnemyFlag = 0;
+	// int weHaveEnemyFlag = 0;
 	int numOnMyTeam = 0;
 	int numOnEnemyTeam = 0;
 	int numAttackers = 0;
@@ -2787,7 +2780,7 @@ int CTFTakesPriority(bot_state_t *bs)
 		{
 			if (ent->client->ps.powerups[enemyFlag] && OnSameTeam(&g_entities[bs->client], ent))
 			{
-				weHaveEnemyFlag = 1;
+				// weHaveEnemyFlag = 1;
 			}
 			else if (ent->client->ps.powerups[myFlag] && !OnSameTeam(&g_entities[bs->client], ent))
 			{
@@ -3121,7 +3114,7 @@ int Saga_CountTeammates(bot_state_t *bs)
 int SagaTakesPriority(bot_state_t *bs)
 {
 	int attacker;
-	int flagForDefendableObjective;
+	// int flagForDefendableObjective;
 	int flagForAttackableObjective;
 	int defenders, teammates;
 	int idleWP;
@@ -3168,13 +3161,13 @@ int SagaTakesPriority(bot_state_t *bs)
 	if (bcl->sess.sessionTeam == SAGATEAM_IMPERIAL)
 	{
 		attacker = imperial_attackers;
-		flagForDefendableObjective = WPFLAG_SAGA_REBELOBJ;
+		// flagForDefendableObjective = WPFLAG_SAGA_REBELOBJ;
 		flagForAttackableObjective = WPFLAG_SAGA_IMPERIALOBJ;
 	}
 	else
 	{
 		attacker = rebel_attackers;
-		flagForDefendableObjective = WPFLAG_SAGA_IMPERIALOBJ;
+		// flagForDefendableObjective = WPFLAG_SAGA_IMPERIALOBJ;
 		flagForAttackableObjective = WPFLAG_SAGA_REBELOBJ;
 	}
 
@@ -5679,7 +5672,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	int meleestrafe = 0;
 	int useTheForce = 0;
 	int forceHostile = 0;
-	int cBAI = 0;
 	gentity_t *friendInLOF = 0;
 	float mLen;
 	int visResult = 0;
@@ -6379,7 +6371,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	{
 		if (bs->frame_Enemy_Vis)
 		{
-			cBAI = CombatBotAI(bs, thinktime);
+			CombatBotAI(bs, thinktime);
 		}
 		else if (bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT)
 		{ //keep charging in case we see him again before we lose track of him

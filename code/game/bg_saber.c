@@ -750,7 +750,8 @@ void PM_SetAnimFrame( playerState_t *gent, int frame, qboolean torso, qboolean l
 
 void PM_SaberLockBreak( playerState_t *genemy, qboolean victory )
 {
-	int	winAnim = BOTH_STAND1, loseAnim = BOTH_STAND1;
+	int	winAnim = BOTH_STAND1;
+	// int loseAnim = BOTH_STAND1;
 	qboolean punishLoser = qfalse;
 
 	switch ( (pm->ps->torsoAnim&~ANIM_TOGGLEBIT) )
@@ -761,7 +762,7 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory )
 		if ( !victory )
 		{//no-one won
 			genemy->saberMove = LS_A_T2B;
-			loseAnim = winAnim;
+			// loseAnim = winAnim;
 		}
 		else
 		{
@@ -774,7 +775,7 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory )
 		if ( !victory )
 		{//no-one won
 			genemy->saberMove = LS_K1_T_;
-			loseAnim = winAnim;
+			// loseAnim = winAnim;
 		}
 		else
 		{
@@ -785,7 +786,7 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory )
 		winAnim = BOTH_CWCIRCLEBREAK;
 		if ( !victory )
 		{//no-one won
-			loseAnim = winAnim;
+			// loseAnim = winAnim;
 		}
 		else
 		{
@@ -798,7 +799,7 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory )
 		winAnim = BOTH_CCWCIRCLEBREAK;
 		if ( !victory )
 		{//no-one won
-			loseAnim = winAnim;
+			// loseAnim = winAnim;
 		}
 		else
 		{
@@ -1322,11 +1323,10 @@ While this is a little different than the Quake 3 code, there is no clean way of
 // Note that if the resultant animation is NONE, then the animation is essentially "idle", and is set in WP_TorsoAnim
 void PM_WeaponLightsaber(void)
 {
-	int			addTime,amount;
+	int			addTime;
 	qboolean	delayed_fire = qfalse;
 	int			anim=-1, curmove, newmove=LS_NONE;
 
-	qboolean saberInAir = qtrue;
 	qboolean checkOnlyWeap = qfalse;
 
  	if ( pm->ps->saberLockTime > pm->cmd.serverTime )
@@ -1732,8 +1732,6 @@ weapChecks:
 		// ***************************************************
 		// Pressing attack, so we must look up the proper attack move.
 
-		saberInAir = qtrue;
-
 		if ( pm->ps->weaponTime > 0 )
 		{	// Last attack is not yet complete.
 			pm->ps->weaponstate = WEAPON_FIRING;
@@ -1899,8 +1897,6 @@ weapChecks:
 	// *********************************************************
 
 	pm->ps->weaponstate = WEAPON_FIRING;
-
-	amount = weaponData[pm->ps->weapon].energyPerShot;
 
 	addTime = pm->ps->weaponTime;
 

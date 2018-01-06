@@ -2600,7 +2600,7 @@ PM_Footsteps
 static void PM_Footsteps( void ) {
 	float		bobmove;
 	int			old;
-	qboolean	footstep;
+	// qboolean	footstep;
 	int			setAnimFlags = 0;
 
 	if ( ((PM_InSaberAnim( (pm->ps->legsAnim&~ANIM_TOGGLEBIT) ) && !BG_SpinningSaberAnim( (pm->ps->legsAnim&~ANIM_TOGGLEBIT) )) 
@@ -2682,7 +2682,7 @@ static void PM_Footsteps( void ) {
 	}
 	
 
-	footstep = qfalse;
+	// footstep = qfalse;
 
 	if ( pm->ps->pm_flags & PMF_DUCKED )
 	{
@@ -2781,7 +2781,7 @@ static void PM_Footsteps( void ) {
 					PM_ContinueLegsAnim( BOTH_RUN1 );
 				}
 			}
-			footstep = qtrue;
+			// footstep = qtrue;
 		} else {
 			bobmove = 0.2f;	// walking bobs slow
 			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {

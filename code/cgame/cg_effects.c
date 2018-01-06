@@ -933,7 +933,7 @@ void CG_ExplosionEffects( vec3_t origin, float intensity, int radius)
 
 	vec3_t	dir;
 	float	dist, intensityScale;
-	float	realIntensity;
+	// float	realIntensity;
 
 	VectorSubtract( cg.refdef.vieworg, origin, dir );
 	dist = VectorNormalize( dir );
@@ -944,7 +944,7 @@ void CG_ExplosionEffects( vec3_t origin, float intensity, int radius)
 		return;
 
 	intensityScale = 1 - ( dist / (float) radius );
-	realIntensity = intensity * intensityScale;
+	// realIntensity = intensity * intensityScale;
 
 //	CGCam_Shake( realIntensity, 750 ); // 500 seemed a bit too quick
 }
@@ -1043,8 +1043,8 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	//FXTrail			*particle;
 	vec3_t			direction, new_org;
 	vec3_t			velocity		= { 0, 0, 0 };
-	vec3_t			temp_org, temp_vel;
-	float			scale, dscale;
+	// vec3_t			temp_org, temp_vel;
+	float			scale;
 	int				i, numSparks;
 
 	//Sparks
@@ -1053,7 +1053,6 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	for ( i = 0; i < numSparks; i++ )
 	{	
 		scale = 0.25f + (random() * 2.0f);
-		dscale = -scale*0.5;
 
 /*		particle = FX_AddTrail( origin,
 								NULL,
@@ -1079,12 +1078,13 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	VectorMA( origin, 4, normal, new_org );
 	VectorSet( velocity, 0.0f, 0.0f, 16.0f );
 
+	/*
 	for ( i = 0; i < 4; i++ )
 	{
 		VectorSet( temp_org, new_org[0] + (crandom() * 16.0f), new_org[1] + (crandom() * 16.0f), new_org[2] + (random() * 4.0f) );
 		VectorSet( temp_vel, velocity[0] + (crandom() * 8.0f), velocity[1] + (crandom() * 8.0f), velocity[2] + (crandom() * 8.0f) );
 
-/*		FX_AddSprite(	temp_org,
+		FX_AddSprite(	temp_org,
 						temp_vel, 
 						NULL, 
 						64.0f + (random() * 32.0f), 
@@ -1094,8 +1094,9 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 						20.0f + (crandom() * 90.0f),
 						0.5f,
 						1500.0f, 
-						cgs.media.smokeShader, FXF_USE_ALPHA_CHAN );*/
+						cgs.media.smokeShader, FXF_USE_ALPHA_CHAN );
 	}
+	*/
 
 	//Core of the explosion
 
@@ -1117,6 +1118,7 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	//Shake the camera
 	CG_ExplosionEffects( origin, shake_speed, 350 );
 
+	/*
 	// The level designers wanted to be able to turn the smoke spawners off.  The rationale is that they
 	//	want to blow up catwalks and such that fall down...when that happens, it shouldn't really leave a mark
 	//	and a smoke spewer at the explosion point...
@@ -1129,6 +1131,7 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 		//FIXME: Replace mark
 		//CG_ImpactMark( cgs.media.burnMarkShader, origin, normal, random()*360, 1,1,1,1, qfalse, 8, qfalse );
 	}
+	*/
 }
 
 /*

@@ -1131,7 +1131,7 @@ int DoorBlockingSection(int start, int end)
 int RepairPaths(void)
 {
 	int i;
-	int ctRet;
+	/* int ctRet; */
 	vec3_t a;
 
 	if (!gWPNum)
@@ -1156,7 +1156,7 @@ int RepairPaths(void)
 				((VectorLength(a) > 400 && bot_wp_distconnect.value) || (!OrgVisible(gWPArray[i]->origin, gWPArray[i+1]->origin, -1) && bot_wp_visconnect.value) ) &&
 				!DoorBlockingSection(i, i+1))
 			{
-				ctRet = ConnectTrail(i, i+1);
+				/*ctRet = */ConnectTrail(i, i+1);
 				/*if (!ctRet)
 				{
 					return 0;
@@ -2016,11 +2016,10 @@ int SavePathData(const char *filename)
 	char *routePath;
 	vec3_t a;
 	float flLen;
-	int i, s, n;
+	int i, n;
 
 	fileString = NULL;
 	i = 0;
-	s = 0;
 
 	if (!gWPNum)
 	{

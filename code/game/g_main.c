@@ -1241,11 +1241,11 @@ void CalculateRanks( void ) {
 	int		rank;
 	int		score;
 	int		newScore;
-	int		preNumSpec = 0;
-	int		nonSpecIndex = -1;
+	// int		preNumSpec = 0;
+	// int		nonSpecIndex = -1;
 	gclient_t	*cl;
 
-	preNumSpec = level.numNonSpectatorClients;
+	// preNumSpec = level.numNonSpectatorClients;
 
 	level.follow1 = -1;
 	level.follow2 = -1;
@@ -1263,7 +1263,7 @@ void CalculateRanks( void ) {
 
 			if ( level.clients[i].sess.sessionTeam != TEAM_SPECTATOR ) {
 				level.numNonSpectatorClients++;
-				nonSpecIndex = i;
+				// nonSpecIndex = i;
 			
 				// decide if this should be auto-followed
 				if ( level.clients[i].pers.connected == CON_CONNECTED ) {
@@ -2725,6 +2725,11 @@ end = trap_Milliseconds();
 	}
 
 	g_LastFrameTime = level.time;
+
+	// suppress unused-but-set warnings
+	(void)start;
+	(void)end;
+	(void)msec;
 }
 
 const char *G_GetStripEdString(char *refSection, char *refName)

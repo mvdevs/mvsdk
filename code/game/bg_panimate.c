@@ -765,7 +765,6 @@ qboolean BG_ParseAnimationFile(const char *filename)
 	int			i;
 	char		*token;
 	float		fps;
-	int			skip;
 
 	fileHandle_t	f;
 	int				animNum;
@@ -796,7 +795,6 @@ qboolean BG_ParseAnimationFile(const char *filename)
 
 	// parse the text
 	text_p = BGPAFtext;
-	skip = 0;	// quiet the compiler warning
 
 	//FIXME: have some way of playing anims backwards... negative numFrames?
 
