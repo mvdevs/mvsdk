@@ -930,10 +930,10 @@ intensity ranges from 1 (minor tremble) to 16 (major quake)
 void CG_ExplosionEffects( vec3_t origin, float intensity, int radius)
 {
 	//FIXME: When exactly is the vieworg calculated in relation to the rest of the frame?s
-
+	/*
 	vec3_t	dir;
 	float	dist, intensityScale;
-	// float	realIntensity;
+	float	realIntensity;
 
 	VectorSubtract( cg.refdef.vieworg, origin, dir );
 	dist = VectorNormalize( dir );
@@ -944,9 +944,10 @@ void CG_ExplosionEffects( vec3_t origin, float intensity, int radius)
 		return;
 
 	intensityScale = 1 - ( dist / (float) radius );
-	// realIntensity = intensity * intensityScale;
+	realIntensity = intensity * intensityScale;
 
-//	CGCam_Shake( realIntensity, 750 ); // 500 seemed a bit too quick
+	CGCam_Shake( realIntensity, 750 ); // 500 seemed a bit too quick
+	*/
 }
 
 
@@ -1042,10 +1043,13 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	localEntity_t	*le;
 	//FXTrail			*particle;
 	vec3_t			direction, new_org;
-	vec3_t			velocity		= { 0, 0, 0 };
+	// vec3_t			velocity		= { 0, 0, 0 };
 	// vec3_t			temp_org, temp_vel;
+	int			i;
+
+	/*
+	int			numSparks;
 	float			scale;
-	int				i, numSparks;
 
 	//Sparks
 	numSparks = 16 + (random() * 16.0f);
@@ -1054,7 +1058,7 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	{	
 		scale = 0.25f + (random() * 2.0f);
 
-/*		particle = FX_AddTrail( origin,
+		particle = FX_AddTrail( origin,
 								NULL,
 								NULL,
 								32.0f,
@@ -1070,15 +1074,17 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 		if ( particle == NULL )
 			return;
 
-		FXE_Spray( normal, 500, 150, 1.0f, 768 + (rand() & 255), (FXPrimitive *) particle );*/
+		FXE_Spray( normal, 500, 150, 1.0f, 768 + (rand() & 255), (FXPrimitive *) particle );
 	}
+	*/
 
 	//Smoke
 	//Move this out a little from the impact surface
 	VectorMA( origin, 4, normal, new_org );
-	VectorSet( velocity, 0.0f, 0.0f, 16.0f );
 
 	/*
+	VectorSet( velocity, 0.0f, 0.0f, 16.0f );
+
 	for ( i = 0; i < 4; i++ )
 	{
 		VectorSet( temp_org, new_org[0] + (crandom() * 16.0f), new_org[1] + (crandom() * 16.0f), new_org[2] + (random() * 4.0f) );

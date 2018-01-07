@@ -153,7 +153,7 @@ int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 	vec3_t			point, point_dir;
 	vec3_t			forward, right, up;
 	vec3_t			tangles, tcenter;
-	float			tradius;
+	// float			tradius;
 	float			udot, fdot, rdot;
 	int				Vertical, Forward, Lateral;
 	int				HitLoc;
@@ -171,9 +171,6 @@ int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 	VectorAdd(target->r.absmin, target->r.absmax, tcenter);
 	VectorScale(tcenter, 0.5, tcenter);
 
-	// Get radius width of target.
-	tradius = (fabs(target->r.maxs[0]) + fabs(target->r.maxs[1]) + fabs(target->r.mins[0]) + fabs(target->r.mins[1]))/4;
-
 	// Get impact point.
 	if(ppoint && !VectorCompare(ppoint, vec3_origin))
 	{
@@ -185,6 +182,9 @@ int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 	}
 
 /*
+	// Get radius width of target.
+	tradius = (fabs(target->r.maxs[0]) + fabs(target->r.maxs[1]) + fabs(target->r.mins[0]) + fabs(target->r.mins[1]))/4;
+
 //get impact dir
 	if(pdir && !VectorCompare(pdir, vec3_origin))
 	{
@@ -706,7 +706,6 @@ LookAtKiller
 */
 void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker ) {
 	vec3_t		dir;
-	vec3_t		angles;
 
 	if ( attacker && attacker != self ) {
 		VectorSubtract (attacker->s.pos.trBase, self->s.pos.trBase, dir);
@@ -718,10 +717,6 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker ) 
 	}
 
 	self->client->ps.stats[STAT_DEAD_YAW] = vectoyaw ( dir );
-
-	angles[YAW] = vectoyaw ( dir );
-	angles[PITCH] = 0; 
-	angles[ROLL] = 0;
 }
 
 /*
@@ -3021,7 +3016,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			   vec3_t dir, vec3_t point, int damage, int dflags, int mod ) {
 	gclient_t	*client;
 	int			take;
-	int			save;
 	int			asave;
 	int			knockback;
 	int			max;
@@ -3300,7 +3294,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		damage = 1;
 	}
 	take = damage;
-	save = 0;
 
 	// save some from armor
 	asave = CheckArmor (targ, take, dflags);

@@ -1043,7 +1043,6 @@ void CG_DrawWeaponSelect( void ) {
 	int				holdX,x,y,pad;
 	int				sideLeftIconCnt,sideRightIconCnt;
 	int				sideMax,holdCount,iconCnt;
-	int				height;
 
 	if (cg.predictedPlayerState.emplacedIndex)
 	{ //can't cycle when on a weapon
@@ -1135,7 +1134,6 @@ void CG_DrawWeaponSelect( void ) {
 	trap_R_SetColor(colorTable[CT_WHITE]);
 	// Work backwards from current icon
 	holdX = x - ((bigIconSize/2) + pad + smallIconSize);
-	height = smallIconSize * 1;//cg.iconHUDPercent;
 
 	for (iconCnt=1;iconCnt<(sideLeftIconCnt+1);i--)
 	{
@@ -1159,9 +1157,9 @@ void CG_DrawWeaponSelect( void ) {
 
 		if (cgs.media.weaponIcons[i])
 		{
-			weaponInfo_t	*weaponInfo;
+			// weaponInfo_t	*weaponInfo;
 			CG_RegisterWeapon( i );	
-			weaponInfo = &cg_weapons[i];
+			// weaponInfo = &cg_weapons[i];
 
 			trap_R_SetColor(colorTable[CT_WHITE]);
 			if (!CG_WeaponCheck(i))
@@ -1178,12 +1176,9 @@ void CG_DrawWeaponSelect( void ) {
 	}
 
 	// Current Center Icon
-	height = bigIconSize * cg.iconHUDPercent;
 	if (cgs.media.weaponIcons[cg.weaponSelect])
 	{
-		weaponInfo_t	*weaponInfo;
 		CG_RegisterWeapon( cg.weaponSelect );	
-		weaponInfo = &cg_weapons[cg.weaponSelect];
 
 		trap_R_SetColor( colorTable[CT_WHITE]);
 		if (!CG_WeaponCheck(cg.weaponSelect))
@@ -1205,7 +1200,6 @@ void CG_DrawWeaponSelect( void ) {
 	// Right side ICONS
 	// Work forwards from current icon
 	holdX = x + (bigIconSize/2) + pad;
-	height = smallIconSize * cg.iconHUDPercent;
 	for (iconCnt=1;iconCnt<(sideRightIconCnt+1);i++)
 	{
 		if (i>13)
@@ -1228,9 +1222,7 @@ void CG_DrawWeaponSelect( void ) {
 
 		if (/*weaponData[i].weaponIcon[0]*/cgs.media.weaponIcons[i])
 		{
-			weaponInfo_t	*weaponInfo;
 			CG_RegisterWeapon( i );	
-			weaponInfo = &cg_weapons[i];
 			// No ammo for this weapon?
 			trap_R_SetColor( colorTable[CT_WHITE]);
 			if (!CG_WeaponCheck(i))
@@ -1940,7 +1932,7 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 	vec3_t		line;
 	float		len, begin, end;
 	vec3_t		start, finish;
-	vec3_t		midpoint;
+	// vec3_t		midpoint;
 
 	// tracer
 	VectorSubtract( dest, source, forward );
@@ -1999,12 +1991,14 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 
 	trap_R_AddPolyToScene( cgs.media.tracerShader, 4, verts );
 
+	/*
 	midpoint[0] = ( start[0] + finish[0] ) * 0.5;
 	midpoint[1] = ( start[1] + finish[1] ) * 0.5;
 	midpoint[2] = ( start[2] + finish[2] ) * 0.5;
 
 	// add the tracer sound
-	//trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
+	trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
+	*/
 
 }
 

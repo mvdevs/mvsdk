@@ -615,12 +615,6 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 	char **p, *ptr;
 	char *token;
 	voiceChat_t *voiceChats;
-	qboolean compress;
-
-	compress = qtrue;
-	if (cg_buildScript.integer) {
-		compress = qfalse;
-	}
 
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
 	if ( !f ) {
@@ -794,15 +788,16 @@ CG_VoiceChatListForClient
 =================
 */
 voiceChatList_t *CG_VoiceChatListForClient( int clientNum ) {
+/*
 	clientInfo_t *ci;
+	int voiceChatNum, i, j, k, gender;
+	char filename[MAX_QPATH], headModelName[MAX_QPATH];
 
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
 		clientNum = 0;
 	}
+
 	ci = &cgs.clientinfo[ clientNum ];
-/*
-	int voiceChatNum, i, j, k, gender;
-	char filename[MAX_QPATH], headModelName[MAX_QPATH];
 
 	for ( k = 0; k < 2; k++ ) {
 		if ( k == 0 ) {

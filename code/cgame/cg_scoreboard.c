@@ -62,7 +62,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 {
 	//vec3_t	headAngles;
 	clientInfo_t	*ci;
-	int iconx, headx;
+	int iconx;
 	float		scale;
 
 	if ( largeFormat )
@@ -82,7 +82,6 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	ci = &cgs.clientinfo[score->client];
 
 	iconx = SB_BOTICON_X + (SB_RATING_WIDTH / 2);
-	headx = SB_HEAD_X + (SB_RATING_WIDTH / 2);
 
 	// draw the handicap or bot skill marker (unless player has flag)
 	if ( ci->powerups & ( 1 << PW_NEUTRALFLAG ) ) {
@@ -243,7 +242,8 @@ Draw the normal in-game scoreboard
 =================
 */
 qboolean CG_DrawOldScoreboard( void ) {
-	int		x, y, w, i, n1, n2;
+	int		x, y, i, n1, n2;
+	// int		w;
 	float	fade;
 	float	*fadeColor;
 	char	*s;
@@ -337,10 +337,11 @@ qboolean CG_DrawOldScoreboard( void ) {
 				cg.numScores,
 				sWith,
 				cg.snap->ps.persistant[PERS_SCORE] );
-			w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+			/*w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 			x = ( SCREEN_WIDTH ) / 2;
 			y = 60;
-			//CG_DrawBigString( x, y, s, fade );
+			CG_DrawBigString( x, y, s, fade );
+			*/
 			UI_DrawProportionalString(x, y, s, UI_CENTER|UI_DROPSHADOW, colorTable[CT_WHITE]);
 		}
 	} else {

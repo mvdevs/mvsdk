@@ -62,7 +62,6 @@ Called on a reconnect
 void G_ReadSessionData( gclient_t *client ) {
 	char	s[MAX_STRING_CHARS];
 	const char	*var;
-	int read;
 
 	// bk001205 - format
 	int teamLeader;
@@ -73,7 +72,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	var = va( "session%i", client - level.clients );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	read = sscanf( s, "%i %i %i %i %i %i %i %i %i %i",
+	sscanf( s, "%i %i %i %i %i %i %i %i %i %i",
 		&sessionTeam,                 // bk010221 - format
 		&client->sess.spectatorTime,
 		&spectatorState,              // bk010221 - format
@@ -107,12 +106,11 @@ void MV_ReadSessionData( int clientNum )
 {
 	char	s[MAX_STRING_CHARS];
 	const char	*var;
-	int read;
 	int localClient;
 
 	var = va( "sessionmv%i", clientNum );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
-	read = sscanf( s, "%i %i %i %i %i",
+	sscanf( s, "%i %i %i %i %i",
 		&mv_clientSessions[clientNum].clientIP[0],
 		&mv_clientSessions[clientNum].clientIP[1],
 		&mv_clientSessions[clientNum].clientIP[2],

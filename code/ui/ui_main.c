@@ -6703,6 +6703,8 @@ void _UI_Init( qboolean inGameLoad ) {
 	trap_Cvar_Register(NULL, "ui_hidelang",	"0", CVAR_INTERNAL );
 
 	trap_Cvar_Set("ui_actualNetGameType", va("%d", ui_netGameType.integer));
+
+	(void)start;
 }
 
 

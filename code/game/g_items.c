@@ -226,7 +226,7 @@ void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 void CreateShield(gentity_t *ent)
 {
 	trace_t		tr;
-	vec3_t		mins, maxs, end, posTraceEnd, negTraceEnd, start;
+	vec3_t		end, posTraceEnd, negTraceEnd, start;
 	int			height, posWidth, negWidth, halfWidth = 0;
 	qboolean	xaxis;
 	int			paramData = 0;
@@ -238,8 +238,6 @@ void CreateShield(gentity_t *ent)
 	height = (int)(MAX_SHIELD_HEIGHT * tr.fraction);
 
 	// use angles to find the proper axis along which to align the shield
-	VectorSet(mins, -SHIELD_HALFTHICKNESS, -SHIELD_HALFTHICKNESS, 0);
-	VectorSet(maxs, SHIELD_HALFTHICKNESS, SHIELD_HALFTHICKNESS, height);
 	VectorCopy(ent->r.currentOrigin, posTraceEnd);
 	VectorCopy(ent->r.currentOrigin, negTraceEnd);
 
@@ -675,7 +673,6 @@ void pas_think( gentity_t *ent )
 	qboolean	moved;
 	float		diffYaw, diffPitch;
 	vec3_t		enemyDir, org;
-	vec3_t		frontAngles, backAngles;
 	vec3_t		desiredAngles;
 	int			iEntityList[MAX_GENTITIES];
 	int			numListedEntities;
@@ -858,10 +855,6 @@ void pas_think( gentity_t *ent )
 			ent->random -= diffPitch;
 		}
 	}
-
-	// the bone axes are messed up, so hence some dumbness here
-	VectorSet( frontAngles, -ent->random, 0.0f, 0.0f );
-	VectorSet( backAngles, 0.0f, 0.0f, ent->speed );
 
 	if ( moved )
 	{

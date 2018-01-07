@@ -530,7 +530,6 @@ void WP_DisruptorAltFire( gentity_t *ent )
 	int			damage = 0, skip;
 	qboolean	render_impact = qtrue;
 	vec3_t		start, end;
-	vec3_t		muzzle2;
 	trace_t		tr;
 	gentity_t	*traceEnt, *tent;
 	float		shotRange = 8192;
@@ -551,8 +550,6 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		damage += ent->client->ps.zoomFov/2;
 	}
 	*/
-
-	VectorCopy( muzzle, muzzle2 ); // making a backup copy
 
 	if (ent->client)
 	{

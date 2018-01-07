@@ -486,12 +486,10 @@ retryModel:
 			if (anim)
 			{
 				int flags = BONE_ANIM_OVERRIDE_FREEZE;
-				int firstFrame = anim->firstFrame + anim->numFrames-1;
 
 				if (anim->loopFrames != -1)
 				{
 					flags = BONE_ANIM_OVERRIDE_LOOP;
-					firstFrame = anim->firstFrame;
 				}
 
 				//rww - Set the animation again because it just got reset due to the model change
@@ -2513,10 +2511,10 @@ void CG_G2ClientSpineAngles_1_02( centity_t *cent, vec3_t viewAngles, const vec3
 
 void CG_G2ClientSpineAngles( centity_t *cent, vec3_t viewAngles, const vec3_t angles, vec3_t thoracicAngles, vec3_t ulAngles, vec3_t llAngles )
 {
-	float legDif = 0;
+//	float legDif = 0;
 //	cent->pe.torso.pitchAngle = viewAngles[PITCH];
 	viewAngles[YAW] = AngleDelta( cent->lerpAngles[YAW], angles[YAW] );
-	legDif = viewAngles[YAW];
+//	legDif = viewAngles[YAW];
 //	cent->pe.torso.yawAngle = viewAngles[YAW];
 
 	/*
@@ -3279,7 +3277,6 @@ CG_PlayerPowerups
 */
 static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 	int		powerups;
-	clientInfo_t	*ci;
 
 	powerups = cent->currentState.powerups;
 	if ( !powerups ) {
@@ -3291,7 +3288,6 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1 );
 	}
 
-	ci = &cgs.clientinfo[ cent->currentState.clientNum ];
 	// redflag
 	if ( powerups & ( 1 << PW_REDFLAG ) ) {
 		CG_PlayerFlag( cent, cgs.media.redFlagModel );
@@ -4792,8 +4788,7 @@ void CG_DrawPlayerSphere(centity_t *cent, vec3_t origin, float scale, int shader
 void CG_AddLightningBeam(vec3_t start, vec3_t end)
 {
 	vec3_t	dir, chaos,
-			c1, c2,
-			v1, v2;
+			    c1, c2;
 	float	len,
 			s1, s2, s3;
 
@@ -4819,14 +4814,12 @@ void CG_AddLightningBeam(vec3_t start, vec3_t end)
 						len * 0.04f * (s1 + s2 + s3));
 
 	VectorAdd( c1, chaos, c1 );
-	VectorScale( chaos, 4.0f, v1 );
 
 	VectorSet( chaos, -len * 0.02f * s3,
 						len * 0.01f * (s1 * s2),
 						-len * 0.02f * (s1 + s2 * s3));
 
 	VectorAdd( c2, chaos, c2 );
-	VectorScale( chaos, 2.0f, v2 );
 
 	VectorSet( chaos, 1.0f, 1.0f, 1.0f );
 
@@ -5661,7 +5654,6 @@ void CG_G2Animated( centity_t *cent )
 	int				renderfx = 0;
 	qboolean		shadow = qfalse;
 	float			shadowPlane = 0;
-	qboolean		dead = qfalse;
 	vec3_t			rootAngles;
 #ifdef SMOOTH_G2ANIM_LERPORIGIN
 	vec3_t			posDif;
@@ -5785,7 +5777,6 @@ void CG_G2Animated( centity_t *cent )
 
 	if (cent->currentState.eFlags & EF_DEAD)
 	{
-		dead = qtrue;
 		//rww - since our angles are fixed when we're dead this shouldn't be an issue anyway
 		//we need to render the dying/dead player because we are now spawning the body on respawn instead of death
 		//return;
@@ -5954,7 +5945,6 @@ void CG_Player( centity_t *cent ) {
 	int				renderfx;
 	qboolean		shadow = qfalse;
 	float			shadowPlane = 0;
-	qboolean		dead = qfalse;
 	vec3_t			rootAngles;
 	refEntity_t		seeker;
 	float			angle;
@@ -6401,7 +6391,6 @@ doEssentialOne:
 
 	if (cent->currentState.eFlags & EF_DEAD)
 	{
-		dead = qtrue;
 		//rww - since our angles are fixed when we're dead this shouldn't be an issue anyway
 		//we need to render the dying/dead player because we are now spawning the body on respawn instead of death
 		//return;
@@ -6520,10 +6509,11 @@ doEssentialTwo:
 		int effectTimeLayerL = effectTimeLayer;
 
 		vec3_t axis[3];
-		vec3_t tAng, fAng, fxDir;
+		//vec3_t tAng;
+		vec3_t fAng, fxDir;
 		int realForceLev = (cent->currentState.activeForcePass - FORCE_LEVEL_3);
 
-		VectorSet( tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL] );
+		//VectorSet( tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL] );
 
 		VectorSet( fAng, cent->pe.torso.pitchAngle, cent->pe.torso.yawAngle, 0 );
 
@@ -6571,8 +6561,9 @@ doEssentialTwo:
 		int effectTimeLayerL = effectTimeLayer;
 
 		vec3_t axis[3];
-		vec3_t tAng, fAng, fxDir;
-		VectorSet( tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL] );
+		// vec3_t tAng;
+		vec3_t fAng, fxDir;
+		// VectorSet( tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL] );
 
 		VectorSet( fAng, cent->pe.torso.pitchAngle, cent->pe.torso.yawAngle, 0 );
 
@@ -6618,9 +6609,9 @@ doEssentialTwo:
 
 	if ( cent->currentState.powerups & (1 << PW_DISINT_4) )
 	{
-		vec3_t tAng;
+		// vec3_t tAng;
 		//VectorSet( tAng, 0, cent->pe.torso.yawAngle, 0 );
-		VectorSet( tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL] );
+		//VectorSet( tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL] );
 
 		//trap_G2API_GetBoltMatrix(cent->ghoul2, 0, cgs.clientinfo[cent->currentState.number].bolt_lhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
 		if (!gotLHandMatrix)
@@ -6826,7 +6817,7 @@ doEssentialTwo:
 			vec3_t tAng, fxAng;
 			vec3_t axis[3];
 			int effectTimeLayerC = effectTimeLayer;
-			sharedBoltInterface_t fxObj;
+			// sharedBoltInterface_t fxObj;
 
 			//VectorSet( tAng, 0, cent->pe.torso.yawAngle, 0 );
 			VectorSet( tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL] );
@@ -6848,14 +6839,14 @@ doEssentialTwo:
  			axis[2][1] = boltMatrix.matrix[1][2];
 		 	axis[2][2] = boltMatrix.matrix[2][2];
 
-			VectorCopy(/*efOrg*/cent->lerpOrigin, fxObj.origin);
-			VectorCopy(/*fxAng*/tAng, fxObj.angles);
-			VectorCopy(cent->modelScale, fxObj.scale);
-			fxObj.ghoul2 = cent->ghoul2;
-			fxObj.isValid = 1;
-			fxObj.modelNum = 0;
-			fxObj.boltNum = cgs.clientinfo[cent->currentState.number].bolt_head;
-			fxObj.entNum = cent->currentState.number;
+			// VectorCopy(/*efOrg*/cent->lerpOrigin, fxObj.origin);
+			// VectorCopy(/*fxAng*/tAng, fxObj.angles);
+			// VectorCopy(cent->modelScale, fxObj.scale);
+			// fxObj.ghoul2 = cent->ghoul2;
+			// fxObj.isValid = 1;
+			// fxObj.modelNum = 0;
+			// fxObj.boltNum = cgs.clientinfo[cent->currentState.number].bolt_head;
+			// fxObj.entNum = cent->currentState.number;
 	
 			while (effectTimeLayerC > 0)
 			{

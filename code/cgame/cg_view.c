@@ -254,13 +254,14 @@ CG_CalcTargetThirdPersonViewLocation
 */
 static void CG_CalcIdealThirdPersonViewTarget(void)
 {
+	/*
 	float thirdPersonVertOffset = cg_thirdPersonVertOffset.value;
 
 	if (cg.snap && cg.snap->ps.usingATST)
 	{
 		thirdPersonVertOffset = 200;
 	}
-
+	*/
 	// Initialize IdealTarget
 	if (gCGHasFallVector)
 	{

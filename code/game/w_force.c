@@ -2619,7 +2619,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 	vec3_t		pushDir;
 	vec3_t		thispush_org;
 	vec3_t		tfrom, tto, fwd, a;
-	float		knockback = pull?0:200;
 	int			powerUse = 0;
 
 	visionArc = 0;
@@ -2995,8 +2994,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 				int otherPushPower = push_list[x]->client->ps.fd.forcePowerLevel[powerUse];
 				qboolean canPullWeapon = qtrue;
 				float dirLen = 0;
-
-				knockback = pull?0:200;
 
 				pushPowerMod = pushPower;
 
@@ -4977,6 +4974,8 @@ powersetcheck:
 
 		self->client->ps.fd.forcePower = (prepower-dif);
 	}
+
+	(void)usingForce;
 }
 
 qboolean Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )

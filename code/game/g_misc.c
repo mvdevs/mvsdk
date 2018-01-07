@@ -952,7 +952,6 @@ ammo_power_converter_use
 void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	int			add,highest;
-	qboolean	overcharge;
 	int			difBlaster,difPowerCell,difMetalBolts;
 	int			stop = 1;
 
@@ -963,8 +962,6 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 
 	if (self->setTime < level.time)
 	{
-		overcharge = qfalse;
-
 		if (!self->s.loopSound)
 		{
 			self->s.loopSound = G_SoundIndex("sound/player/pickupshield.wav");
@@ -2043,8 +2040,6 @@ int ExampleAnimEntMove(gentity_t *self, vec3_t moveTo, float stepSize)
 			if (!tr.startsolid && !tr.allsolid && tr.fraction == 1)
 			{ //clear trace here, probably up a step
 				vec3_t trDown;
-				vec3_t trUp;
-				VectorCopy(tr.endpos, trUp);
 				VectorCopy(tr.endpos, trDown);
 				trDown[2] -= 16;
 

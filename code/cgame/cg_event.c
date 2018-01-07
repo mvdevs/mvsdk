@@ -442,7 +442,7 @@ CG_UseItem
 static void CG_UseItem( centity_t *cent ) {
 	clientInfo_t *ci;
 	int			itemNum, clientNum;
-	gitem_t		*item;
+	// gitem_t		*item;
 	entityState_t *es;
 
 	es = &cent->currentState;
@@ -452,14 +452,16 @@ static void CG_UseItem( centity_t *cent ) {
 		itemNum = 0;
 	}
 
+	/*
 	// print a message if the local player
 	if ( es->number == cg.snap->ps.clientNum ) {
 		if ( !itemNum ) {
-			//CG_CenterPrint( "No item to use", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+			CG_CenterPrint( "No item to use", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 		} else {
 			item = BG_FindItemForHoldable( itemNum );
 		}
 	}
+	*/
 
 	switch ( itemNum ) {
 	default:
@@ -672,7 +674,6 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
 	animation_t		*anim;
 	float			animSpeed;
 	int				flags=BONE_ANIM_OVERRIDE_FREEZE;
-	clientInfo_t	*ci;
 
 	if (cent->ghoul2)
 	{
@@ -685,7 +686,6 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
 	}
 
 	source = &cg_entities[ clientNum ];
-	ci = &cgs.clientinfo[ clientNum ];
 
 	if (!source)
 	{
