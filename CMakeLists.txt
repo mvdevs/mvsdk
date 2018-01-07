@@ -174,7 +174,10 @@ if (NOT InMV)
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 
 		# Warnings
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wsign-compare -Wno-unknown-pragmas")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-sign-compare -Wno-unknown-pragmas")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-but-set-variable -Wno-misleading-indentation")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function -Wno-missing-braces")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-parentheses")
 
 		if(${CMAKE_C_COMPILER_ID} STREQUAL GNU)
 			if(ARCH_X86)
