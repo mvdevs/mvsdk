@@ -4272,7 +4272,7 @@ void CG_G2SaberEffects(vec3_t start, vec3_t end, centity_t *owner)
 void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, int renderfx, int modelIndex, vec3_t origin, vec3_t angles, qboolean fromSaber)
 {
 	vec3_t	org_, end, v,
-			axis_[3] = {0,0,0, 0,0,0, 0,0,0};	// shut the compiler up
+		axis_[3] = {{0}};	// shut the compiler up
 	trace_t	trace;
 	int i = 0;
 	float saberLen, dualSaberLen;
