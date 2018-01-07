@@ -175,7 +175,6 @@ if (NOT InMV)
 
 		# Warnings
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-sign-compare -Wno-unknown-pragmas")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-misleading-indentation")
 
 		if(${CMAKE_C_COMPILER_ID} STREQUAL GNU)
 			if(ARCH_X86)

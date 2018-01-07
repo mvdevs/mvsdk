@@ -519,11 +519,13 @@ void emitcode(void) {
 			       	(*IR->stabline)(&cp->u.point.src); swtoseg(CODE); } break;
 		case Gen: case Jump:
 		case Label:    if (cp->u.forest)
-			       	(*IR->emit)(cp->u.forest); break;
+			       	(*IR->emit)(cp->u.forest);
+		    break;
 		case Local:    if (glevel && IR->stabsym) {
 			       	(*IR->stabsym)(cp->u.var);
 			       	swtoseg(CODE);
-			       } break;
+			       }
+		    break;
 		case Switch:   {	int i;
 			       	defglobal(cp->u.swtch.table, LIT);
 			       	(*IR->defaddress)(equated(cp->u.swtch.labels[0]));
