@@ -177,7 +177,6 @@ if (NOT InMV)
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-sign-compare -Wno-unknown-pragmas")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-misleading-indentation")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-parentheses")
 
 		if(${CMAKE_C_COMPILER_ID} STREQUAL GNU)
 			if(ARCH_X86)

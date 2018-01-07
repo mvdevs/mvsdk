@@ -4330,7 +4330,7 @@ void SaberCombatHandling(bot_state_t *bs)
 			bs->beStill = level.time + Q_irand(500, 1000);
 			bs->saberSTime = level.time + Q_irand(1200, 1800);
 		}
-		else if (bs->currentEnemy->client && bs->currentEnemy->client->ps.weapon == WP_SABER && bs->frame_Enemy_Len < 80 && (Q_irand(1, 10) < 8 && bs->saberBFTime < level.time) || bs->saberBTime > level.time)
+		else if (bs->currentEnemy->client && bs->currentEnemy->client->ps.weapon == WP_SABER && bs->frame_Enemy_Len < 80 && ((Q_irand(1, 10) < 8 && bs->saberBFTime < level.time) || bs->saberBTime > level.time))
 		{
 			vec3_t vs;
 			vec3_t groundcheck;
