@@ -1858,9 +1858,7 @@ void CG_InitConsoleCommands( void );
 // cg_servercmds.c
 //
 void CG_ExecuteNewServerCommands( int latestSequence );
-static void CG_ParseServerinfo( const char *info );
 void CG_LoadVoiceChats( void );
-static void CG_ShaderStateChanged( const char *o );
 void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, const char *cmd );
 void CG_PlayBufferedVoiceChats( void );
 void CG_UpdateConfigString( int num, qboolean init );
