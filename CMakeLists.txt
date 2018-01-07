@@ -142,10 +142,8 @@ if (NOT InMV)
 		# 4996 = 'function': was declared deprecated
 		# 4267 = 'var' : conversion from 'size_t' to 'type', possible loss of data
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4244 /wd4996 /wd4267")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4996 /wd4267")
-	
+
 		# Multithreaded
-		set(CMAKE_CXX_FLAGS_RELEASE "/MT" CACHE TYPE INTERNAL FORCE)
 		set(CMAKE_C_FLAGS_RELEASE "/MT" CACHE TYPE INTERNAL FORCE)
 
 		# Platform
@@ -153,38 +151,30 @@ if (NOT InMV)
 
 		# Optimization
 		set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MP") # multiprocessor compilation
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP")
 		set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2 /Oi /Ot /Ob2 /fp:fast") # maximize speed
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Oi /Ot /Ob2 /fp:fast")
 
 		if(ARCH_X86_32)
 			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
 
 			set(CMAKE_ASM_MASM_FLAGS "${CMAKE_ASM_MASM_FLAGS} /safeseh") # safe exception handler
 		endif()
 	elseif ((${CMAKE_C_COMPILER_ID} STREQUAL GNU) OR (${CMAKE_C_COMPILER_ID} MATCHES Clang|AppleClang))
 		# Additional flags for debug configuration
 		set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb3")
-		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb3")
 
 		# we need sse optimizations in debug configuration, too because of the inline assembler which is sse code
 		if(ARCH_X86)
 			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
 		endif()
 
 		# Optimization
 		set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -ffast-math")
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -ffast-math")
 
 		# General
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 
 		# Warnings
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wsign-compare -Wno-unknown-pragmas")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unknown-pragmas -Wno-write-strings")
 
 		if(${CMAKE_C_COMPILER_ID} STREQUAL GNU)
 			if(ARCH_X86)
@@ -193,23 +183,6 @@ if (NOT InMV)
 
 			# Link only libs actually needed
 			set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wl,--as-needed")
-		endif()
-
-		if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
-			if(ARCH_X86)
-				set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mfpmath=sse")
-			endif()
-
-			# Link only libs actually needed
-			# workaround for older gcc versions and c++11 std::thread: explicitly link lpthread
-			# https://bugs.launchpad.net/ubuntu/+source/gcc-defaults/+bug/1228201
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--no-as-needed -pthread -lpthread -Wl,--as-needed")
-
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
-
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=2 -Wno-unused-but-set-variable")
-		elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES Clang|AppleClang)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-char-subscripts -Wno-self-assign")
 		endif()
 	else()
 		message(FATAL_ERROR "Unsupported compiler")
