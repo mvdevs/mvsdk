@@ -2882,7 +2882,7 @@ void G_CheckForDismemberment(gentity_t *ent, vec3_t point, int damage, int death
 		return;
 	}
 
-	if (!gGAvoidDismember != 2)
+	// if (gGAvoidDismember != 2)
 	{ //this means do the dismemberment regardless of randomness and damage
 		if (Q_irand(0, 100) > dismember)
 		{
