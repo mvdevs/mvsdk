@@ -124,7 +124,7 @@ struct gentity_s {
 	int			aimDebounceTime;
 	int			painDebounceTime;
 	int			attackDebounceTime;
-	int			noDamageTeam;
+	team_t		noDamageTeam;
 
 	int			roffid;				// if roffname != NULL then set on spawn
 
@@ -753,8 +753,8 @@ qboolean CheckGauntletAttack( gentity_t *ent );
 //
 // g_client.c
 //
-team_t TeamCount( int ignoreClientNum, int team );
-int TeamLeader( int team );
+team_t TeamCount( int ignoreClientNum, team_t team );
+int TeamLeader( team_t team );
 team_t PickTeam( int ignoreClientNum );
 void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
@@ -811,8 +811,8 @@ extern mvsharedEntity_t  mv_entities[MAX_GENTITIES];
 extern mvclientSession_t mv_clientSessions[MAX_CLIENTS];
 
 void FindIntermissionPoint( void );
-void SetLeader(int team, int client);
-void CheckTeamLeader( int team );
+void SetLeader(team_t team, int client);
+void CheckTeamLeader( team_t team );
 void G_RunThink (gentity_t *ent);
 void QDECL G_LogPrintf( const char *fmt, ... );
 void SendScoreboardMessageToAllClients( void );

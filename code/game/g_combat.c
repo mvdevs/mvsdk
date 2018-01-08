@@ -1865,7 +1865,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		killerName = "<world>";
 	}
 
-	if ( meansOfDeath < 0 || meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) ) {
+	if ( meansOfDeath < 0 || meansOfDeath >= (int)ARRAY_LEN( modNames ) ) {
 		obit = "<bad obituary>";
 	} else {
 		obit = modNames[ meansOfDeath ];
@@ -3254,7 +3254,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if (attacker && attacker->client)
 	{
 		if (targ->teamnodmg &&
-			targ->teamnodmg == attacker->client->sess.sessionTeam &&
+			targ->teamnodmg == (int)attacker->client->sess.sessionTeam &&
 			!g_ff_objectives.integer)
 		{
 			return;

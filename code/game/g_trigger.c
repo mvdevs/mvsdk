@@ -30,7 +30,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator ) {
 
 	if (ent->teamnodmg &&
 		activator && activator->client &&
-		ent->teamnodmg == activator->client->sess.sessionTeam &&
+		ent->teamnodmg == (int)activator->client->sess.sessionTeam &&
 		!g_ff_objectives.integer)
 	{
 		return;

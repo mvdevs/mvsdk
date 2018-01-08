@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0)
 
 # For checks in subdirectories
 set(InMVSDK TRUE)
@@ -174,7 +174,7 @@ if (NOT InMV)
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 
 		# Warnings
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-sign-compare -Wno-unknown-pragmas")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-unknown-pragmas")
 
 		if(${CMAKE_C_COMPILER_ID} STREQUAL GNU)
 			if(ARCH_X86)

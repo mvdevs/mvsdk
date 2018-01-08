@@ -152,7 +152,7 @@ qboolean CG_ParseSurfsFile( const char *modelName, const char *skinName, char *s
 	{//no file
 		return qfalse;
 	}
-	if ( len >= sizeof( text ) - 1 ) 
+	if ( len >= (int)sizeof( text ) - 1 ) 
 	{
 		Com_Printf( "File %s too long\n", sfilename );
 		return qfalse;

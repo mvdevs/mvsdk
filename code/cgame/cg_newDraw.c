@@ -459,7 +459,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	count = (numSortedTeamPlayers > 8) ? 8 : numSortedTeamPlayers;
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
+		if ( ci->infoValid && ci->team == (team_t)cg.snap->ps.persistant[PERS_TEAM]) {
 			len = CG_Text_Width( ci->name, scale, 0);
 			if (len > pwidth)
 				pwidth = len;
@@ -481,7 +481,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
+		if ( ci->infoValid && ci->team == (team_t)cg.snap->ps.persistant[PERS_TEAM]) {
 
 			xx = rect->x + 1;
 			for (j = 0; j < PW_NUM_POWERUPS; j++) {

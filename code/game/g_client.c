@@ -797,7 +797,7 @@ TeamCount
 Returns number of players on a team
 ================
 */
-team_t TeamCount( int ignoreClientNum, int team ) {
+team_t TeamCount( int ignoreClientNum, team_t team ) {
 	int		i;
 	int		count = 0;
 
@@ -823,7 +823,7 @@ TeamLeader
 Returns the client number of the team leader
 ================
 */
-int TeamLeader( int team ) {
+int TeamLeader( team_t team ) {
 	int		i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
@@ -1170,7 +1170,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	s = Info_ValueForKey (userinfo, "name");
 	
 	// NameCrashFix
-	for ( i = 0; i < strlen(s); i++ )
+	for ( i = 0; i < (int)strlen(s); i++ )
 	{
 		isValidChar = 0;
 
@@ -1345,7 +1345,7 @@ qboolean MV_SetClientIP( int clientNum, char *value )
 	
 	memset( temp, 0, sizeof(temp) );
 
-	for ( i = 0; i < strlen(value); i++ )
+	for ( i = 0; i < (int)strlen(value); i++ )
 	{
 		if ( value[i] == '.' || (value[i] == ':' && step == 3) )
 		{
@@ -1357,7 +1357,7 @@ qboolean MV_SetClientIP( int clientNum, char *value )
 
 			if ( step == 4 ) break;
 		}
-		else if ( value[i] >= '0' && value[i] <= '9' && j < sizeof(temp)-1 )
+		else if ( value[i] >= '0' && value[i] <= '9' && j < (int)sizeof(temp)-1 )
 		{
 			temp[j] = value[i];
 			j++;
@@ -1985,7 +1985,8 @@ void ClientSpawn(gentity_t *ent) {
 			{//In Team games, force one side to be merc and other to be jedi
 				if ( level.numPlayingClients > 0 )
 				{//already someone in the game
-					int		i, forceTeam = TEAM_SPECTATOR;
+					int		i;
+					team_t	forceTeam = TEAM_SPECTATOR;
 					for ( i = 0 ; i < level.maxclients ; i++ ) 
 					{
 						if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {

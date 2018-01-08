@@ -289,7 +289,7 @@ void CG_DrawInformation( void ) {
 
 		trap_SP_GetStringTextString("INGAMETEXT_MAXFORCERANK",fmStr, sizeof(fmStr));
 
-		if ( value >= 0 && value < ARRAY_LEN(forceMasteryLevels) ) {
+		if ( value >= 0 && value < (int)ARRAY_LEN(forceMasteryLevels) ) {
 			text = va( "%s %s", fmStr, CG_GetStripEdString("INGAMETEXT", forceMasteryLevels[value]) );
 		} else {
 			text = va( "%s %i", fmStr, value );

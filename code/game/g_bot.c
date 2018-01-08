@@ -388,7 +388,7 @@ void G_AddRandomBot( int team ) {
 			if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
 				continue;
 			}
-			if ( team >= 0 && cl->sess.sessionTeam != team ) {
+			if ( team >= 0 && (int)cl->sess.sessionTeam != team ) {
 				continue;
 			}
 			if ( !Q_stricmp( value, cl->pers.netname ) ) {
@@ -411,7 +411,7 @@ void G_AddRandomBot( int team ) {
 			if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
 				continue;
 			}
-			if ( team >= 0 && cl->sess.sessionTeam != team ) {
+			if ( team >= 0 && (int)cl->sess.sessionTeam != team ) {
 				continue;
 			}
 			if ( !Q_stricmp( value, cl->pers.netname ) ) {
@@ -453,7 +453,7 @@ int G_RemoveRandomBot( int team ) {
 		if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
 			continue;
 		}
-		if ( team >= 0 && cl->sess.sessionTeam != team ) {
+		if ( team >= 0 && (int)cl->sess.sessionTeam != team ) {
 			continue;
 		}
 		strcpy(netname, cl->pers.netname);
@@ -482,7 +482,7 @@ int G_CountHumanPlayers( int team ) {
 		if ( g_entities[i].r.svFlags & SVF_BOT ) {
 			continue;
 		}
-		if ( team >= 0 && cl->sess.sessionTeam != team ) {
+		if ( team >= 0 && (int)cl->sess.sessionTeam != team ) {
 			continue;
 		}
 		num++;
@@ -508,7 +508,7 @@ int G_CountBotPlayers( int team ) {
 		if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
 			continue;
 		}
-		if ( team >= 0 && cl->sess.sessionTeam != team ) {
+		if ( team >= 0 && (int)cl->sess.sessionTeam != team ) {
 			continue;
 		}
 		num++;
@@ -723,7 +723,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	char			*model;
 //	char			*headmodel;
 	char			userinfo[MAX_INFO_STRING];
-	int				preTeam = 0;
+	team_t			preTeam;
 
 	// get the botinfo from bots.txt
 	botinfo = G_GetBotInfoByName( name );

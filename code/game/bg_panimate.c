@@ -778,7 +778,7 @@ qboolean BG_ParseAnimationFile(const char *filename)
 		{
 			return qfalse;
 		}
-		if ( len >= sizeof( BGPAFtext ) - 1 ) 
+		if ( len >= (int)sizeof( BGPAFtext ) - 1 ) 
 		{
 			//Com_Printf( "File %s too long\n", filename );
 			return qfalse;

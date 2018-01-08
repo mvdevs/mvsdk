@@ -591,7 +591,7 @@ SetTeam
 =================
 */
 void SetTeam( gentity_t *ent, char *s ) {
-	int					team, oldTeam;
+	team_t				team, oldTeam;
 	gclient_t			*client;
 	int					clientNum;
 	spectatorState_t	specState;
@@ -1399,7 +1399,7 @@ void Cmd_GameCommand_f( gentity_t *ent ) {
 	if ( player < 0 || player >= MAX_CLIENTS ) {
 		return;
 	}
-	if ( order < 0 || order > sizeof(gc_orders)/sizeof(char *) ) {
+	if ( order < 0 || order > (int)ARRAY_LEN(gc_orders) ) {
 		return;
 	}
 	G_Say( ent, &g_entities[player], SAY_TELL, gc_orders[order] );
@@ -1742,7 +1742,8 @@ Cmd_CallTeamVote_f
 ==================
 */
 void Cmd_CallTeamVote_f( gentity_t *ent ) {
-	int		i, team, cs_offset;
+	int		i, cs_offset;
+	team_t	team;
 	char	arg1[MAX_STRING_TOKENS];
 	char	arg2[MAX_STRING_TOKENS];
 

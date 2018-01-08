@@ -337,7 +337,7 @@ int Key_GetProtocolKey_New(mvversion_t version, int key, qboolean to15, qboolean
 
 	for ( i = 0; i < mvKeyconversionCount; i++ )
 	{ // Find matching key
-		if ( (key == mvKeyconversion[i].key16 && to15) || (key == mvKeyconversion[i].key15 && !to15) )
+		if ( (key == (int)mvKeyconversion[i].key16 && to15) || (key == (int)mvKeyconversion[i].key15 && !to15) )
 		{ // Found a match
 			return (to15 ? (int)mvKeyconversion[i].key15 : (int)mvKeyconversion[i].key16);
 		}

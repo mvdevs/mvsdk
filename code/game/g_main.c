@@ -2336,7 +2336,7 @@ void CheckVote( void ) {
 PrintTeam
 ==================
 */
-void PrintTeam(int team, char *message) {
+void PrintTeam(team_t team, char *message) {
 	int i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
@@ -2351,7 +2351,7 @@ void PrintTeam(int team, char *message) {
 SetLeader
 ==================
 */
-void SetLeader(int team, int client) {
+void SetLeader(team_t team, int client) {
 	int i;
 
 	if ( level.clients[client].pers.connected == CON_DISCONNECTED ) {
@@ -2380,7 +2380,7 @@ void SetLeader(int team, int client) {
 CheckTeamLeader
 ==================
 */
-void CheckTeamLeader( int team ) {
+void CheckTeamLeader( team_t team ) {
 	int i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
@@ -2412,7 +2412,7 @@ void CheckTeamLeader( int team ) {
 CheckTeamVote
 ==================
 */
-void CheckTeamVote( int team ) {
+void CheckTeamVote( team_t team ) {
 	int cs_offset;
 
 	if ( team == TEAM_RED )

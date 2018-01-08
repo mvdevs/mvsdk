@@ -162,7 +162,7 @@ void SagaBroadcast_ROUNDOVER(int winningteam, int winningclient)
 
 void BroadcastObjectiveCompletion(int team, int objective, int final, int client)
 {
-	if (client != ENTITYNUM_NONE && g_entities[client].client && g_entities[client].client->sess.sessionTeam == team)
+	if (client != ENTITYNUM_NONE && g_entities[client].client && (int)g_entities[client].client->sess.sessionTeam == team)
 	{ //guy who completed this objective gets points, providing he's on the opposing team
 		AddScore(&g_entities[client], g_entities[client].client->ps.origin, SAGA_POINTS_OBJECTIVECOMPLETED);
 	}
@@ -180,7 +180,7 @@ void AddSagaWinningTeamPoints(int team, int winner)
 	{
 		ent = &g_entities[i];
 
-		if (ent && ent->client && ent->client->sess.sessionTeam == team)
+		if (ent && ent->client && (int)ent->client->sess.sessionTeam == team)
 		{
 			if (i == winner)
 			{
@@ -205,7 +205,7 @@ void SagaRoundComplete(int winningteam, int winningclient)
 	//G_Printf("Team %i won\n", winningteam);
 
 	if (winningclient != ENTITYNUM_NONE && g_entities[winningclient].client &&
-		g_entities[winningclient].client->sess.sessionTeam != winningteam)
+		(int)g_entities[winningclient].client->sess.sessionTeam != winningteam)
 	{ //this person just won the round for the other team..
 		winningclient = ENTITYNUM_NONE;
 	}

@@ -34,7 +34,7 @@ void Team_InitGame( void ) {
 	}
 }
 
-int OtherTeam(int team) {
+team_t OtherTeam(team_t team) {
 	if (team==TEAM_RED)
 		return TEAM_BLUE;
 	else if (team==TEAM_BLUE)
@@ -42,7 +42,7 @@ int OtherTeam(int team) {
 	return team;
 }
 
-const char *TeamName(int team)  {
+const char *TeamName(team_t team)  {
 	if (team==TEAM_RED)
 		return "RED";
 	else if (team==TEAM_BLUE)
@@ -52,7 +52,7 @@ const char *TeamName(int team)  {
 	return "FREE";
 }
 
-const char *OtherTeamName(int team) {
+const char *OtherTeamName(team_t team) {
 	if (team==TEAM_RED)
 		return "BLUE";
 	else if (team==TEAM_BLUE)
@@ -62,7 +62,7 @@ const char *OtherTeamName(int team) {
 	return "FREE";
 }
 
-const char *TeamColorString(int team) {
+const char *TeamColorString(team_t team) {
 	if (team==TEAM_RED)
 		return S_COLOR_RED;
 	else if (team==TEAM_BLUE)
@@ -279,7 +279,7 @@ void Team_CheckDroppedItem( gentity_t *dropped ) {
 Team_ForceGesture
 ================
 */
-void Team_ForceGesture(int team) {
+void Team_ForceGesture(team_t team) {
 	int i;
 	gentity_t *ent;
 
@@ -310,7 +310,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	int i;
 	gentity_t *ent;
 	int flag_pw, enemy_flag_pw;
-	int otherteam;
+	team_t otherteam;
 	int tokens;
 	gentity_t *flag, *carrier = NULL;
 	char *c;
@@ -323,7 +323,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 
 	team = targ->client->sess.sessionTeam;
 	otherteam = OtherTeam(targ->client->sess.sessionTeam);
-	if (otherteam < 0)
+	if (otherteam == targ->client->sess.sessionTeam)
 		return; // whoever died isn't on a team
 
 	// same team, if the flag at base, check to he has the enemy flag
@@ -812,7 +812,7 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
 }
 
 int Pickup_Team( gentity_t *ent, gentity_t *other ) {
-	int team;
+	team_t team;
 	gclient_t *cl = other->client;
 
 	// figure out what team this flag is
@@ -1079,7 +1079,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 				i, player->client->pers.teamState.location, h, a, 
 				player->client->ps.weapon, player->s.powerups);
 			j = strlen(entry);
-			if (stringlength + j > sizeof(string))
+			if (stringlength + j > (int)sizeof(string))
 				break;
 			strcpy (string + stringlength, entry);
 			stringlength += j;

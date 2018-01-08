@@ -247,13 +247,13 @@ void WP_InitForcePowers( gentity_t *ent )
 		int		count = 0;
 
 		// Check if the forcePowers follow this layout: '####-#-##################', with '####' being any amount of numbers
-		for ( i = 0; i < strlen(forcePowers); i++ )
+		for ( i = 0; i < (int)strlen(forcePowers); i++ )
 		{
 			if ( forcePowers[i] >= '0' && forcePowers[i] <= '9' )
 			{
 				count++;
 				if ( step == 1 && count > 1 ) validForcePowers = qfalse;
-				if ( step == 2 && count == NUM_FORCE_POWERS && strlen(forcePowers)-1 > i )
+				if ( step == 2 && count == NUM_FORCE_POWERS && (int)strlen(forcePowers)-1 > i )
 				{ // We seem to have a too long forceString, but the beginning is valid so cut off the rest
 					forcePowers[i+i] = 0;
 					break;

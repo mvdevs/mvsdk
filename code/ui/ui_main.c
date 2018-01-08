@@ -470,9 +470,9 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
 	//
 	{
 		char sTemp[1024];
-		int iCopyCount = limit ? MIN(strlen(text), limit) : strlen(text);
+		int iCopyCount = limit ? MIN((int)strlen(text), limit) : (int)strlen(text);
 			iCopyCount = MIN(iCopyCount,cursorPos);
-			iCopyCount = MIN(iCopyCount,sizeof(sTemp)-1);
+			iCopyCount = MIN(iCopyCount,(int)sizeof(sTemp)-1);
 
 			// copy text into temp buffer for pixel measure...
 			//

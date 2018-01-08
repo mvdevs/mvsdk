@@ -466,7 +466,7 @@ Cmd_Argc() / Cmd_Argv()
 */
 qboolean CG_ConsoleCommand( void ) {
 	const char	*cmd;
-	int		i;
+	size_t		i;
 
 	cmd = CG_Argv(0);
 
@@ -490,7 +490,7 @@ so it can perform tab completion
 =================
 */
 void CG_InitConsoleCommands( void ) {
-	int		i;
+	size_t		i;
 
 	for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
 		trap_AddCommand( commands[i].cmd );
