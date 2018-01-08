@@ -241,7 +241,7 @@ void BotOrder(gentity_t *ent, int clientnum, int ordernum)
 	}
 	else
 	{
-		while (i <= MAX_CLIENTS)
+		while (i < MAX_CLIENTS)
 		{
 			if (botstates[i] && OnSameTeam(ent, &g_entities[i]))
 			{
@@ -2067,7 +2067,7 @@ int ScanForEnemies(bot_state_t *bs)
 		}
 	}
 
-	while (i <= MAX_CLIENTS)
+	while (i < MAX_CLIENTS)
 	{
 		if (i != bs->client && g_entities[i].client && !OnSameTeam(&g_entities[bs->client], &g_entities[i]) && PassStandardEnemyChecks(bs, &g_entities[i]) && trap_InPVS(g_entities[i].client->ps.origin, bs->eye) && PassLovedOneCheck(bs, &g_entities[i]))
 		{
