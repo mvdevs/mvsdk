@@ -6409,7 +6409,7 @@ nextSearch:
 			uiInfo.forceConfigSide[uiInfo.forceConfigCount] = qfalse; //dark side config
 		}
 
-		Com_sprintf( uiInfo.forceConfigNames[uiInfo.forceConfigCount], sizeof(uiInfo.forceConfigNames[uiInfo.forceConfigCount]), configname);
+		Q_strncpyz( uiInfo.forceConfigNames[uiInfo.forceConfigCount], configname, sizeof(uiInfo.forceConfigNames[0]) );
 		uiInfo.forceConfigCount++;
 	}
 

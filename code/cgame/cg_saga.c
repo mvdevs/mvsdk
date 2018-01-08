@@ -272,11 +272,11 @@ void CG_SagaRoundOver(centity_t *ent, int won)
 
 	if (myTeam == SAGATEAM_IMPERIAL)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), "Imperial");
+		Q_strncpyz(teamstr, "Imperial", sizeof(teamstr));
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), "Rebel");
+		Q_strncpyz(teamstr, "Rebel", sizeof(teamstr));
 	}
 
 	if (CGSagaGetValueGroup(cg_saga_info, teamstr, objectives))
@@ -297,11 +297,11 @@ void CG_SagaRoundOver(centity_t *ent, int won)
 
 		if (myTeam == won)
 		{
-			Com_sprintf(teamstr, sizeof(teamstr), "roundover_sound_wewon");
+			Q_strncpyz(teamstr, "roundover_sound_wewon", sizeof(teamstr));
 		}
 		else
 		{
-			Com_sprintf(teamstr, sizeof(teamstr), "roundover_sound_welost");
+			Q_strncpyz(teamstr, "roundover_sound_welost", sizeof(teamstr));
 		}
 
 		if (CGSagaGetPairedValue(objectives, teamstr, appstring, 1))
@@ -312,11 +312,11 @@ void CG_SagaRoundOver(centity_t *ent, int won)
 		{
 			if (myTeam != won)
 			{
-				Com_sprintf(soundstr, sizeof(soundstr), DEFAULT_LOSE_ROUND);
+				Q_strncpyz(soundstr, DEFAULT_LOSE_ROUND, sizeof(soundstr));
 			}
 			else
 			{
-				Com_sprintf(soundstr, sizeof(soundstr), DEFAULT_WIN_ROUND);
+				Q_strncpyz(soundstr, DEFAULT_WIN_ROUND, sizeof(soundstr));
 			}
 		}
 
@@ -358,11 +358,11 @@ void CG_SagaObjectiveCompleted(centity_t *ent, int won, int objectivenum)
 
 	if (won == SAGATEAM_IMPERIAL)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), "Imperial");
+		Q_strncpyz(teamstr, "Imperial", sizeof(teamstr));
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), "Rebel");
+		Q_strncpyz(teamstr, "Rebel", sizeof(teamstr));
 	}
 
 	if (CGSagaGetValueGroup(cg_saga_info, teamstr, objectives))
@@ -399,26 +399,26 @@ void CG_SagaObjectiveCompleted(centity_t *ent, int won, int objectivenum)
 
 			if (myTeam == SAGATEAM_IMPERIAL)
 			{
-				Com_sprintf(teamstr, sizeof(teamstr), "sound_imperial");
+				Q_strncpyz(teamstr, "sound_imperial", sizeof(teamstr));
 			}
 			else
 			{
-				Com_sprintf(teamstr, sizeof(teamstr), "sound_rebel");
+				Q_strncpyz(teamstr, "sound_rebel", sizeof(teamstr));
 			}
 
 			if (CGSagaGetPairedValue(foundobjective, teamstr, appstring, 1))
 			{
-				Com_sprintf(soundstr, sizeof(soundstr), appstring);
+				Q_strncpyz(soundstr, appstring, sizeof(soundstr));
 			}
 			else
 			{
 				if (myTeam != won)
 				{
-					Com_sprintf(soundstr, sizeof(soundstr), DEFAULT_LOSE_OBJECTIVE);
+					Q_strncpyz(soundstr, DEFAULT_LOSE_OBJECTIVE, sizeof(soundstr));
 				}
 				else
 				{
-					Com_sprintf(soundstr, sizeof(soundstr), DEFAULT_WIN_OBJECTIVE);
+					Q_strncpyz(soundstr, DEFAULT_WIN_OBJECTIVE, sizeof(soundstr));
 				}
 			}
 
