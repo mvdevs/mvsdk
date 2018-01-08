@@ -580,7 +580,7 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 	}
 
 	G_LogPrintf ( "setteam:  %i %s %s\n",
-				  client - &level.clients[0],
+				  (int)(client - &level.clients[0]),
 				  TeamName ( oldTeam ),
 				  TeamName ( client->sess.sessionTeam ) );
 }
@@ -816,13 +816,13 @@ void Cmd_Team_f( gentity_t *ent ) {
 			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStripEdString("SVINGAME", "PRINTBLUETEAM")) );
 			break;
 		case TEAM_RED:
-			trap_SendServerCommand( ent-g_entities, va("print \"Red team\n\"", G_GetStripEdString("SVINGAME", "PRINTREDTEAM")) );
+			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStripEdString("SVINGAME", "PRINTREDTEAM")) );
 			break;
 		case TEAM_FREE:
-			trap_SendServerCommand( ent-g_entities, va("print \"Free team\n\"", G_GetStripEdString("SVINGAME", "PRINTFREETEAM")) );
+			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStripEdString("SVINGAME", "PRINTFREETEAM")) );
 			break;
 		case TEAM_SPECTATOR:
-			trap_SendServerCommand( ent-g_entities, va("print \"Spectator team\n\"", G_GetStripEdString("SVINGAME", "PRINTSPECTEAM")) );
+			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStripEdString("SVINGAME", "PRINTSPECTEAM")) );
 			break;
 		}
 		return;

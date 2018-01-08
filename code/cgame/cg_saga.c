@@ -193,6 +193,7 @@ int CGSagaGetPairedValue(char *buf, char *key, char *outbuf, int inquotes)
 
 void CG_InitSagaMode(void)
 {
+	char			mapname[512];
 	char			levelname[512];
 	int				len = 0;
 	int				i = 0;
@@ -203,11 +204,11 @@ void CG_InitSagaMode(void)
 		goto failure;
 	}
 
-	Com_sprintf(levelname, sizeof(levelname), "%s\0", cgs.mapname);
+	Q_strncpyz(mapname, cgs.mapname, sizeof(mapname));
 
-	i = strlen(levelname)-1;
+	i = strlen(mapname)-1;
 
-	while (i > 0 && levelname[i] && levelname[i] != '.')
+	while (i > 0 && mapname[i] && mapname[i] != '.')
 	{
 		i--;
 	}
@@ -217,9 +218,9 @@ void CG_InitSagaMode(void)
 		goto failure;
 	}
 
-	levelname[i] = '\0'; //kill the ".bsp"
+	mapname[i] = '\0'; //kill the ".bsp"
 
-	Com_sprintf(levelname, sizeof(levelname), "%s.saga\0", levelname); 
+	Com_sprintf(levelname, sizeof(levelname), "%s.saga", mapname);
 
 	if (!levelname[0])
 	{

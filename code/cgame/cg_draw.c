@@ -1132,7 +1132,7 @@ void CG_DrawHUD(centity_t	*cent)
 		{	// We are the leader!
 			if (cgs.scores2 <= 0)
 			{	// Nobody to be ahead of yet.
-				Com_sprintf(scoreBiasStr, sizeof(scoreBiasStr), "");
+				Q_strncpyz(scoreBiasStr, "", sizeof(scoreBiasStr));
 			}
 			else
 			{

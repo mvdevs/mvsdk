@@ -758,11 +758,11 @@ void BotUtilizePersonality(bot_state_t *bs)
 
 	if (!failed && GetPairedValue(group, "forceinfo", readbuf))
 	{
-		Com_sprintf(bs->forceinfo, sizeof(bs->forceinfo), "%s\0", readbuf);
+		Com_sprintf(bs->forceinfo, sizeof(bs->forceinfo), "%s", readbuf);
 	}
 	else
 	{
-		Com_sprintf(bs->forceinfo, sizeof(bs->forceinfo), "%s\0", DEFAULT_FORCEPOWERS);
+		Com_sprintf(bs->forceinfo, sizeof(bs->forceinfo), "%s", DEFAULT_FORCEPOWERS);
 	}
 
 	i = 0;

@@ -37,7 +37,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		client->sess.selectedFP
 		);
 
-	var = va( "session%i", client - level.clients );
+	var = va( "session%i", (int)(client - level.clients) );
 
 	trap_Cvar_Set( var, s );
 
@@ -48,7 +48,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		mv_clientSessions[client-g_clients].clientIP[3],
 		mv_clientSessions[client-g_clients].localClient
 		);
-	var = va( "sessionmv%i", client-g_clients );
+	var = va( "sessionmv%i", (int)(client-level.clients) );
 	trap_Cvar_Set( var, s );
 }
 
@@ -69,7 +69,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	int sessionTeam;
 	int setForce;
 
-	var = va( "session%i", client - level.clients );
+	var = va( "session%i", (int)(client - level.clients) );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
 	sscanf( s, "%i %i %i %i %i %i %i %i %i %i",

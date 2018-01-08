@@ -306,7 +306,7 @@ void PC_SourceWarning(int handle, char *format, ...) {
 PC_SourceError
 =================
 */
-void PC_SourceError(int handle, char *format, ...) __attribute__ ((format (printf, 2, 3))) {
+void __attribute__ ((format (printf, 2, 3))) PC_SourceError(int handle, char *format, ...) {
 	int line;
 	char filename[128];
 	va_list argptr;
@@ -544,7 +544,7 @@ qboolean PC_String_Parse(int handle, const char **out)
 
 		if (text[0] == 0)		// Couldn't find it
 		{
-			Com_Printf(va(S_COLOR_YELLOW "Unable to locate StripEd text '%s'\n", token.string));
+			Com_Printf(S_COLOR_YELLOW "Unable to locate StripEd text '%s'\n", token.string);
 			*(out) = String_Alloc( token.string );
 		} 
 		else 

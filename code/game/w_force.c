@@ -227,7 +227,7 @@ void WP_InitForcePowers( gentity_t *ent )
 
 	if ( ent->r.svFlags & SVF_BOT && botstates[ent->s.number] )
 	{ //if it's a bot just copy the info directly from its personality
-		Com_sprintf(forcePowers, sizeof(forcePowers), "%s\0", botstates[ent->s.number]->forceinfo);
+		Q_strncpyz(forcePowers, botstates[ent->s.number]->forceinfo, sizeof(forcePowers));
 	}
 	
 	// ForceCrashFix

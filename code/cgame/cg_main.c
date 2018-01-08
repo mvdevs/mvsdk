@@ -263,7 +263,7 @@ LIBEXPORT intptr_t vmMain( intptr_t command, intptr_t arg0, intptr_t arg1, intpt
 		return 0;
 
 	default:
-		CG_Error( "vmMain: unknown command %i", command );
+		CG_Error( "vmMain: unknown command %i", (int)command );
 		break;
 	}
 	return -1;

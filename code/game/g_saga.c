@@ -40,7 +40,7 @@ void InitSagaMode(void)
 
 	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 
-	Com_sprintf(levelname, sizeof(levelname), "maps/%s.saga\0", mapname.string);
+	Com_sprintf(levelname, sizeof(levelname), "maps/%s.saga", mapname.string);
 
 	if (!levelname[0])
 	{

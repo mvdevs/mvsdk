@@ -1660,7 +1660,7 @@ int LoadPathData(const char *filename)
 
 	routePath = (char *)B_TempAlloc(1024);
 
-	Com_sprintf(routePath, 1024, "botroutes/%s.wnt\0", filename);
+	Com_sprintf(routePath, 1024, "botroutes/%s.wnt", filename);
 
 	len = trap_FS_FOpenFile(routePath, &f, FS_READ);
 
@@ -2028,7 +2028,7 @@ int SavePathData(const char *filename)
 
 	routePath = (char *)B_TempAlloc(1024);
 
-	Com_sprintf(routePath, 1024, "botroutes/%s.wnt\0", filename);
+	Com_sprintf(routePath, 1024, "botroutes/%s.wnt", filename);
 
 	trap_FS_FOpenFile(routePath, &f, FS_WRITE);
 

@@ -842,7 +842,7 @@ qboolean Asset_Parse(int handle) {
 		{
 			if (!PC_String_Parse(handle, &tempStr))
 			{
-				Com_Printf(S_COLOR_YELLOW,"Bad 1st parameter for keyword 'stripedFile'\n");
+				Com_Printf(S_COLOR_YELLOW "Bad 1st parameter for keyword 'stripedFile'\n");
 				return qfalse;
 			}
 			Q_strncpyz( stripedFile, tempStr,  sizeof(stripedFile) );
@@ -854,7 +854,7 @@ qboolean Asset_Parse(int handle) {
 		{
 			if (!PC_String_Parse(handle, &uiInfo.uiDC.Assets.cursorStr))
 			{
-				Com_Printf(S_COLOR_YELLOW,"Bad 1st parameter for keyword 'cursor'\n");
+				Com_Printf(S_COLOR_YELLOW "Bad 1st parameter for keyword 'cursor'\n");
 				return qfalse;
 			}
 			uiInfo.uiDC.Assets.cursor = trap_R_RegisterShaderNoMip( uiInfo.uiDC.Assets.cursorStr);
@@ -1297,7 +1297,7 @@ static void UI_DrawGenericNum(rectDef_t *rect, float scale, vec4_t color, int te
 		i = min;
 	}
 
-	Com_sprintf(s, sizeof(s), "%i\0", val);
+	Com_sprintf(s, sizeof(s), "%i", val);
 	Text_Paint(rect->x, rect->y, scale, color, s,0, 0, textStyle, iMenuFont);
 }
 
@@ -1331,13 +1331,13 @@ static void UI_DrawSkinColor(rectDef_t *rect, float scale, vec4_t color, int tex
 	switch(val)
 	{
 	case TEAM_RED:
-		Com_sprintf(s, sizeof(s), "Red\0");
+		Q_strncpyz(s, "Red", sizeof(s));
 		break;
 	case TEAM_BLUE:
-		Com_sprintf(s, sizeof(s), "Blue\0");
+		Q_strncpyz(s, "Blue", sizeof(s));
 		break;
 	default:
-		Com_sprintf(s, sizeof(s), "Default\0");
+		Q_strncpyz(s, "Default", sizeof(s));
 		break;
 	}
 
@@ -6519,7 +6519,7 @@ static void UI_BuildQ3Model_List( void )
 					continue;
 				}
 
-				Com_sprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof(uiInfo.q3HeadNames[uiInfo.q3HeadCount]), va("%s%s", dirptr, skinname));
+				Com_sprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof(uiInfo.q3HeadNames[uiInfo.q3HeadCount]), "%s%s", dirptr, skinname);
 				uiInfo.q3HeadIcons[uiInfo.q3HeadCount++] = 0;//trap_R_RegisterShaderNoMip(fpath);
 				//rww - we are now registering them as they are drawn like the TA feeder, so as to decrease UI load time.
 			}
