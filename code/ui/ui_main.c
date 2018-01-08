@@ -5620,6 +5620,7 @@ UI_HeadCountByColor
 static const char *UI_SelectedTeamHead(int index, int *actual) {
 	char *teamname;
 	int i,c=0;
+	*actual = 0;
 
 	switch(uiSkinColor)
 	{
