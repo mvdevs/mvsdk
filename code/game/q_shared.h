@@ -934,8 +934,8 @@ const char	*SkipWhitespace( const char *data, qboolean *hasNewLines );
 char	*COM_Parse( const char **data_p );
 char	*COM_ParseExt( const char **data_p, qboolean allowLineBreak );
 int		COM_Compress( char *data_p );
-void	COM_ParseError( char *format, ... );
-void	COM_ParseWarning( char *format, ... );
+void	COM_ParseError( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
+void	COM_ParseWarning( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
 qboolean COM_ParseString( const char **data, const char **s );
 qboolean COM_ParseInt( const char **data, int *i );
 qboolean COM_ParseFloat( const char **data, float *f );
@@ -973,7 +973,7 @@ void Parse1DMatrix (const char **buf_p, int x, float *m);
 void Parse2DMatrix (const char **buf_p, int y, int x, float *m);
 void Parse3DMatrix (const char **buf_p, int z, int y, int x, float *m);
 
-void	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...);
+void	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
 
 // mode parm for FS_FOpenFile
@@ -1043,7 +1043,7 @@ float	LittleFloat (const float *l);
 
 void	Swap_Init (void);
 */
-char	* QDECL va(const char *format, ...);
+char	* QDECL va(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
 
 //=============================================
 
@@ -1059,8 +1059,8 @@ qboolean Info_Validate( const char *s );
 void Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
-Q_NORETURN void	QDECL Com_Error( int level, const char *error, ... );
-void	QDECL Com_Printf( const char *msg, ... );
+Q_NORETURN void	QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
+void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 
 
 /*

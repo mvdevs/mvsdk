@@ -306,7 +306,7 @@ void PC_SourceWarning(int handle, char *format, ...) {
 PC_SourceError
 =================
 */
-void PC_SourceError(int handle, char *format, ...) {
+void PC_SourceError(int handle, char *format, ...) __attribute__ ((format (printf, 2, 3))) {
 	int line;
 	char filename[128];
 	va_list argptr;

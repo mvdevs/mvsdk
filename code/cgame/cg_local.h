@@ -1571,8 +1571,8 @@ Ghoul2 Insert End
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
 
-void QDECL CG_Printf( const char *msg, ... );
-Q_NORETURN void QDECL CG_Error( const char *msg, ... );
+void QDECL CG_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+Q_NORETURN void QDECL CG_Error( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 
 void CG_StartMusic( qboolean bForceStart );
 

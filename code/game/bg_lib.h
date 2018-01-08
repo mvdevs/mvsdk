@@ -50,8 +50,8 @@ double _atof( const char **stringPtr );
 int atoi( const char *string );
 int _atoi( const char **stringPtr );
 
-int vsprintf( char *buffer, const char *fmt, va_list argptr );
-int sscanf( const char *buffer, const char *fmt, ... );
+int vsprintf( char *buffer, const char *fmt, va_list argptr ) __attribute__ ((format (printf, 2, 3)));
+int sscanf( const char *buffer, const char *fmt, ... ) __attribute__ ((format (scanf, 2, 3)));
 
 // Memory functions
 void *memmove( void *dest, const void *src, size_t count );

@@ -814,10 +814,10 @@ void FindIntermissionPoint( void );
 void SetLeader(team_t team, int client);
 void CheckTeamLeader( team_t team );
 void G_RunThink (gentity_t *ent);
-void QDECL G_LogPrintf( const char *fmt, ... );
+void QDECL G_LogPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void SendScoreboardMessageToAllClients( void );
-void QDECL G_Printf( const char *fmt, ... );
-Q_NORETURN void QDECL G_Error( const char *fmt, ... );
+void QDECL G_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+Q_NORETURN void QDECL G_Error( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 const char *G_GetStripEdString(char *refSection, char *refName);
 
 void MV_UpdateMvsdkConfigstring( char *key, char *value );
@@ -921,7 +921,6 @@ void ForceTelepathy(gentity_t *self);
 qboolean Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc );
 
 // g_log.c
-void QDECL G_LogPrintf( const char *fmt, ... );
 void QDECL G_LogWeaponPickup(int client, int weaponid);
 void QDECL G_LogWeaponFire(int client, int weaponid);
 void QDECL G_LogWeaponDamage(int client, int mod, int amount);
