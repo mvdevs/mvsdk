@@ -138,10 +138,13 @@ endif()
 if (NOT InMV)
 	if(MSVC)
 		# Warnings
-		# 4244 = conversion' conversion from 'type1' to 'type2', possible loss of data
-		# 4996 = 'function': was declared deprecated
+		# 4018 = 'expression' : signed/unsigned mismatch
+		# 4244 = 'conversion' : conversion from 'type1' to 'type2', possible loss of data
+		# 4996 = 'function' : was declared deprecated
 		# 4267 = 'var' : conversion from 'size_t' to 'type', possible loss of data
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4244 /wd4996 /wd4267")
+		# 4305 = 'identifier' : truncation from 'type1' to 'type2'
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4018 /wd4244 /wd4996 /wd4267 /wd4305")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4018 /wd4244 /wd4996 /wd4267 /wd4305")
 
 		# Multithreaded
 		set(CMAKE_C_FLAGS_RELEASE "/MT" CACHE TYPE INTERNAL FORCE)
