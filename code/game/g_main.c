@@ -106,8 +106,8 @@ vmCvar_t	g_debugForward;
 vmCvar_t	g_debugRight;
 vmCvar_t	g_debugUp;
 vmCvar_t	g_smoothClients;
-vmCvar_t	pmove_fixed;
-vmCvar_t	pmove_msec;
+vmCvar_t	g_pmove_fixed;
+vmCvar_t	g_pmove_msec;
 vmCvar_t	g_rankings;
 vmCvar_t	g_listEntity;
 vmCvar_t	g_redteam;
@@ -270,8 +270,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_enableDust, "g_enableDust", "0", 0, 0, qtrue, qfalse },
 	{ &g_enableBreath, "g_enableBreath", "0", 0, 0, qtrue, qfalse },
 	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
-	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
-	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &g_pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &g_pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
 

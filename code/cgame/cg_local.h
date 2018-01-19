@@ -1525,9 +1525,8 @@ extern	vmCvar_t		cg_noVoiceText;
 extern  vmCvar_t		cg_scorePlum;
 extern	vmCvar_t		cg_hudFiles;
 extern	vmCvar_t		cg_smoothClients;
-extern	vmCvar_t		pmove_fixed;
-extern	vmCvar_t		pmove_msec;
-//extern	vmCvar_t		cg_pmove_fixed;
+extern	vmCvar_t		cg_pmove_fixed;
+extern	vmCvar_t		cg_pmove_msec;
 extern	vmCvar_t		cg_cameraOrbit;
 extern	vmCvar_t		cg_cameraOrbitDelay;
 extern	vmCvar_t		cg_timescaleFadeEnd;
@@ -1551,7 +1550,7 @@ extern	vmCvar_t		cg_singlePlayerActive;
 extern  vmCvar_t		cg_recordSPDemo;
 extern  vmCvar_t		cg_recordSPDemoName;
 
-extern	vmCvar_t		ui_myteam;
+extern	vmCvar_t		cg_ui_myteam;
 
 extern	vmCvar_t		cg_mv_fixbrokenmodelsclient;
 extern	vmCvar_t		cg_drawPlayerSprites;
