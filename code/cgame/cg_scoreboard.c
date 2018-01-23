@@ -337,11 +337,10 @@ qboolean CG_DrawOldScoreboard( void ) {
 				cg.numScores,
 				sWith,
 				cg.snap->ps.persistant[PERS_SCORE] );
-			/*w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+			// w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 			x = ( SCREEN_WIDTH ) / 2;
 			y = 60;
-			CG_DrawBigString( x, y, s, fade );
-			*/
+			// CG_DrawBigString( x, y, s, fade );
 			UI_DrawProportionalString(x, y, s, UI_CENTER|UI_DROPSHADOW, colorTable[CT_WHITE]);
 		}
 	} else {
