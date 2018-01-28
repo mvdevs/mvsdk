@@ -110,6 +110,7 @@ set_target_properties(${MVCGAME} PROPERTIES PREFIX "") # remove "lib" prefix for
 set_property(TARGET ${MVCGAME} APPEND PROPERTY COMPILE_DEFINITIONS
   $<$<CONFIG:Debug>:${GlobalDefines} ${MVCGAMEDefines} ${DebugDefines}>
   $<$<CONFIG:Release>:${GlobalDefines} ${MVCGAMEDefines} ${ReleaseDefines}>
+  $<$<CONFIG:RelWithDebInfo>:${GlobalDefines} ${MVCGAMEDefines} ${ReleaseDefines}>
 )
 
 set_target_properties(${MVCGAME} PROPERTIES INCLUDE_DIRECTORIES "${MVCGAMEIncludeDirs}")

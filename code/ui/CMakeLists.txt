@@ -62,6 +62,7 @@ set_target_properties(${MVUI} PROPERTIES PREFIX "") # remove "lib" prefix for .s
 set_property(TARGET ${MVUI} APPEND PROPERTY COMPILE_DEFINITIONS
   $<$<CONFIG:Debug>:${GlobalDefines} ${MVUIDefines} ${DebugDefines}>
   $<$<CONFIG:Release>:${GlobalDefines} ${MVUIDefines} ${ReleaseDefines}>
+  $<$<CONFIG:RelWithDebInfo>:${GlobalDefines} ${MVUIDefines} ${ReleaseDefines}>
 )
 
 set_target_properties(${MVUI} PROPERTIES INCLUDE_DIRECTORIES "${MVUIIncludeDirs}")

@@ -144,7 +144,6 @@ if (NOT InMV)
 		# 4267 = 'var' : conversion from 'size_t' to 'type', possible loss of data
 		# 4305 = 'identifier' : truncation from 'type1' to 'type2'
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4018 /wd4244 /wd4996 /wd4267 /wd4305")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4018 /wd4244 /wd4996 /wd4267 /wd4305")
 
 		# Multithreaded
 		set(CMAKE_C_FLAGS_RELEASE "/MT" CACHE TYPE INTERNAL FORCE)
@@ -161,6 +160,9 @@ if (NOT InMV)
 
 			set(CMAKE_ASM_MASM_FLAGS "${CMAKE_ASM_MASM_FLAGS} /safeseh") # safe exception handler
 		endif()
+
+		# Set the same options for the build including symbols
+		set(CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELEASE})
 	elseif ((${CMAKE_C_COMPILER_ID} STREQUAL GNU) OR (${CMAKE_C_COMPILER_ID} MATCHES Clang|AppleClang))
 		# Additional flags for debug configuration
 		set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb3")
