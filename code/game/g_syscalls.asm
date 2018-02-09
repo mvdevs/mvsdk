@@ -41,7 +41,7 @@ equ trap_GetEntityToken									 -38	; G_GET_ENTITY_TOKEN
 equ trap_FS_GetFileList									 -39	; G_FS_GETFILELIST 
 equ trap_DebugPolygonCreate								 -40	; G_DEBUG_POLYGON_CREATE 
 equ trap_DebugPolygonDelete								 -41	; G_DEBUG_POLYGON_DELETE 
-equ trap_realTime										 -42	; G_REAL_TIME 
+equ trap_RealTime										 -42	; G_REAL_TIME 
 equ trap_SnapVector										 -43	; G_SNAPVECTOR 
 equ trap_TraceCapsule									 -44	; G_TRACECAPSULE 
 equ trap_EntityContactCapsule							 -45	; G_ENTITY_CONTACTCAPSULE 
