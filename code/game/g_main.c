@@ -738,7 +738,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		jk2startversion = jk2version;
 		MV_SetGameVersion(jk2version);
 	}
-	G_Printf("jk2version [Game]: 1.0%i\n", jk2version);
+	G_Printf("jk2version [Game]: 1.0%i\n", jk2startversion);
 
 	srand( randomSeed );
 	mysrand( randomSeed ); // On linux rand() behaves different than on Winodws or in a qvm, ...
