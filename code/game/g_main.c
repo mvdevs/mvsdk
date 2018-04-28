@@ -478,7 +478,7 @@ void MVAPI_AfterInit(void)
 		jk2version = trap_MVAPI_GetVersion();
 
 		// Set gameplay and version
-		MV_SetGameVersion( jk2version );
+		MV_SetGameVersion( jk2version, qfalse );
 		MV_SetGamePlay( jk2startversion );
 	}
 	else if ( mvapi >= 2 )
@@ -736,7 +736,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 		if ( jk2version == VERSION_UNDEF ) G_Error("MVSDK: Unable to detect jk2version [Game].");
 		jk2startversion = jk2version;
-		MV_SetGameVersion(jk2version);
+		MV_SetGameVersion(jk2version, qtrue);
 	}
 	G_Printf("jk2version [Game]: 1.0%i\n", jk2startversion);
 
@@ -903,6 +903,29 @@ void G_ShutdownGame( int restart ) {
 	}
 
 	B_CleanupAlloc(); //clean up all allocations made with B_Alloc
+
+	// Some builds of jk2mv don't reset the vm->gameversion on map_restart, so reset the gameversion now
+	if ( mvapi >= 3 && jk2version != jk2startversion )
+	{
+		// Reset the gameversion in the engine
+		trap_MVAPI_SetVersion( jk2startversion );
+
+		// If we are not called again it shouldn't matter, but in case some modified engine version decides to do
+		// additional vmCalls after the shutdown we want to know what version it expects
+		jk2version = trap_MVAPI_GetVersion();
+		MV_SetGameVersion( jk2version, qfalse );
+
+		// Replace the gamedata (the g_ps array gets valid data at the end of the vmCall if we returned into 1.02 mode)
+		if ( jk2version == VERSION_1_02 && !mvStructConversionDisabled )
+		{
+			memset( g_ps, 0, MAX_CLIENTS * sizeof(g_ps[0]) );
+			trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), (playerState_t*)&g_ps[0], sizeof( g_ps[0] ) );
+		}
+		else
+		{
+			trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), &level.clients[0].ps, sizeof( level.clients[0] ) );
+		}
+	}
 }
 
 

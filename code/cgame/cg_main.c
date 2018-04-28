@@ -315,7 +315,7 @@ void MVAPI_AfterInit(void)
 		jk2version = trap_MVAPI_GetVersion();
 
 		// Set gameplay and version
-		MV_SetGameVersion( jk2version );
+		MV_SetGameVersion( jk2version, qfalse );
 		MV_SetGamePlay( jk2startversion );
 	}
 
@@ -2489,7 +2489,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 		if ( jk2version == VERSION_UNDEF ) CG_Error("MVSDK: Unable to detect jk2version [CGame].");
 		jk2startversion = jk2version;
-		MV_SetGameVersion(jk2version);
+		MV_SetGameVersion(jk2version, qtrue);
 	}
 	CG_Printf("jk2version [CGame]: 1.0%i\n", jk2version);
 
