@@ -116,7 +116,7 @@ if(BuildQVMs)
 		add_custom_target(assetsmv2 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3")
 		set_property(TARGET assetsmv2 PROPERTY FOLDER "Modules")
 
-		if(WIN32)
+		if(WIN32 OR BuildPortableVersion)
 			install(FILES ${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3 DESTINATION "base")
 		elseif(APPLE)
 			install(FILES ${CMAKE_CURRENT_BINARY_DIR}/assetsmv2.pk3 DESTINATION "jk2mvmp.app/Contents/MacOS/base")
