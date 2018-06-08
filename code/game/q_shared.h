@@ -8,6 +8,57 @@
 
 #define MAX_TEAMNAME 32
 
+//================= COMPILER-SPECIFIC DEFINES ===========================
+
+#if defined __LCC__
+
+#define Q_INLINE
+#define QDECL
+#define LIBEXPORT
+#define Q_NORETURN
+#define Q_PTR_NORETURN
+#define q_unreachable()
+#define __attribute__(x)
+
+#elif defined _MSC_VER							// Microsoft Visual C++
+
+#define Q_INLINE __inline
+#define	QDECL	__cdecl
+#define LIBEXPORT __declspec(dllexport)
+#define Q_NORETURN __declspec(noreturn)
+#define Q_PTR_NORETURN // MSVC doesn't support noreturn function pointers
+#define q_unreachable() abort()
+#define __attribute__(x)
+
+#elif (defined __GNUC__ || defined __clang__)	// GCC & Clang
+
+#define Q_INLINE inline
+#define QDECL
+#define LIBEXPORT __attribute__((visibility("default")))
+#define Q_NORETURN __attribute__((noreturn))
+#define Q_PTR_NORETURN Q_NORETURN
+#define q_unreachable() __builtin_unreachable()
+
+#else											// Any ANSI C compiler
+
+#define Q_INLINE inline
+#define QDECL
+#define LIBEXPORT
+#define Q_NORETURN
+#define Q_PTR_NORETURN
+#define q_unreachable() abort()
+#define __attribute__(x)
+
+#endif
+
+#ifdef __cplusplus
+#define ID_INLINE Q_INLINE
+#else
+#define ID_INLINE static Q_INLINE
+#endif
+
+//=============================================================
+
 /**********************************************************************
   VM Considerations
 
@@ -68,55 +119,6 @@
 #define idppc	1
 #else
 #define idppc	0
-#endif
-
-
-//================= COMPILER-SPECIFIC DEFINES ===========================
-#if defined __LCC__
-
-#define Q_INLINE
-#define QDECL
-#define LIBEXPORT
-#define Q_NORETURN
-#define Q_PTR_NORETURN
-#define q_unreachable()
-#define __attribute__(x)
-
-#elif defined _MSC_VER							// Microsoft Visual C++
-
-#define Q_INLINE __inline
-#define	QDECL	__cdecl
-#define LIBEXPORT __declspec(dllexport)
-#define Q_NORETURN __declspec(noreturn)
-#define Q_PTR_NORETURN // MSVC doesn't support noreturn function pointers
-#define q_unreachable() abort()
-#define __attribute__(x)
-
-#elif (defined __GNUC__ || defined __clang__)	// GCC & Clang
-
-#define Q_INLINE inline
-#define QDECL
-#define LIBEXPORT __attribute__((visibility("default")))
-#define Q_NORETURN __attribute__((noreturn))
-#define Q_PTR_NORETURN Q_NORETURN
-#define q_unreachable() __builtin_unreachable()
-
-#else											// Any ANSI C compiler
-
-#define Q_INLINE inline
-#define QDECL
-#define LIBEXPORT
-#define Q_NORETURN
-#define Q_PTR_NORETURN
-#define q_unreachable() abort()
-#define __attribute__(x)
-
-#endif
-
-#ifdef __cplusplus
-#define ID_INLINE Q_INLINE
-#else
-#define ID_INLINE static Q_INLINE
 #endif
 
 //======================= WIN32 DEFINES =================================
