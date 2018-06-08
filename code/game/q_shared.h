@@ -80,6 +80,7 @@
 #define Q_NORETURN
 #define Q_PTR_NORETURN
 #define q_unreachable()
+#define __attribute__(x)
 
 #elif defined _MSC_VER							// Microsoft Visual C++
 
@@ -89,6 +90,7 @@
 #define Q_NORETURN __declspec(noreturn)
 #define Q_PTR_NORETURN // MSVC doesn't support noreturn function pointers
 #define q_unreachable() abort()
+#define __attribute__(x)
 
 #elif (defined __GNUC__ || defined __clang__)	// GCC & Clang
 
@@ -107,6 +109,7 @@
 #define Q_NORETURN
 #define Q_PTR_NORETURN
 #define q_unreachable() abort()
+#define __attribute__(x)
 
 #endif
 
