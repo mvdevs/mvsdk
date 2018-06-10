@@ -354,7 +354,7 @@ void CG_UpdateConfigString( int num, qboolean init )
 			break;
 		case CS_TEAMVOTE_STRING:
 		case CS_TEAMVOTE_STRING + 1:
-			Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString ) );
+			Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString[0] ) );
 			break;
 		case CS_INTERMISSION:
 			cg.intermissionStarted = atoi( str );
