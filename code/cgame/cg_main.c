@@ -976,7 +976,6 @@ called during a precache command
 */
 static void CG_RegisterSounds( void ) {
 	int		i;
-	char	items[MAX_ITEMS+1];
 	char	name[MAX_QPATH];
 
 	// voice commands
@@ -1215,9 +1214,6 @@ static void CG_RegisterSounds( void ) {
 		trap_S_RegisterSound (name);
 	}
 
-	// only register the items that the server says we need
-	strcpy( items, CG_ConfigString( CS_ITEMS ) );
-
 	for ( i = 1 ; i < bg_numItems ; i++ ) {
 //		if ( items[ i ] == '1' || cg_buildScript.integer ) {
 			CG_RegisterItemSounds( i );
@@ -1271,7 +1267,6 @@ This function may execute for a couple of minutes with a slow disk.
 */
 static void CG_RegisterGraphics( void ) {
 	int			i;
-	char		items[MAX_ITEMS+1];
 	static char		*sb_nums[11] = {
 		"gfx/2d/numbers/zero",
 		"gfx/2d/numbers/one",
@@ -1525,15 +1520,8 @@ Ghoul2 Insert End
 */
 	memset( cg_weapons, 0, sizeof( cg_weapons ) );
 
-	// only register the items that the server says we need
-	strcpy( items, CG_ConfigString( CS_ITEMS) );
-
-	for ( i = 1 ; i < bg_numItems ; i++ ) {
-		if ( items[ i ] == '1' || cg_buildScript.integer ) {
-			CG_LoadingItem( i );
-			CG_RegisterItemVisuals( i );
-		}
-	}
+	// Register items
+	CG_UpdateConfigString( CS_ITEMS, qtrue );
 
 	cg.loadLCARSStage = 6;
 
