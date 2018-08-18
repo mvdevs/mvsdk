@@ -194,6 +194,8 @@ static void CG_DrawZoomMask( void )
 		// Using a magic number to convert the zoom level to scale amount
 		level *= 162.0f;
 
+		CG_WideScreenMode(qfalse);
+
 		// draw blue tinted distortion mask, trying to make it as small as is necessary to fill in the viewable area
 		trap_R_SetColor( colorTable[CT_WHITE] );
 		CG_DrawPic( 34, 48, 570, 362, cgs.media.binocularStatic );
@@ -270,6 +272,8 @@ static void CG_DrawZoomMask( void )
 		{
 			flip = !flip;
 		}
+
+		CG_WideScreenMode(qtrue);
 	}
 	else if ( cg.predictedPlayerState.zoomMode)
 	{

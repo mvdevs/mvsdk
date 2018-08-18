@@ -1017,9 +1017,7 @@ static int CG_CalcFov( void ) {
 		}
 	}
 
-	// don't allow without cg_widescreen so people don't use it to
-	// stretch disruptor zoom mask
-	if (cg_widescreen.integer && cg_fovAspectAdjust.integer &&
+	if (cg_fovAspectAdjust.integer &&
 		cg.refdef.width * 3 > cg.refdef.height * 4)
 	{
 		// 4:3 screen with fov_x must fit INTO widescreen

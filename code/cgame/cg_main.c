@@ -814,11 +814,29 @@ static void CG_ForceModelChange( void ) {
 
 /*
 ===================
+CG_WideScreenMode
+Make 2D drawing functions use widescreen or 640x480 coordinates
+===================
+*/
+void CG_WideScreenMode(qboolean on) {
+	if (mvapi >= 3) {
+		if (on) {
+			trap_MVAPI_SetVirtualScreen(cgs.screenWidth, SCREEN_HEIGHT);
+		}
+		else {
+			trap_MVAPI_SetVirtualScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
+		}
+	}
+}
+
+
+/*
+===================
 CG_UpdateWidescreen
 ===================
 */
 static void CG_UpdateWidescreen(void) {
-	if (cg_widescreen.integer) {
+	if (cg_widescreen.integer && mvapi >= 3) {
 		cgs.screenWidth = (float)SCREEN_HEIGHT * cgs.glconfig.vidWidth / cgs.glconfig.vidHeight;
 	} else {
 		cgs.screenWidth = (float)SCREEN_WIDTH;
@@ -826,7 +844,7 @@ static void CG_UpdateWidescreen(void) {
 	cgs.screenXFactor = (float)SCREEN_WIDTH / cgs.screenWidth;
 	cgs.screenXFactorInv = cgs.screenWidth / (float)SCREEN_WIDTH;
 	
-	if (cg_widescreen.integer != 2)
+	if (mvapi >= 3 && cg_widescreen.integer != 2)
 		trap_MVAPI_SetVirtualScreen(cgs.screenWidth, (float)SCREEN_HEIGHT);
 }
 
