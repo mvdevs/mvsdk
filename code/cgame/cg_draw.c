@@ -1211,7 +1211,10 @@ void CG_DrawForceSelect( void )
 	pad = 12;
 
 	// Max number of icons on the side
-	sideMax = (cgs.screenWidth - 240 - bigIconSize) / (smallIconSize + pad) / 2;
+	if (cg_widescreen.integer)
+		sideMax = (cgs.screenWidth - 240 - bigIconSize) / (smallIconSize + pad) / 2;
+	else
+		sideMax = 3;
  
 
 	// Calculate how many icons will appear to either side of the center one
@@ -1371,7 +1374,10 @@ void CG_DrawInvenSelect( void )
 	pad = 16;
 
 	// Max number of icons on the side
-	sideMax = (cgs.screenWidth - 240 - bigIconSize) / (smallIconSize + pad) / 2;
+	if (cg_widescreen.integer)
+		sideMax = (cgs.screenWidth - 240 - bigIconSize) / (smallIconSize + pad) / 2;
+	else
+		sideMax = 3;
 
 	// Calculate how many icons will appear to either side of the center one
 	holdCount = count - 1;	// -1 for the center icon
