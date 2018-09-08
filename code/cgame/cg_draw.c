@@ -7,7 +7,7 @@
 
 #include "../ui/ui_shared.h"
 
-qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y);
+qboolean CG_WorldCoordToScreenCoord(vec3_t worldCoord, float *x, float *y);
 qboolean CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle );
 
 // used for scoreboard
@@ -104,56 +104,6 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 							scale	// const float scale = 1.0f
 							);
 }
-
-/*
-qboolean CG_WorldCoordToScreenCoord(vec3_t worldCoord, int *x, int *y)
-
-  Take any world coord and convert it to a 2D virtual 640x480 screen coord
-*/
-/*
-qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y)
-{
-	int	xcenter, ycenter;
-	vec3_t	local, transformed;
-
-//	xcenter = cg.refdef.width / 2;//gives screen coords adjusted for resolution
-//	ycenter = cg.refdef.height / 2;//gives screen coords adjusted for resolution
-	
-	//NOTE: did it this way because most draw functions expect virtual 640x480 coords
-	//	and adjust them for current resolution
-	xcenter = 640 / 2;//gives screen coords in virtual 640x480, to be adjusted when drawn
-	ycenter = 480 / 2;//gives screen coords in virtual 640x480, to be adjusted when drawn
-
-	VectorSubtract (worldCoord, cg.refdef.vieworg, local);
-
-	transformed[0] = DotProduct(local,vright);
-	transformed[1] = DotProduct(local,vup);
-	transformed[2] = DotProduct(local,vfwd);		
-
-	// Make sure Z is not negative.
-	if(transformed[2] < 0.01)
-	{
-		return qfalse;
-	}
-	// Simple convert to screen coords.
-	float xzi = xcenter / transformed[2] * (90.0/cg.refdef.fov_x);
-	float yzi = ycenter / transformed[2] * (90.0/cg.refdef.fov_y);
-
-	*x = xcenter + xzi * transformed[0];
-	*y = ycenter - yzi * transformed[1];
-
-	return qtrue;
-}
-
-qboolean CG_WorldCoordToScreenCoord( vec3_t worldCoord, int *x, int *y )
-{
-	float	xF, yF;
-	qboolean retVal = CG_WorldCoordToScreenCoordFloat( worldCoord, &xF, &yF );
-	*x = (int)xF;
-	*y = (int)yF;
-	return retVal;
-}
-*/
 
 /*
 ================
@@ -536,7 +486,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 CG_DrawHUDLeftFrame1
 ================
 */
-void CG_DrawHUDLeftFrame1(int x,int y)
+void CG_DrawHUDLeftFrame1(float x, float y)
 {
 	// Inner gray wire frame
 	trap_R_SetColor( hudTintColor );
@@ -548,7 +498,7 @@ void CG_DrawHUDLeftFrame1(int x,int y)
 CG_DrawHUDLeftFrame2
 ================
 */
-void CG_DrawHUDLeftFrame2(int x,int y)
+void CG_DrawHUDLeftFrame2(float x, float y)
 {
 	// Inner gray wire frame
 	trap_R_SetColor( hudTintColor );
@@ -560,7 +510,7 @@ void CG_DrawHUDLeftFrame2(int x,int y)
 DrawHealthArmor
 ================
 */
-void DrawHealthArmor(int x,int y)
+void DrawHealthArmor(float x, float y)
 {
 	vec4_t calcColor;
 	float	armorPercent,hold,healthPercent;
@@ -716,7 +666,7 @@ void DrawHealthArmor(int x,int y)
 CG_DrawHealth
 ================
 */
-void CG_DrawHealth(int x,int y)
+void CG_DrawHealth(float x, float y)
 {
 	vec4_t calcColor;
 	float	healthPercent;
@@ -758,7 +708,7 @@ void CG_DrawHealth(int x,int y)
 CG_DrawArmor
 ================
 */
-void CG_DrawArmor(int x,int y)
+void CG_DrawArmor(float x, float y)
 {
 	vec4_t			calcColor;
 	float			armorPercent,hold;
@@ -836,12 +786,12 @@ void CG_DrawArmor(int x,int y)
 	if (cg.HUDArmorFlag)
 	{
 		trap_R_SetColor( colorTable[CT_HUD_GREEN] );					
-		CG_DrawPic(   x, y, 80, 80, cgs.media.HUDArmorTic );		
+		CG_DrawPic( x, y, 80, 80, cgs.media.HUDArmorTic );		
 	}
 
 	trap_R_SetColor( colorTable[CT_HUD_GREEN] );	
 	CG_DrawNumField (x + 18 + 14, y + 40 + 14, 3, ps->stats[STAT_ARMOR], 6, 12, 
-		NUM_FONT_SMALL,qfalse);
+		NUM_FONT_SMALL, qfalse);
 
 }
 
@@ -2707,7 +2657,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 
 	if ( worldPoint && VectorLength( worldPoint ) )
 	{
-		if ( !CG_WorldCoordToScreenCoordFloat( worldPoint, &x, &y ) )
+		if ( !CG_WorldCoordToScreenCoord( worldPoint, &x, &y ) )
 		{//off screen, don't draw it
 			return;
 		}
@@ -2726,7 +2676,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 
 }
 
-qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y)
+qboolean CG_WorldCoordToScreenCoord(vec3_t worldCoord, float *x, float *y)
 {
 	float	xcenter, ycenter;
 	vec3_t	local, transformed;
@@ -2767,20 +2717,6 @@ qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y)
 	return qtrue;
 }
 
-qboolean CG_WorldCoordToScreenCoord( vec3_t worldCoord, int *x, int *y )
-{
-	float	xF, yF;
-
-	if (CG_WorldCoordToScreenCoordFloat( worldCoord, &xF, &yF )) {
-		*x = (int)xF;
-		*y = (int)yF;
-
-		return qtrue;
-	}
-
-	return qfalse;
-}
-
 /*
 ====================
 CG_SaberClashFlare
@@ -2792,7 +2728,7 @@ void CG_SaberClashFlare( void )
 {
 	int				t, maxTime = 150;
 	vec3_t dif;
-	int x,y;
+	float x,y;
 	float v, len;
 	trace_t tr;
 
@@ -2945,7 +2881,7 @@ static void CG_DrawActivePowers(void)
 static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 //--------------------------------------------------------------
 {
-	int		cx, cy;
+	float	cx, cy;
 	vec3_t	org;
 	static	int oldDif = 0;
 	centity_t *cent = &cg_entities[lockEntNum];
