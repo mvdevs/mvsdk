@@ -208,6 +208,43 @@ int MV_UiDetectVersion( void )
 	}
 }
 
+/*
+===================
+UI_WideScreenMode
+Make 2D drawing functions use widescreen or 640x480 coordinates
+===================
+*/
+void UI_WideScreenMode(qboolean on) {
+	if (mvapi >= 3) {
+		if (on) {
+			trap_MVAPI_SetVirtualScreen(uiInfo.uiDC.screenWidth, (float)SCREEN_HEIGHT);
+		}
+		else {
+			trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
+		}
+	}
+}
+
+/*
+=================
+UI_UpdateWidescreen
+=================
+*/
+extern vmCvar_t ui_widescreen;
+static void UI_UpdateWidescreen(void) {
+	if (ui_widescreen.integer && mvapi >= 3) {
+		uiInfo.uiDC.screenWidth = (float)SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / uiInfo.uiDC.glconfig.vidHeight;
+	}
+	else {
+		uiInfo.uiDC.screenWidth = (float)SCREEN_WIDTH;
+	}
+	uiInfo.uiDC.screenXFactor = (float)SCREEN_WIDTH / uiInfo.uiDC.screenWidth;
+	uiInfo.uiDC.screenXFactorInv = uiInfo.uiDC.screenWidth / (float)SCREEN_WIDTH;
+
+	if (mvapi >= 3 && ui_widescreen.integer != 2)
+		trap_MVAPI_SetVirtualScreen(uiInfo.uiDC.screenWidth, (float)SCREEN_HEIGHT);
+}
+
 menuDef_t *Menus_FindByName(const char *p);
 void Menu_ShowItemByName(menuDef_t *menu, const char *p, qboolean bShow);
 void UpdateForceUsed();
@@ -632,7 +669,9 @@ void _UI_Refresh( int realtime )
 	// draw cursor
 	UI_SetColor( NULL );
 	if (Menu_Count() > 0) {
-		UI_DrawHandlePic( uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
+		UI_WideScreenMode(qtrue);
+		UI_DrawHandlePic(uiInfo.uiDC.cursorx * uiInfo.uiDC.screenXFactorInv, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
+		UI_WideScreenMode(qfalse);
 	}
 
 #ifndef NDEBUG
@@ -6533,7 +6572,6 @@ static void UI_BuildQ3Model_List( void )
 }
 
 
-
 /*
 =================
 UI_Init
@@ -6553,6 +6591,8 @@ void _UI_Init( qboolean inGameLoad ) {
 
 	// cache redundant calulations
 	trap_GetGlconfig( &uiInfo.uiDC.glconfig );
+
+	UI_UpdateWidescreen();
 
 	// for 640x480 virtualized screen
 	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0/480.0);
@@ -6742,7 +6782,7 @@ UI_MouseEvent
 void _UI_MouseEvent( int dx, int dy )
 {
 	// update mouse screen position
-	uiInfo.uiDC.cursorx += dx;
+	uiInfo.uiDC.cursorx += dx * uiInfo.uiDC.screenXFactor;
 	if (uiInfo.uiDC.cursorx < 0)
 		uiInfo.uiDC.cursorx = 0;
 	else if (uiInfo.uiDC.cursorx > SCREEN_WIDTH)
@@ -7254,6 +7294,8 @@ vmCvar_t	ui_realWarmUp;
 vmCvar_t	ui_serverStatusTimeOut;
 vmCvar_t	ui_s_language;
 
+vmCvar_t	ui_widescreen;
+
 vmCvar_t	ui_MVSDK;
 
 // bk001129 - made static to avoid aliasing
@@ -7385,13 +7427,15 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
 	{ &ui_s_language, "s_language", "english", CVAR_ARCHIVE | CVAR_NORESTART},
 
+	{ &ui_widescreen, "cg_widescreen", "1", 0 },
+
 	{ &ui_MVSDK, "ui_MVSDK", MVSDK_VERSION, CVAR_ROM | CVAR_USERINFO },
 };
 
 // bk001129 - made static to avoid aliasing
 static int		cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
 
-
+int widescreenModificationCount = - 1;
 /*
 =================
 UI_RegisterCvars
@@ -7404,6 +7448,8 @@ void UI_RegisterCvars( void ) {
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
 	}
+
+	widescreenModificationCount = ui_widescreen.modificationCount;
 }
 
 /*
@@ -7417,6 +7463,11 @@ void UI_UpdateCvars( void ) {
 
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Update( cv->vmCvar );
+	}
+
+	if (widescreenModificationCount != ui_widescreen.modificationCount) {
+		widescreenModificationCount = ui_widescreen.modificationCount;
+		UI_UpdateWidescreen();
 	}
 }
 
