@@ -457,15 +457,22 @@ int MenuFontToHandle(int iMenuFont)
 int Text_Width(const char *text, float scale, int iMenuFont) 
 {	
 	int iFontIndex = MenuFontToHandle(iMenuFont);
+	float w;
 
-	return trap_R_Font_StrLenPixels(text, iFontIndex, scale);
+	UI_WideScreenMode(qtrue);
+	w = trap_R_Font_StrLenPixels(text, iFontIndex, scale) * uiInfo.uiDC.screenXFactor;
+	UI_WideScreenMode(qfalse);
+	return w;
 }
 
 int Text_Height(const char *text, float scale, int iMenuFont) 
 {
 	int iFontIndex = MenuFontToHandle(iMenuFont);
-
-	return trap_R_Font_HeightPixels(iFontIndex, scale);
+	float h;
+	UI_WideScreenMode(qtrue);
+	h = trap_R_Font_HeightPixels(iFontIndex, scale);
+	UI_WideScreenMode(qfalse);
+	return h;
 }
 
 void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, int iMenuFont)
@@ -478,23 +485,26 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 	//	
 	switch (style)
 	{
-	case  ITEM_TEXTSTYLE_NORMAL:			iStyleOR = 0;break;					// JK2 normal text
-	case  ITEM_TEXTSTYLE_BLINK:				iStyleOR = (int)STYLE_BLINK;break;		// JK2 fast blinking
-	case  ITEM_TEXTSTYLE_PULSE:				iStyleOR = (int)STYLE_BLINK;break;		// JK2 slow pulsing
-	case  ITEM_TEXTSTYLE_SHADOWED:			iStyleOR = (int)STYLE_DROPSHADOW;break;	// JK2 drop shadow
+		case  ITEM_TEXTSTYLE_NORMAL:			iStyleOR = 0;break;						// JK2 normal text
+		case  ITEM_TEXTSTYLE_BLINK:				iStyleOR = (int)STYLE_BLINK;break;		// JK2 fast blinking
+		case  ITEM_TEXTSTYLE_PULSE:				iStyleOR = (int)STYLE_BLINK;break;		// JK2 slow pulsing
+		case  ITEM_TEXTSTYLE_SHADOWED:			iStyleOR = (int)STYLE_DROPSHADOW;break;	// JK2 drop shadow
 	case  ITEM_TEXTSTYLE_OUTLINED:			iStyleOR = (int)STYLE_DROPSHADOW;break;	// JK2 drop shadow
 	case  ITEM_TEXTSTYLE_OUTLINESHADOWED:	iStyleOR = (int)STYLE_DROPSHADOW;break;	// JK2 drop shadow
-	case  ITEM_TEXTSTYLE_SHADOWEDMORE:		iStyleOR = (int)STYLE_DROPSHADOW;break;	// JK2 drop shadow
+		case  ITEM_TEXTSTYLE_SHADOWEDMORE:		iStyleOR = (int)STYLE_DROPSHADOW;break;	// JK2 drop shadow
 	}
 
-	trap_R_Font_DrawString(	x,		// int ox
-							y,		// int oy
-							text,	// const char *text
-							color,	// paletteRGBA_c c
+	UI_WideScreenMode(qtrue);
+	x *= uiInfo.uiDC.screenXFactorInv;
+	trap_R_Font_DrawString(	x,						// int ox
+							y,						// int oy
+							text,					// const char *text
+							color,					// paletteRGBA_c c
 							iStyleOR | iFontIndex,	// const int iFontHandle
 							!limit?-1:limit,		// iCharLimit (-1 = none)
-							scale	// const float scale = 1.0f
-							);
+							scale );				// const float scale = 1.0f
+							
+	UI_WideScreenMode(qfalse);
 }
 
 void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style, int iMenuFont) 
@@ -515,7 +525,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
 
 			{
 				int iFontIndex = MenuFontToHandle( iMenuFont );	
-				int iNextXpos  = trap_R_Font_StrLenPixels(sTemp, iFontIndex, scale );
+				int iNextXpos = Text_Width(sTemp, scale, iFontIndex);
 
 				Text_Paint(x+iNextXpos, y, scale, color, va("%c",cursor), 0, limit, style|ITEM_TEXTSTYLE_BLINK, iMenuFont);
 			}
@@ -532,7 +542,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
 	int iFontIndex = MenuFontToHandle(iMenuFont);
 	
 	//float fMax = *maxX;
-	int iPixelLen = trap_R_Font_StrLenPixels(text, iFontIndex, scale);
+	int iPixelLen = Text_Width(text, scale, iFontIndex);
 	if (x + iPixelLen > *maxX)
 	{
 		// whole text won't fit, so we need to print just the amount that does...
@@ -544,9 +554,9 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
 		char *psOutLastGood = psOut;
 		unsigned int uiLetter;
 
-		while (*psText && (x + trap_R_Font_StrLenPixels(sTemp, iFontIndex, scale)<=*maxX) 
-			   && psOut < &sTemp[sizeof(sTemp)-1]	// sanity
-				)
+		while (*psText && (x + Text_Width(sTemp, scale, iFontIndex) <= *maxX)
+			&& psOut < &sTemp[sizeof(sTemp) - 1]	// sanity
+			)
 		{
 			int iAdvanceCount;
 			psOutLastGood = psOut;
@@ -6605,7 +6615,6 @@ void _UI_Init( qboolean inGameLoad ) {
 		// no wide screen
 		uiInfo.uiDC.bias = 0;
 	}
-
 
   //UI_Load();
 	uiInfo.uiDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
