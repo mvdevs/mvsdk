@@ -1598,6 +1598,7 @@ void CG_NextForcePower_f(void);
 void CG_PrevForcePower_f(void);
 void MV_LoadSettings( const char *info );
 void MV_UpdateCgFlags( void );
+void CG_WideScreenMode(qboolean on);
 
 //
 // cg_view.c
