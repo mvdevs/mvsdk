@@ -841,8 +841,6 @@ static void CG_UpdateWidescreen(void) {
 	} else {
 		cgs.screenWidth = (float)SCREEN_WIDTH;
 	}
-	cgs.screenXFactor = (float)SCREEN_WIDTH / cgs.screenWidth;
-	cgs.screenXFactorInv = cgs.screenWidth / (float)SCREEN_WIDTH;
 	
 	if (mvapi >= 3 && cg_widescreen.integer != 2)
 		trap_MVAPI_SetVirtualScreen(cgs.screenWidth, (float)SCREEN_HEIGHT);
