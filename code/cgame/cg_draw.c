@@ -2670,8 +2670,8 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 	}
 	else
 	{
-		x = 0.5f * (cgs.screenWidth - w) + cg_crosshairX.value;
-		y = 0.5f * (SCREEN_HEIGHT - h) + cg_crosshairY.value;
+		x = 0.5f * cgs.screenWidth + cg_crosshairX.value;
+		y = 0.5f * SCREEN_HEIGHT + cg_crosshairY.value;
 	}
 
 	hShader = cgs.media.crosshairShader[ cg_drawCrosshair.integer % NUM_CROSSHAIRS ];
