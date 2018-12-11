@@ -411,10 +411,6 @@ typedef struct {
 	qhandle_t cursor;
 	float FPS;
 
-	float		screenWidth;
-	float		screenXFactor;
-	float		screenXFactorInv;
-
 } displayContextDef_t;
 
 const char *String_Alloc(const char *p);

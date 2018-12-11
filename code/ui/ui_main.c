@@ -217,7 +217,7 @@ Make 2D drawing functions use widescreen or 640x480 coordinates
 void UI_WideScreenMode(qboolean on) {
 	if (mvapi >= 3) {
 		if (on) {
-			trap_MVAPI_SetVirtualScreen(uiInfo.uiDC.screenWidth, (float)SCREEN_HEIGHT);
+			trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, (float)SCREEN_HEIGHT);
 		}
 		else {
 			trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
@@ -233,16 +233,16 @@ UI_UpdateWidescreen
 extern vmCvar_t ui_widescreen;
 static void UI_UpdateWidescreen(void) {
 	if (ui_widescreen.integer && mvapi >= 3) {
-		uiInfo.uiDC.screenWidth = (float)SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / uiInfo.uiDC.glconfig.vidHeight;
+		uiInfo.screenWidth = (float)SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / uiInfo.uiDC.glconfig.vidHeight;
 	}
 	else {
-		uiInfo.uiDC.screenWidth = (float)SCREEN_WIDTH;
+		uiInfo.screenWidth = (float)SCREEN_WIDTH;
 	}
-	uiInfo.uiDC.screenXFactor = (float)SCREEN_WIDTH / uiInfo.uiDC.screenWidth;
-	uiInfo.uiDC.screenXFactorInv = uiInfo.uiDC.screenWidth / (float)SCREEN_WIDTH;
+	uiInfo.screenXFactor = (float)SCREEN_WIDTH / uiInfo.screenWidth;
+	uiInfo.screenXFactorInv = uiInfo.screenWidth / (float)SCREEN_WIDTH;
 
 	if (mvapi >= 3 && ui_widescreen.integer != 2)
-		trap_MVAPI_SetVirtualScreen(uiInfo.uiDC.screenWidth, (float)SCREEN_HEIGHT);
+		trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, (float)SCREEN_HEIGHT);
 }
 
 menuDef_t *Menus_FindByName(const char *p);
@@ -460,7 +460,7 @@ int Text_Width(const char *text, float scale, int iMenuFont)
 	float w;
 
 	UI_WideScreenMode(qtrue);
-	w = trap_R_Font_StrLenPixels(text, iFontIndex, scale) * uiInfo.uiDC.screenXFactor;
+	w = trap_R_Font_StrLenPixels(text, iFontIndex, scale) * uiInfo.screenXFactor;
 	UI_WideScreenMode(qfalse);
 	return w;
 }
@@ -495,7 +495,7 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 	}
 
 	UI_WideScreenMode(qtrue);
-	x *= uiInfo.uiDC.screenXFactorInv;
+	x *= uiInfo.screenXFactorInv;
 	trap_R_Font_DrawString(	x,						// int ox
 							y,						// int oy
 							text,					// const char *text
@@ -680,7 +680,7 @@ void _UI_Refresh( int realtime )
 	UI_SetColor( NULL );
 	if (Menu_Count() > 0) {
 		UI_WideScreenMode(qtrue);
-		UI_DrawHandlePic(uiInfo.uiDC.cursorx * uiInfo.uiDC.screenXFactorInv, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
+		UI_DrawHandlePic(uiInfo.uiDC.cursorx * uiInfo.screenXFactorInv, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
 		UI_WideScreenMode(qfalse);
 	}
 
