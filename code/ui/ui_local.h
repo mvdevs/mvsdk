@@ -676,13 +676,8 @@ typedef struct {
 } tierInfo;
 
 typedef struct serverFilter_s {
-#ifdef JK2MV_MENU // Slightly different for mvmenu
-	const char *version;
 	const char *description;
-#else
-	const char *description;
-	const char *basedir;
-#endif
+	const char *value;
 } serverFilter_t;
 
 typedef struct {
@@ -800,11 +795,9 @@ typedef struct {
 	int modCount;
 	int modIndex;
 
-#ifdef JK2MV_MENU
 	dlfile_t downloadsList[MAX_DOWNLOADS];
 	int downloadsCount;
 	int downloadsIndex;
-#endif
 
 	const char *demoList[MAX_DEMOS];
 	int demoCount;
@@ -1042,13 +1035,11 @@ qboolean trap_G2API_SetBoneAngles(void *ghoul2, int modelIndex, const char *bone
 Ghoul2 Insert End
 */
 
-#ifdef JK2MV_MENU
 void trap_CL_ContinueCurrentDownload(dldecision_t decision);
 
 int trap_FS_GetDLList(dlfile_t *files, int maxfiles);
 qboolean trap_FS_RMDLPrefix(const char *qpath);
 qboolean trap_UI_DeleteDLFile(const dlfile_t *file);
-#endif
 
 //
 // ui_addbots.c
@@ -1189,7 +1180,7 @@ typedef struct postGameInfo_s {
 extern int mvapi;
 
 // JK2MV API Functions
-int MVAPI_Init( int apilevel );
+int MVAPI_Init( int apilevel, int inGameLoad );
 void MVAPI_AfterInit( void );
 
 // JK2MV Syscalls [Universal]

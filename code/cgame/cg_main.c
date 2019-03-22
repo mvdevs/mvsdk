@@ -151,6 +151,7 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
+qboolean menuInJK2MV = qfalse;
 int mvapi = 0;
 int Init_serverMessageNum;
 int Init_serverCommandSequence;

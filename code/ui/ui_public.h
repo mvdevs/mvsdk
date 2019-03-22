@@ -3,6 +3,9 @@
 #ifndef __UI_PUBLIC_H__
 #define __UI_PUBLIC_H__
 
+#define MV_MENULEVEL_MAX 2
+#define MV_MENULEVEL_MIN 2
+
 #define UI_API_VERSION	7
 #define UI_API_VERSION_1_02	6
 

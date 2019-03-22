@@ -626,7 +626,6 @@ void trap_MVAPI_SetVirtualScreen( float w, float h )
 	syscall( UI_MVAPI_SETVIRTUALSCREEN, PASSFLOAT(w), PASSFLOAT(h) );
 }
 
-#ifdef JK2MV_MENU
 void trap_CL_ContinueCurrentDownload(dldecision_t decision) {
 	syscall(UI_MV_CONTINUE_DOWNLOAD, decision);
 }
@@ -642,4 +641,3 @@ qboolean trap_FS_RMDLPrefix(const char *qpath) {
 qboolean trap_UI_DeleteDLFile(const dlfile_t *file) {
 	return syscall(UI_MV_DELDLFILE, file);
 }
-#endif

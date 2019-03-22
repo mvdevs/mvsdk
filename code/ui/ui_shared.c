@@ -4688,9 +4688,8 @@ void Item_ListBox_Paint(itemDef_t *item) {
 						else 
 						*/
 
-#ifdef JK2MV_MENU
 						// Mark 1.04 server BEFORE writing text (so the "box" is under the text, not over it)
-						if (optionalImage4 >= 0)
+						if (optionalImage4 >= 0 && menuInJK2MV)
 						{
 							if (protocol == PROTOCOL16)
 							{
@@ -4704,7 +4703,6 @@ void Item_ListBox_Paint(itemDef_t *item) {
 							}
 
 						}
-#endif
 
 						if ( text )
 						{
@@ -4717,12 +4715,10 @@ void Item_ListBox_Paint(itemDef_t *item) {
 						}
 						DC->setColor( NULL );
 
-#ifdef JK2MV_MENU
 						// serverversion icon
-						if (optionalImage4 >= 0) {
+						if (optionalImage4 >= 0 && menuInJK2MV) {
 							DC->drawHandlePic(540, y + 2, listPtr->elementHeight, listPtr->elementHeight, optionalImage4);
 						}
-#endif
 						if (optionalImage3 >= 0) {
 							DC->drawHandlePic(imageStartX - listPtr->elementHeight*3, y+2, listPtr->elementHeight, listPtr->elementHeight, optionalImage3);
 						} 

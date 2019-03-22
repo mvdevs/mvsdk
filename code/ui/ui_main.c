@@ -28,6 +28,7 @@ This is the only way control passes into the module.
 */
 vmCvar_t  ui_debug;
 vmCvar_t  ui_initialized;
+qboolean menuInJK2MV = qfalse;
 int mvapi = 0;
 int Init_inGameLoad;
 
@@ -46,10 +47,10 @@ LIBEXPORT intptr_t vmMain( intptr_t command, intptr_t arg0, intptr_t arg1, intpt
   }
   switch ( command ) {
 	  case UI_GETAPIVERSION:
-		  return /*UI_API_VERSION*/MV_UiDetectVersion();
-
+			trap_Cvar_Set("ui_menulevel", "2");
+			return /*UI_API_VERSION*/MV_UiDetectVersion();
 	  case UI_INIT:
-		  requestedMvApi = MVAPI_Init(arg11);
+		  requestedMvApi = MVAPI_Init(arg11, arg0);
 		  
 		  if ( !requestedMvApi )
 		  { // Only call _UI_Init if we haven't got access to the MVAPI. If we can use the MVAPI we delay the Init until the "MVAPI_AFTER_INIT" command is sent. That allows us use the MVAPI in the actual init.
@@ -104,7 +105,7 @@ LIBEXPORT intptr_t vmMain( intptr_t command, intptr_t arg0, intptr_t arg1, intpt
 
 #define UI_MV_MIN_APILEVEL 1
 #define UI_MV_MIN_VERSION "1.1"
-int MVAPI_Init(int apilevel)
+int MVAPI_Init(int apilevel, int inGameLoad)
 {
 #ifdef JK2MV_MENU
 	if (apilevel < MV_APILEVEL) {
@@ -117,6 +118,15 @@ int MVAPI_Init(int apilevel)
 	// always using the newest api internally.
 	return MV_APILEVEL;
 #else
+	char version[128];
+	char jk2mv[64];
+
+	trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+	trap_Cvar_VariableStringBuffer("JK2MV", jk2mv, sizeof(jk2mv));
+
+	if ( strstr(version, "JK2MV") || strlen(jk2mv) )
+			menuInJK2MV = qtrue;
+
 	if (!trap_Cvar_VariableValue("mv_apienabled"))
 	{
 		Com_Printf("UI: MVAPI is not supported at all or has been disabled.\n");
@@ -293,18 +303,36 @@ static int UI_GetIndexFromSelection(int actual);
 int ProcessNewUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 );
 int	uiSkinColor=TEAM_FREE;
 
-static const serverFilter_t serverFilters[] = {
-#ifdef JK2MV_MENU
+static serverFilter_t serverGameFilters[] = {
+	{"All", "" },
+	{"Jedi Knight 2", "" },
+};
+static const int numServerGameFilters = sizeof(serverGameFilters) / sizeof(serverFilter_t);
+
+static serverFilter_t serverVersionFilters[] = {
 	{"All", "All" },
 	{"1.02", "1.02" },
 	{"1.03", "1.03" },
 	{"1.04", "1.04" },
-#else
-	{"All", "" },
-	{"Jedi Knight 2", "" },
-#endif
 };
-static const int numServerFilters = sizeof(serverFilters) / sizeof(serverFilter_t);
+static const int numServerVersionFilters = sizeof(serverVersionFilters) / sizeof(serverFilter_t);
+
+static serverFilter_t *serverFilters;
+static int numServerFilters;
+
+static void UI_SetServerFilter( void )
+{
+	if (!uiInfo.inGameLoad)
+	{
+		serverFilters = serverVersionFilters;
+		numServerFilters = numServerVersionFilters;
+	}
+	else
+	{
+		serverFilters = serverGameFilters;
+		numServerFilters = numServerGameFilters;
+	}
+}
 
 
 
@@ -1147,10 +1175,11 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 		}
 	}
 
-#ifdef JK2MV_MENU
-	UI_ParseMenu("ui/jk2mv/download_popup.menu");
-	UI_ParseMenu("ui/jk2mv/download_info.menu");
-#endif
+	if ( !uiInfo.inGameLoad )
+	{
+		UI_ParseMenu("ui/jk2mv/download_popup.menu");
+		UI_ParseMenu("ui/jk2mv/download_info.menu");
+	}
 
 	Com_Printf("UI menu load time = %d milli seconds\n", trap_Milliseconds() - start);
 
@@ -2058,12 +2087,11 @@ static void UI_DrawNetFilter(rectDef_t *rect, float scale, vec4_t color, int tex
 		ui_serverFilterType.integer = 0;
 	}
 
-#ifdef JK2MV_MENU
+	if (!uiInfo.inGameLoad)
+		trap_SP_GetStringTextString("MV_GAME_VERSION", holdSPString, sizeof(holdSPString));
+	else
+		trap_SP_GetStringTextString("MENUS3_GAME", holdSPString, sizeof(holdSPString));
 
-	trap_SP_GetStringTextString("MV_GAME_VERSION", holdSPString, sizeof(holdSPString));
-#else
-	trap_SP_GetStringTextString("MENUS3_GAME", holdSPString, sizeof(holdSPString));
-#endif
 	Text_Paint(rect->x, rect->y, scale, color, va("%s %s",holdSPString,
 		 serverFilters[ui_serverFilterType.integer].description), 0, 0, textStyle, iMenuFont);
 }
@@ -2487,7 +2515,10 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 			if (ui_serverFilterType.integer < 0 || ui_serverFilterType.integer > numServerFilters) {
 				ui_serverFilterType.integer = 0;
 			}
-			trap_SP_GetStringTextString("MENUS3_GAME", holdSPString, sizeof(holdSPString));
+			if (!uiInfo.inGameLoad)
+				trap_SP_GetStringTextString("MV_GAME_VERSION", holdSPString, sizeof(holdSPString));
+			else
+				trap_SP_GetStringTextString("MENUS3_GAME", holdSPString, sizeof(holdSPString));
 			s = va("%s %s", holdSPString, serverFilters[ui_serverFilterType.integer].description );
 			break;
 		case UI_TIER:
@@ -3998,7 +4029,6 @@ static void UI_LoadDemos() {
 #endif
 }
 
-#ifdef JK2MV_MENU
 /*
 ===============
 UI_LoadDLFiles
@@ -4019,7 +4049,6 @@ static void UI_LoadDLFiles() {
 		}
 	}
 }
-#endif
 
 
 static qboolean UI_SetNextMap(int actual, int index) {
@@ -4652,10 +4681,8 @@ static void UI_RunMenuScript(const char **args)
 			UI_LoadMovies();
 		} else if (Q_stricmp(name, "LoadMods") == 0) {
 			UI_LoadMods();
-#ifdef JK2MV_MENU
 		} else if (Q_stricmp(name, "LoadDLFiles") == 0) {
 			UI_LoadDLFiles();
-#endif
 		} else if (Q_stricmp(name, "playMovie") == 0) {
 			if (uiInfo.previewMovie >= 0) {
 			  trap_CIN_StopCinematic(uiInfo.previewMovie);
@@ -5021,7 +5048,6 @@ static void UI_RunMenuScript(const char **args)
 			{
 				UI_Update(name2);
 			}
-#ifdef JK2MV_MENU
 		} else if (Q_stricmp(name, "MVContinueDownload") == 0) {
 			// download popup
 			trap_Key_SetCatcher(trap_Key_GetCatcher() & ~KEYCATCH_UI);
@@ -5053,7 +5079,6 @@ static void UI_RunMenuScript(const char **args)
 				trap_UI_DeleteDLFile(&uiInfo.downloadsList[uiInfo.downloadsIndex]);
 				UI_LoadDLFiles();
 			}
-#endif
 		} else {
 			Com_Printf("unknown UI script %s\n", name);
 		}
@@ -5399,20 +5424,22 @@ static void UI_BuildServerDisplayList(int force) {
 			}
 				
 			if (ui_serverFilterType.integer > 0) {
-#ifdef JK2MV_MENU
-				mvversion_t gameVersion; // Using the "gameVersion" now to support seperate lists for 1.02, 1.03 and 1.04
+				if ( !uiInfo.inGameLoad ) {
+					mvversion_t gameVersion; // Using the "gameVersion" now to support seperate lists for 1.02, 1.03 and 1.04
 
-				if (ui_serverFilterType.integer == 1)
-					gameVersion = VERSION_1_02;
-				else if (ui_serverFilterType.integer == 2)
-					gameVersion = VERSION_1_03;
-				else
-					gameVersion = VERSION_1_04;
+					if (ui_serverFilterType.integer == 1)
+						gameVersion = VERSION_1_02;
+					else if (ui_serverFilterType.integer == 2)
+						gameVersion = VERSION_1_03;
+					else
+						gameVersion = VERSION_1_04;
 
-				if (atoi(Info_ValueForKey(info, "gameVersion")) != (int)gameVersion) {
-#else
-				if (Q_stricmp(Info_ValueForKey(info, "game"), serverFilters[ui_serverFilterType.integer].basedir) != 0) {
-#endif
+					if (atoi(Info_ValueForKey(info, "gameVersion")) != (int)gameVersion) {
+						trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
+						continue;
+					}
+				}
+				else if (Q_stricmp(Info_ValueForKey(info, "game"), serverFilters[ui_serverFilterType.integer].value) != 0) {
 					trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
 					continue;
 				}
@@ -5844,11 +5871,10 @@ static int UI_FeederCount(float feederID)
 
 		case FEEDER_MODS:
 			return uiInfo.modCount;
-	
-#ifdef JK2MV_MENU
+
 		case FEEDER_DOWNLOADS:
 			return uiInfo.downloadsCount;
-#endif
+
 
 		case FEEDER_DEMOS:
 			return uiInfo.demoCount;
@@ -6225,12 +6251,10 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 				return uiInfo.modList[index].modName;
 			}
 		}
-	#ifdef JK2MV_MENU
 	} else if (feederID == FEEDER_DOWNLOADS) {
 		if (index >= 0 && index < uiInfo.downloadsCount) {
 			return uiInfo.downloadsList[index].name;
 		}
-	#endif
 	} else if (feederID == FEEDER_CINEMATICS) {
 		if (index >= 0 && index < uiInfo.movieCount) {
 			return uiInfo.movieList[index];
@@ -6464,10 +6488,8 @@ qboolean UI_FeederSelection(float feederID, int index) {
 		uiInfo.teamIndex = index;
 	} else if (feederID == FEEDER_MODS) {
 		uiInfo.modIndex = index;
-#ifdef JK2MV_MENU
 	} else if (feederID == FEEDER_DOWNLOADS) {
 		uiInfo.downloadsIndex = index;
-#endif
 	} else if (feederID == FEEDER_CINEMATICS) {
 		uiInfo.movieIndex = index;
 		if (uiInfo.previewMovie >= 0) {
@@ -6895,6 +6917,8 @@ void _UI_Init( qboolean inGameLoad ) {
 
 	uiInfo.inGameLoad = inGameLoad;
 
+	UI_SetServerFilter();
+
 	UI_UpdateForcePowers();
 
 	UI_RegisterCvars();
@@ -7058,8 +7082,6 @@ void _UI_Init( qboolean inGameLoad ) {
 
 	// botfilter
 	trap_Cvar_Register(&ui_botfilter, "ui_botfilter", "0", CVAR_ARCHIVE | CVAR_GLOBAL);
-
-	trap_Cvar_Set("ui_menulevel", "1");
 }
 
 
@@ -7125,6 +7147,7 @@ void UI_LoadNonIngame() {
 	}
 	UI_LoadMenus(menuSet, qfalse);
 	uiInfo.inGameLoad = qfalse;
+	UI_SetServerFilter();
 }
 
 void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
@@ -7944,7 +7967,10 @@ static void UI_StartServerRefresh(qboolean full)
 #ifdef JK2MV_MENU
 			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d 15+16\n", i ) );
 #else
-			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %d\n", i, (int)trap_Cvar_VariableValue( "protocol" ) ) );
+			if ( menuInJK2MV )
+				trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d 15+16\n", i ) );
+			else
+				trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %d\n", i, (int)trap_Cvar_VariableValue( "protocol" ) ) );
 #endif
 		}
 	}
