@@ -929,7 +929,7 @@ Q_NORETURN void QDECL CG_Error( const char *msg, ... ) {
 	trap_Error( text );
 }
 
-Q_NORETURN void QDECL Com_Error( int level, const char *error, ... ) {
+Q_NORETURN void QDECL Com_Error( errorParm_t level, const char *error, ... ) {
 	va_list		argptr;
 	char		text[1024];
 
@@ -2086,7 +2086,7 @@ static clientInfo_t * CG_InfoFromScoreIndex(int index, int team, int *scoreIndex
 }
 
 static const char *CG_FeederItemText(float feederID, int index, int column,
-									 qhandle_t *handle1, qhandle_t *handle2, qhandle_t *handle3) {
+									 qhandle_t *handle1, qhandle_t *handle2, qhandle_t *handle3, qhandle_t *handle4, qhandle_t *handle5, qhandle_t *handle6) {
 	gitem_t *item;
 	int scoreIndex = 0;
 	clientInfo_t *info = NULL;
@@ -2203,7 +2203,7 @@ static float CG_Cvar_Get(const char *cvar) {
 	return atof(buff);
 }
 
-void CG_Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style, int iMenuFont) {
+void CG_Text_PaintWithCursor(float x, float y, float scale, const vec4_t color, const char *text, unsigned cursorPos, char cursor, unsigned limit, int style, int iMenuFont) {
 	CG_Text_Paint(x, y, scale, color, text, 0, limit, style, iMenuFont);
 }
 

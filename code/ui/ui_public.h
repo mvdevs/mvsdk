@@ -142,6 +142,11 @@ Ghoul2 Insert Start
 /*
 Ghoul2 Insert End
 */
+
+	UI_MV_CONTINUE_DOWNLOAD,
+	UI_MV_GETDLLIST,
+	UI_MV_RMDLPREFIX,
+	UI_MV_DELDLFILE,
 } uiImport_t;
 
 typedef enum {
@@ -278,7 +283,8 @@ typedef enum {
 	UIMENU_PLAYERCONFIG,
 	UIMENU_TEAM,
 	UIMENU_POSTGAME,
-	UIMENU_PLAYERFORCE
+	UIMENU_PLAYERFORCE,
+	UIMENU_MV_DOWNLOAD_POPUP
 } uiMenuCommand_t;
 
 #define SORT_HOST			0

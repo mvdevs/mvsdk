@@ -106,6 +106,17 @@ LIBEXPORT intptr_t vmMain( intptr_t command, intptr_t arg0, intptr_t arg1, intpt
 #define UI_MV_MIN_VERSION "1.1"
 int MVAPI_Init(int apilevel)
 {
+#ifdef JK2MV_MENU
+	if (apilevel < MV_APILEVEL) {
+		// using the mvmenu without jk2mv is useless
+		trap_Error("This mvmenu version requires JK2MV " MV_MIN_VERSION);
+	}
+
+	mvapi = apilevel;
+
+	// always using the newest api internally.
+	return MV_APILEVEL;
+#else
 	if (!trap_Cvar_VariableValue("mv_apienabled"))
 	{
 		Com_Printf("UI: MVAPI is not supported at all or has been disabled.\n");
@@ -131,6 +142,7 @@ int MVAPI_Init(int apilevel)
 
 	Com_Printf("UI: Using MVAPI level %i (%i supported).\n", mvapi, apilevel);
 	return mvapi;
+#endif
 }
 
 void MVAPI_AfterInit(void)
@@ -155,6 +167,11 @@ void MVAPI_AfterInit(void)
 
 int MV_UiDetectVersion( void )
 {
+#ifdef JK2MV_MENU
+	jk2startversion = jk2version = VERSION_1_04;
+	MV_SetGameVersion(jk2version, qtrue); // Set the GameVersion...
+	return UI_API_VERSION;
+#else
 	char buffer[32];
 	// MVSDK: Let's detect which version of the engine we are running in...
 	jk2version = VERSION_UNDEF;
@@ -192,7 +209,11 @@ int MV_UiDetectVersion( void )
 		}
 	}
 	
-	if ( jk2version == VERSION_UNDEF ) trap_Error("MVSDK: Unable to detect jk2version [UI].");
+	if ( jk2version == VERSION_UNDEF )
+	{
+		Com_Printf("MVSDK: Unable to detect jk2version [UI]; fallback to 1.04;");
+		jk2version = VERSION_1_04;
+	}
 	Com_Printf("jk2version [UI]: 1.0%i\n", jk2version);
 	jk2startversion = jk2version;
 	MV_SetGameVersion(jk2version, qtrue); // Set the GameVersion...
@@ -206,6 +227,7 @@ int MV_UiDetectVersion( void )
 		default:
 			return UI_API_VERSION;
 	}
+#endif
 }
 
 /*
@@ -249,7 +271,7 @@ menuDef_t *Menus_FindByName(const char *p);
 void Menu_ShowItemByName(menuDef_t *menu, const char *p, qboolean bShow);
 void UpdateForceUsed();
 
-char holdSPString[1024]={0};
+static char holdSPString[1024]={0};
 
 uiInfo_t uiInfo;
 
@@ -272,8 +294,15 @@ int ProcessNewUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4,
 int	uiSkinColor=TEAM_FREE;
 
 static const serverFilter_t serverFilters[] = {
+#ifdef JK2MV_MENU
+	{"All", "All" },
+	{"1.02", "1.02" },
+	{"1.03", "1.03" },
+	{"1.04", "1.04" },
+#else
 	{"All", "" },
 	{"Jedi Knight 2", "" },
+#endif
 };
 static const int numServerFilters = sizeof(serverFilters) / sizeof(serverFilter_t);
 
@@ -475,7 +504,7 @@ int Text_Height(const char *text, float scale, int iMenuFont)
 	return h;
 }
 
-void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, int iMenuFont)
+static void Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit, int style, int iMenuFont)
 {
 	int iStyleOR = 0;
 
@@ -507,7 +536,7 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 	UI_WideScreenMode(qfalse);
 }
 
-void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style, int iMenuFont) 
+void Text_PaintWithCursor(float x, float y, float scale, const vec4_t color, const char *text, unsigned cursorPos, char cursor, unsigned limit, int style, int iMenuFont)
 {
 	Text_Paint(x, y, scale, color, text, 0, limit, style, iMenuFont);
 
@@ -515,7 +544,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
 	//
 	{
 		char sTemp[1024];
-		int iCopyCount = limit ? MIN((int)strlen(text), limit) : (int)strlen(text);
+		unsigned iCopyCount = limit ? MIN((unsigned)strlen(text), (unsigned)limit) : (unsigned)strlen(text);
 			iCopyCount = MIN(iCopyCount,cursorPos);
 			iCopyCount = MIN(iCopyCount,(int)sizeof(sTemp)-1);
 
@@ -623,7 +652,7 @@ vmCvar_t	ui_rankChange;
 static void UI_BuildPlayerList();
 char parsedFPMessage[1024];
 extern int FPMessageTime;
-void Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *text, float adjust, int iMenuFont);
+static void Text_PaintCenter(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int iMenuFont);
 
 const char *UI_GetStripEdString(const char *refSection, const char *refName)
 {
@@ -724,7 +753,7 @@ void _UI_Refresh( int realtime )
 
 		//if (uiMaxRank > ui_rankChange.integer)
 		{
-			uiMaxRank = ui_rankChange.integer;
+			uiMaxRank = Com_Clampi(1, MAX_FORCE_RANK, ui_rankChange.integer);
 			uiForceRank = uiMaxRank;
 
 			/*
@@ -807,7 +836,7 @@ void _UI_Shutdown( void ) {
 
 char *defaultMenu = NULL;
 
-char *GetMenuBuffer(const char *filename) {
+const char *GetMenuBuffer(const char *filename) {
 	int	len;
 	fileHandle_t	f;
 	static char buf[MAX_MENUFILE];
@@ -1123,6 +1152,11 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 		}
 	}
 
+#ifdef JK2MV_MENU
+	UI_ParseMenu("ui/jk2mv/download_popup.menu");
+	UI_ParseMenu("ui/jk2mv/download_info.menu");
+#endif
+
 	Com_Printf("UI menu load time = %d milli seconds\n", trap_Milliseconds() - start);
 
 	trap_PC_FreeSource( handle );
@@ -1205,7 +1239,7 @@ static void UI_DrawGameType(rectDef_t *rect, float scale, vec4_t color, int text
 }
 
 static void UI_DrawNetGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
-	if (ui_netGameType.integer < 0 || ui_netGameType.integer > uiInfo.numGameTypes) {
+	if (ui_netGameType.integer < 0 || ui_netGameType.integer >= uiInfo.numGameTypes) {
 		trap_Cvar_Set("ui_netGameType", "0");
 		trap_Cvar_Set("ui_actualNetGameType", "0");
 	}
@@ -1241,7 +1275,7 @@ static void UI_DrawAutoSwitch(rectDef_t *rect, float scale, vec4_t color, int te
 }
 
 static void UI_DrawJoinGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
-	if (ui_joinGameType.integer < 0 || ui_joinGameType.integer > uiInfo.numJoinGameTypes) {
+	if (ui_joinGameType.integer < 0 || ui_joinGameType.integer >= uiInfo.numJoinGameTypes) {
 		trap_Cvar_Set("ui_joinGameType", "0");
 	}
   Text_Paint(rect->x, rect->y, scale, color, uiInfo.joinGameTypes[ui_joinGameType.integer].gameType , 0, 0, textStyle, iMenuFont);
@@ -1351,7 +1385,7 @@ static void UI_DrawGenericNum(rectDef_t *rect, float scale, vec4_t color, int te
 static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int iMenuFont)
 {
 	int i;
-	char *s;
+	const char *s;
 
 	i = val;
 	if (i < min || i > max) 
@@ -1367,7 +1401,7 @@ static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int 
 static void UI_DrawSkinColor(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int iMenuFont)
 {
 	int i;
-	char s[256];
+	const char *s;
 
 	i = val;
 	if (i < min || i > max) 
@@ -1378,13 +1412,13 @@ static void UI_DrawSkinColor(rectDef_t *rect, float scale, vec4_t color, int tex
 	switch(val)
 	{
 	case TEAM_RED:
-		Q_strncpyz(s, "Red", sizeof(s));
+		s = "Red";
 		break;
 	case TEAM_BLUE:
-		Q_strncpyz(s, "Blue", sizeof(s));
+		s = "Blue";
 		break;
 	default:
-		Q_strncpyz(s, "Default", sizeof(s));
+		s = "Default";
 		break;
 	}
 
@@ -1414,15 +1448,15 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 		{
 		case TEAM_RED:
 			uiForceSide = FORCE_DARKSIDE;
-			color[0] = 0.2;
-			color[1] = 0.2;
-			color[2] = 0.2;
+			color[0] = 0.2f;
+			color[1] = 0.2f;
+			color[2] = 0.2f;
 			break;
 		case TEAM_BLUE:
 			uiForceSide = FORCE_LIGHTSIDE;
-			color[0] = 0.2;
-			color[1] = 0.2;
-			color[2] = 0.2;
+			color[0] = 0.2f;
+			color[1] = 0.2f;
+			color[2] = 0.2f;
 			break;
 		default:
 			break;
@@ -1634,9 +1668,9 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qboole
 
 	if (numval > maxcl)
 	{
-		finalColor[0] *= 0.2;
-		finalColor[1] *= 0.2;
-		finalColor[2] *= 0.2;
+		finalColor[0] *= 0.2f;
+		finalColor[1] *= 0.2f;
+		finalColor[2] *= 0.2f;
 
 		value = -1;
 	}
@@ -1678,7 +1712,7 @@ static void UI_DrawEffects(rectDef_t *rect, float scale, vec4_t color)
 
 static void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color, qboolean net) {
 	int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
-	if (map < 0 || map > uiInfo.mapCount) {
+	if (map < 0 || map >= uiInfo.mapCount) {
 		if (net) {
 			ui_currentNetMap.integer = 0;
 			trap_Cvar_Set("ui_currentNetMap", "0");
@@ -1703,7 +1737,7 @@ static void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color, qboole
 
 static void UI_DrawMapTimeToBeat(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
 	int minutes, seconds, time;
-	if (ui_currentMap.integer < 0 || ui_currentMap.integer > uiInfo.mapCount) {
+	if (ui_currentMap.integer < 0 || ui_currentMap.integer >= uiInfo.mapCount) {
 		ui_currentMap.integer = 0;
 		trap_Cvar_Set("ui_currentMap", "0");
 	}
@@ -1721,7 +1755,7 @@ static void UI_DrawMapTimeToBeat(rectDef_t *rect, float scale, vec4_t color, int
 static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color, qboolean net) {
 
 	int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer; 
-	if (map < 0 || map > uiInfo.mapCount) {
+	if (map < 0 || map >= uiInfo.mapCount) {
 		if (net) {
 			ui_currentNetMap.integer = 0;
 			trap_Cvar_Set("ui_currentNetMap", "0");
@@ -1986,7 +2020,7 @@ static void UI_DrawPlayerModel(rectDef_t *rect) {
 */
 static void UI_DrawNetSource(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) 
 {
-	if (ui_netSource.integer < 0 || ui_netSource.integer > uiInfo.numGameTypes) 
+	if (ui_netSource.integer < 0 || ui_netSource.integer >= numNetSources)
 	{
 		ui_netSource.integer = 0;
 	}
@@ -2006,7 +2040,7 @@ static void UI_DrawNetMapPreview(rectDef_t *rect, float scale, vec4_t color) {
 }
 
 static void UI_DrawNetMapCinematic(rectDef_t *rect, float scale, vec4_t color) {
-	if (ui_currentNetMap.integer < 0 || ui_currentNetMap.integer > uiInfo.mapCount) {
+	if (ui_currentNetMap.integer < 0 || ui_currentNetMap.integer >= uiInfo.mapCount) {
 		ui_currentNetMap.integer = 0;
 		trap_Cvar_Set("ui_currentNetMap", "0");
 	}
@@ -2029,7 +2063,12 @@ static void UI_DrawNetFilter(rectDef_t *rect, float scale, vec4_t color, int tex
 		ui_serverFilterType.integer = 0;
 	}
 
+#ifdef JK2MV_MENU
+
+	trap_SP_GetStringTextString("MV_GAME_VERSION", holdSPString, sizeof(holdSPString));
+#else
 	trap_SP_GetStringTextString("MENUS3_GAME", holdSPString, sizeof(holdSPString));
+#endif
 	Text_Paint(rect->x, rect->y, scale, color, va("%s %s",holdSPString,
 		 serverFilters[ui_serverFilterType.integer].description), 0, 0, textStyle, iMenuFont);
 }
@@ -2443,7 +2482,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 			s = va("%i. %s", iUse, text);
       break;
 		case UI_NETSOURCE:
-			if (ui_netSource.integer < 0 || ui_netSource.integer > uiInfo.numJoinGameTypes) {
+			if (ui_netSource.integer < 0 || ui_netSource.integer >= uiInfo.numJoinGameTypes) {
 				ui_netSource.integer = 0;
 			}
 			trap_SP_GetStringTextString("MENUS3_SOURCE", holdSPString, sizeof(holdSPString));
@@ -2611,11 +2650,11 @@ static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color,
 	if (uiInfo.serverStatus.refreshActive) 
 	{
 		vec4_t lowLight, newColor;
-		lowLight[0] = 0.8 * color[0]; 
-		lowLight[1] = 0.8 * color[1]; 
-		lowLight[2] = 0.8 * color[2]; 
-		lowLight[3] = 0.8 * color[3]; 
-		LerpColor(color,lowLight,newColor,0.5+0.5*sin(uiInfo.uiDC.realTime / PULSE_DIVISOR));
+		lowLight[0] = 0.8f * color[0];
+		lowLight[1] = 0.8f * color[1];
+		lowLight[2] = 0.8f * color[2];
+		lowLight[3] = 0.8f * color[3];
+		LerpColor(color,lowLight,newColor,0.5f+0.5f*sin(uiInfo.uiDC.realTime / PULSE_DIVISOR));
 
 		trap_SP_GetStringTextString("INGAMETEXT_GETTINGINFOFORSERVERS", holdSPString, sizeof(holdSPString));
 		Text_Paint(rect->x, rect->y, scale, newColor, va((char *) holdSPString, trap_LAN_GetServerCount(ui_netSource.integer)), 0, 0, textStyle, iMenuFont);
@@ -2623,10 +2662,15 @@ static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color,
 	else 
 	{
 		char buff[64];
+		char sServers[256];
+		char sPlayers[256];
+
 		Q_strncpyz(buff, UI_Cvar_VariableString(va("ui_lastServerRefresh_%i", ui_netSource.integer)), 64);
 		trap_SP_GetStringTextString("INGAMETEXT_SERVER_REFRESHTIME", holdSPString, sizeof(holdSPString));
+		trap_SP_GetStringTextString("MV_REFRESHDATA_SERVERS", sServers, sizeof(sServers));
+		trap_SP_GetStringTextString("MV_REFRESHDATA_PLAYERS", sPlayers, sizeof(sPlayers));
 
-		Text_Paint(rect->x, rect->y, scale, color, va("%s: %s", holdSPString, buff), 0, 0, textStyle, iMenuFont);
+		Text_Paint(rect->x - 8, rect->y, scale, color, va("%s: %s | %s %d, %s %d", holdSPString, buff, sServers, uiInfo.serverStatus.numDisplayServers, sPlayers, uiInfo.serverStatus.numPlayersOnServers), 0, 0, textStyle, iMenuFont); //new data
 	}
 }
 
@@ -2702,8 +2746,8 @@ static void UI_DrawKeyBindStatus(rectDef_t *rect, float scale, vec4_t color, int
 static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textStyle,int iMenuFont) 
 {
 	char * eptr;
-	char buff[4096];
-	const char *lines[128];
+	static char buff[32768]; // increased in jk2mv
+	const char *lines[128*8];
 	int y, numLines, i;
 
 	Text_Paint(rect->x + 2, rect->y, scale, color, va("GL_VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), 0, 30, textStyle,iMenuFont);
@@ -2711,7 +2755,7 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textSt
 	Text_Paint(rect->x + 2, rect->y + 30, scale, color, va ("GL_PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, 30, textStyle,iMenuFont);
 
 	// build null terminated extension strings
-	Q_strncpyz(buff, uiInfo.uiDC.glconfig.extensions_string, 4096);
+	Q_strncpyz(buff, uiInfo.uiDC.glconfig.extensions_string, sizeof(buff));
 	eptr = buff;
 	y = rect->y + 45;
 	numLines = 0;
@@ -2840,9 +2884,9 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
 		if (uiForcePowerDarkLight[findex] && uiForceSide != uiForcePowerDarkLight[findex])
 		{
-			color[0] *= 0.5;
-			color[1] *= 0.5;
-			color[2] *= 0.5;
+			color[0] *= 0.5f;
+			color[1] *= 0.5f;
+			color[2] *= 0.5f;
 		}
 /*		else if (uiForceRank < UI_ForceColorMinRank[bgForcePowerCost[findex][FORCE_LEVEL_1]])
 		{
@@ -3042,18 +3086,19 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 
 static qboolean UI_OwnerDrawVisible(int flags) {
 	qboolean vis = qtrue;
+	gametype_t gametype = trap_Cvar_VariableValue("g_gametype");
 
 	while (flags) {
 
 		if (flags & UI_SHOW_FFA) {
-			if (trap_Cvar_VariableValue("g_gametype") != GT_FFA && trap_Cvar_VariableValue("g_gametype") != GT_HOLOCRON && trap_Cvar_VariableValue("g_gametype") != GT_JEDIMASTER) {
+			if (gametype != GT_FFA && gametype != GT_HOLOCRON && gametype != GT_JEDIMASTER) {
 				vis = qfalse;
 			}
 			flags &= ~UI_SHOW_FFA;
 		}
 
 		if (flags & UI_SHOW_NOTFFA) {
-			if (trap_Cvar_VariableValue("g_gametype") == GT_FFA || trap_Cvar_VariableValue("g_gametype") == GT_HOLOCRON || trap_Cvar_VariableValue("g_gametype") != GT_JEDIMASTER) {
+			if (gametype == GT_FFA || gametype == GT_HOLOCRON || gametype != GT_JEDIMASTER) {
 				vis = qfalse;
 			}
 			flags &= ~UI_SHOW_NOTFFA;
@@ -3335,7 +3380,7 @@ static qboolean UI_JoinGameType_HandleKey(int flags, float *special, int key) {
 		}
 
 		trap_Cvar_Set( "ui_joinGameType", va("%d", ui_joinGameType.integer));
-		UI_BuildServerDisplayList(qtrue);
+		UI_BuildServerDisplayList(1);
 		return qtrue;
 	}
 	return qfalse;
@@ -3458,7 +3503,7 @@ static qboolean UI_NetSource_HandleKey(int flags, float *special, int key) {
       ui_netSource.integer = numNetSources - 1;
 		}
 
-		UI_BuildServerDisplayList(qtrue);
+		UI_BuildServerDisplayList(1);
 		if (ui_netSource.integer != AS_GLOBAL) {
 			UI_StartServerRefresh(qtrue);
 		}
@@ -3482,7 +3527,9 @@ static qboolean UI_NetFilter_HandleKey(int flags, float *special, int key) {
     } else if (ui_serverFilterType.integer < 0) {
       ui_serverFilterType.integer = numServerFilters - 1;
 		}
-		UI_BuildServerDisplayList(qtrue);
+
+		trap_Cvar_Set("ui_serverFilterType", va("%i", ui_serverFilterType.integer));
+		UI_BuildServerDisplayList(1);
     return qtrue;
   }
   return qfalse;
@@ -3760,7 +3807,14 @@ UI_ServersQsortCompare
 =================
 */
 static int QDECL UI_ServersQsortCompare( const void *arg1, const void *arg2 ) {
-	return trap_LAN_CompareServers( ui_netSource.integer, uiInfo.serverStatus.sortKey, uiInfo.serverStatus.sortDir, *(int*)arg1, *(int*)arg2);
+	int fakeKey = uiInfo.serverStatus.sortKey;
+
+	// fake over to new sorting without bots
+	if (fakeKey == SORT_CLIENTS && trap_Cvar_VariableValue("ui_botfilter")) {
+		fakeKey = MVSORT_CLIENTS_NOBOTS;
+	}
+
+	return trap_LAN_CompareServers(ui_netSource.integer, fakeKey, uiInfo.serverStatus.sortDir, *(const int*)arg1, *(const int*)arg2);
 }
 
 
@@ -3832,7 +3886,7 @@ static void UI_LoadMods() {
 	char	*dirptr;
   char  *descptr;
 	int		i;
-	int		dirlen;
+	size_t		dirlen;
 
 	uiInfo.modCount = 0;
 	numdirs = trap_FS_GetFileList( "$modlist", "", dirlist, sizeof(dirlist) );
@@ -3860,7 +3914,8 @@ UI_LoadMovies
 static void UI_LoadMovies() {
 	char	movielist[4096];
 	char	*moviename;
-	int		i, len;
+	int		i;
+	size_t	len;
 
 	uiInfo.movieCount = trap_FS_GetFileList( "video", "roq", movielist, 4096 );
 
@@ -3882,7 +3937,14 @@ static void UI_LoadMovies() {
 
 }
 
+#ifdef JK2MV_MENU
+int demosort(void const *a, void const *b) {
+	char const *aa = (char const *)a;
+	char const *bb = (char const *)b;
 
+	return strcmp(aa, bb);
+}
+#endif
 
 /*
 ===============
@@ -3893,31 +3955,76 @@ static void UI_LoadDemos() {
 	char	demolist[4096];
 	char demoExt[32];
 	char	*demoname;
-	int		i, len;
+	int		i;
+	size_t len;
 
-	Com_sprintf(demoExt, sizeof(demoExt), "dm_%d", (int)trap_Cvar_VariableValue("protocol"));
+	// Load "dm_15" and "dm_16" demos.
+	mvprotocol_t	protocol;
+	int		oldCount = 0;
+	uiInfo.demoCount = 0;
 
-	uiInfo.demoCount = trap_FS_GetFileList( "demos", demoExt, demolist, 4096 );
-
-	Com_sprintf(demoExt, sizeof(demoExt), ".dm_%d", (int)trap_Cvar_VariableValue("protocol"));
-
-	if (uiInfo.demoCount) {
-		if (uiInfo.demoCount > MAX_DEMOS) {
-			uiInfo.demoCount = MAX_DEMOS;
+	for ( protocol = PROTOCOL15; protocol <= PROTOCOL16; protocol++ )
+	{
+#ifndef JK2MV_MENU
+		if ( (protocol == PROTOCOL15 && jk2startversion != VERSION_1_02 && jk2startversion != VERSION_1_03)
+			|| (protocol == PROTOCOL16 && jk2startversion != VERSION_1_04)
+			|| jk2startversion == VERSION_UNDEF )
+		{
+			continue;
 		}
-		demoname = demolist;
-		for ( i = 0; i < uiInfo.demoCount; i++ ) {
-			len = strlen( demoname );
-			if (!Q_stricmp(demoname +  len - strlen(demoExt), demoExt)) {
-				demoname[len-strlen(demoExt)] = '\0';
+#endif
+		Com_sprintf(demoExt, sizeof(demoExt), "dm_%d", (int)protocol);
+
+		uiInfo.demoCount += trap_FS_GetFileList( "demos", demoExt, demolist, 4096 );
+
+		if (uiInfo.demoCount - oldCount) {
+			if (uiInfo.demoCount > MAX_DEMOS) {
+				uiInfo.demoCount = MAX_DEMOS;
 			}
-			Q_strupr(demoname);
-			uiInfo.demoList[i] = String_Alloc(demoname);
-			demoname += len + 1;
+			demoname = demolist;
+			for ( i = oldCount; i < uiInfo.demoCount; i++ ) {
+				len = strlen( demoname );
+#ifndef JK2MV_MENU
+				if (!Q_stricmp(demoname +  len - strlen(demoExt), demoExt)) {
+					demoname[len-strlen(demoExt)] = '\0';
+				}
+				Q_strupr(demoname);
+#endif
+				uiInfo.demoList[i] = String_Alloc(demoname);
+				demoname += len + 1;
+			}
 		}
+		oldCount = uiInfo.demoCount;
 	}
 
+#ifdef JK2MV_MENU
+	//Sort demos by name.
+	qsort((void *)uiInfo.demoList, uiInfo.demoCount, sizeof(uiInfo.demoList[0]), demosort);
+#endif
 }
+
+#ifdef JK2MV_MENU
+/*
+===============
+UI_LoadDLFiles
+===============
+*/
+static void UI_LoadDLFiles() {
+	int i;
+
+	uiInfo.downloadsCount = trap_FS_GetDLList(uiInfo.downloadsList, MAX_DOWNLOADS);
+
+	// red font for blacklisted entrys
+	for (i = 0; i < uiInfo.downloadsCount; i++) {
+		if (uiInfo.downloadsList[i].blacklisted) {
+			char tmp[256];
+
+			Com_sprintf(tmp, sizeof(tmp), S_COLOR_RED "%s", uiInfo.downloadsList[i].name);
+			Q_strncpyz(uiInfo.downloadsList[i].name, tmp, sizeof(uiInfo.downloadsList[i].name));
+		}
+	}
+}
+#endif
 
 
 static qboolean UI_SetNextMap(int actual, int index) {
@@ -4115,7 +4222,15 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "ui_r_colorbits", 32 );
 				trap_Cvar_SetValue( "ui_r_depthbits", 24 );
 				trap_Cvar_SetValue( "ui_r_picmip", 0 );
-				trap_Cvar_SetValue( "ui_r_mode", 4 );
+				if ( mvapi )
+				{
+					trap_Cvar_SetValue( "ui_r_aspectratio", -1 );
+					trap_Cvar_SetValue( "ui_r_mode", -2 );
+				}
+				else
+				{
+					trap_Cvar_SetValue( "ui_r_mode", 4 );
+				}
 				trap_Cvar_SetValue( "ui_r_texturebits", 32 );
 				trap_Cvar_SetValue( "ui_r_fastSky", 0 );
 				trap_Cvar_SetValue( "ui_r_inGameVideo", 1 );
@@ -4130,7 +4245,15 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "ui_r_colorbits", 0 );
 				trap_Cvar_SetValue( "ui_r_depthbits", 24 );
 				trap_Cvar_SetValue( "ui_r_picmip", 1 );
-				trap_Cvar_SetValue( "ui_r_mode", 3 );
+				if ( mvapi )
+				{
+					trap_Cvar_SetValue( "ui_r_aspectratio", -1 );
+					trap_Cvar_SetValue( "ui_r_mode", -2 );
+				}
+				else
+				{
+					trap_Cvar_SetValue( "ui_r_mode", 3 );
+				}
 				trap_Cvar_SetValue( "ui_r_texturebits", 0 );
 				trap_Cvar_SetValue( "ui_r_fastSky", 0 );
 				trap_Cvar_SetValue( "ui_r_inGameVideo", 1 );
@@ -4146,7 +4269,15 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "ui_r_colorbits", 0 );
 				trap_Cvar_SetValue( "ui_r_depthbits", 0 );
 				trap_Cvar_SetValue( "ui_r_picmip", 2 );
-				trap_Cvar_SetValue( "ui_r_mode", 3 );
+				if ( mvapi )
+				{
+					trap_Cvar_SetValue( "ui_r_aspectratio", -1 );
+					trap_Cvar_SetValue( "ui_r_mode", -2 );
+				}
+				else
+				{
+					trap_Cvar_SetValue( "ui_r_mode", 3 );
+				}
 				trap_Cvar_SetValue( "ui_r_texturebits", 0 );
 				trap_Cvar_SetValue( "ui_r_fastSky", 1 );
 				trap_Cvar_SetValue( "ui_r_inGameVideo", 0 );
@@ -4161,7 +4292,15 @@ static void UI_Update(const char *name) {
 				trap_Cvar_SetValue( "ui_r_lodbias", 2 );
 				trap_Cvar_SetValue( "ui_r_colorbits", 16 );
 				trap_Cvar_SetValue( "ui_r_depthbits", 16 );
-				trap_Cvar_SetValue( "ui_r_mode", 3 );
+				if ( mvapi )
+				{
+					trap_Cvar_SetValue( "ui_r_aspectratio", -1 );
+					trap_Cvar_SetValue( "ui_r_mode", -2 );
+				}
+				else
+				{
+					trap_Cvar_SetValue( "ui_r_mode", 3 );
+				}
 				trap_Cvar_SetValue( "ui_r_picmip", 3 );
 				trap_Cvar_SetValue( "ui_r_texturebits", 16 );
 				trap_Cvar_SetValue( "ui_r_fastSky", 1 );
@@ -4182,9 +4321,24 @@ static void UI_Update(const char *name) {
 			trap_Cvar_SetValue( "m_pitch", -0.022f );
 		}
 	}
+	// screen resolutions
+	else if (!Q_stricmp(name, "ui_r_aspectratio")) {
+		int ui_r_mode = (int)trap_Cvar_VariableValue("ui_r_mode");
+
+		if (val == 0 && (ui_r_mode < 0 || ui_r_mode >= 11)) {
+			trap_Cvar_SetValue("ui_r_mode", 0);
+		} else if (val == 1 && (ui_r_mode < 11 || ui_r_mode >= 27)) {
+			trap_Cvar_SetValue("ui_r_mode", 11);
+		} else if (val == 2 && (ui_r_mode < 27 || ui_r_mode >= 32)) {
+			trap_Cvar_SetValue("ui_r_mode", 27);
+		} else if (val == -1) {
+			trap_Cvar_SetValue("ui_r_mode", -2);
+			trap_Cvar_SetValue("ui_r_fullscreen", 1);
+		}
+	}
 }
 
-int gUISelectedMap = 0;
+static int gUISelectedMap = 0;
 
 /*
 ===============
@@ -4193,12 +4347,12 @@ UI_DeferMenuScript
 Return true if the menu script should be deferred for later
 ===============
 */
-static qboolean UI_DeferMenuScript ( char **args )
+static qboolean UI_DeferMenuScript ( const char **args )
 {
 	const char* name;
 
 	// Whats the reason for being deferred?
-	if (!String_Parse( (char**)args, &name)) 
+	if (!String_Parse( args, &name))
 	{
 		return qfalse;
 	}
@@ -4210,7 +4364,7 @@ static qboolean UI_DeferMenuScript ( char **args )
 		qboolean	deferred;
 
 		// No warning menu specified
-		if ( !String_Parse( (char**)args, &warningMenuName) )
+		if ( !String_Parse( args, &warningMenuName) )
 		{
 			return qfalse;
 		}
@@ -4252,6 +4406,7 @@ you to discard your changes if you did something you didnt want
 void UI_UpdateVideoSetup ( void )
 {
 	trap_Cvar_Set ( "r_mode", UI_Cvar_VariableString ( "ui_r_mode" ) );
+	trap_Cvar_Set ( "r_aspectratio", UI_Cvar_VariableString("ui_r_aspectratio"));
 	trap_Cvar_Set ( "r_fullscreen", UI_Cvar_VariableString ( "ui_r_fullscreen" ) );
 	trap_Cvar_Set ( "r_colorbits", UI_Cvar_VariableString ( "ui_r_colorbits" ) );
 	trap_Cvar_Set ( "r_lodbias", UI_Cvar_VariableString ( "ui_r_lodbias" ) );
@@ -4260,6 +4415,7 @@ void UI_UpdateVideoSetup ( void )
 	trap_Cvar_Set ( "r_texturemode", UI_Cvar_VariableString ( "ui_r_texturemode" ) );
 	trap_Cvar_Set ( "r_detailtextures", UI_Cvar_VariableString ( "ui_r_detailtextures" ) );
 	trap_Cvar_Set ( "r_ext_compress_textures", UI_Cvar_VariableString ( "ui_r_ext_compress_textures" ) );
+	trap_Cvar_Set ( "r_ext_multisample", UI_Cvar_VariableString ( "ui_r_ext_multisample" ) );
 	trap_Cvar_Set ( "r_depthbits", UI_Cvar_VariableString ( "ui_r_depthbits" ) );
 	trap_Cvar_Set ( "r_subdivisions", UI_Cvar_VariableString ( "ui_r_subdivisions" ) );
 	trap_Cvar_Set ( "r_fastSky", UI_Cvar_VariableString ( "ui_r_fastSky" ) );
@@ -4282,7 +4438,7 @@ interface versions of the cvars.
 void UI_GetVideoSetup ( void )
 {
 	// Make sure the cvars are registered as read only.
-	trap_Cvar_Register ( NULL, "ui_r_glCustom",				"4", CVAR_ROM|CVAR_INTERNAL|CVAR_ARCHIVE );
+	trap_Cvar_Register ( NULL, "ui_r_glCustom",				"4", CVAR_ROM|CVAR_INTERNAL|CVAR_ARCHIVE|CVAR_GLOBAL );
 
 	trap_Cvar_Register ( NULL, "ui_r_mode",					"0", CVAR_ROM|CVAR_INTERNAL );
 	trap_Cvar_Register ( NULL, "ui_r_fullscreen",			"0", CVAR_ROM|CVAR_INTERNAL );
@@ -4293,6 +4449,7 @@ void UI_GetVideoSetup ( void )
 	trap_Cvar_Register ( NULL, "ui_r_texturemode",			"0", CVAR_ROM|CVAR_INTERNAL );
 	trap_Cvar_Register ( NULL, "ui_r_detailtextures",		"0", CVAR_ROM|CVAR_INTERNAL );
 	trap_Cvar_Register ( NULL, "ui_r_ext_compress_textures","0", CVAR_ROM|CVAR_INTERNAL );
+	trap_Cvar_Register ( NULL, "ui_r_ext_multisample",		"0", CVAR_ROM|CVAR_INTERNAL );
 	trap_Cvar_Register ( NULL, "ui_r_depthbits",			"0", CVAR_ROM|CVAR_INTERNAL );
 	trap_Cvar_Register ( NULL, "ui_r_subdivisions",			"0", CVAR_ROM|CVAR_INTERNAL );
 	trap_Cvar_Register ( NULL, "ui_r_fastSky",				"0", CVAR_ROM|CVAR_INTERNAL );
@@ -4311,6 +4468,7 @@ void UI_GetVideoSetup ( void )
 	trap_Cvar_Set ( "ui_r_texturemode", UI_Cvar_VariableString ( "r_texturemode" ) );
 	trap_Cvar_Set ( "ui_r_detailtextures", UI_Cvar_VariableString ( "r_detailtextures" ) );
 	trap_Cvar_Set ( "ui_r_ext_compress_textures", UI_Cvar_VariableString ( "r_ext_compress_textures" ) );
+	trap_Cvar_Set ( "ui_r_ext_multisample", UI_Cvar_VariableString ( "r_ext_multisample" ) );
 	trap_Cvar_Set ( "ui_r_depthbits", UI_Cvar_VariableString ( "r_depthbits" ) );
 	trap_Cvar_Set ( "ui_r_subdivisions", UI_Cvar_VariableString ( "r_subdivisions" ) );
 	trap_Cvar_Set ( "ui_r_fastSky", UI_Cvar_VariableString ( "r_fastSky" ) );
@@ -4318,9 +4476,13 @@ void UI_GetVideoSetup ( void )
 	trap_Cvar_Set ( "ui_r_allowExtensions", UI_Cvar_VariableString ( "r_allowExtensions" ) );
 	trap_Cvar_Set ( "ui_cg_shadows", UI_Cvar_VariableString ( "cg_shadows" ) );
 	trap_Cvar_Set ( "ui_r_modified", "0" );
+
+	// screen resolutions
+	trap_Cvar_Register(NULL, "ui_r_aspectratio", "0", CVAR_ROM | CVAR_INTERNAL);
+	trap_Cvar_Set("ui_r_aspectratio", UI_Cvar_VariableString("r_aspectratio"));
 }
 
-static void UI_RunMenuScript(char **args) 
+static void UI_RunMenuScript(const char **args)
 {
 	const char *name, *name2;
 	char buff[1024];
@@ -4338,7 +4500,7 @@ static void UI_RunMenuScript(char **args)
 			trap_Cvar_Set("cg_cameraOrbit", "0");
 			trap_Cvar_Set("ui_singlePlayerActive", "0");
 			trap_Cvar_SetValue( "dedicated", Com_Clamp( 0, 2, ui_dedicated.integer ) );
-			trap_Cvar_SetValue( "g_gametype", Com_Clamp( 0, 8, uiInfo.gameTypes[ui_netGameType.integer].gtEnum ) );
+			trap_Cvar_SetValue( "g_gametype", Com_Clamp( 0, GT_MAX_GAME_TYPE, uiInfo.gameTypes[ui_netGameType.integer].gtEnum ) );
 			trap_Cvar_Set("g_redTeam", UI_Cvar_VariableString("ui_teamName"));
 			trap_Cvar_Set("g_blueTeam", UI_Cvar_VariableString("ui_opponentName"));
 			trap_Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName ) );
@@ -4463,7 +4625,7 @@ static void UI_RunMenuScript(char **args)
 			UI_LoadArenas();
 			UI_MapCountByGameType(qfalse);
 			Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, gUISelectedMap, "createserver");
-			uiForceRank = trap_Cvar_VariableValue("g_maxForceRank");
+			uiForceRank = Com_Clampi(0, MAX_FORCE_RANK, trap_Cvar_VariableValue("g_maxForceRank"));
 		} else if (Q_stricmp(name, "saveControls") == 0) {
 			Controls_SetConfig(qtrue);
 		} else if (Q_stricmp(name, "loadControls") == 0) {
@@ -4481,10 +4643,10 @@ static void UI_RunMenuScript(char **args)
 			UI_ClearScores();
 		} else if (Q_stricmp(name, "RefreshServers") == 0) {
 			UI_StartServerRefresh(qtrue);
-			UI_BuildServerDisplayList(qtrue);
+			UI_BuildServerDisplayList(1);
 		} else if (Q_stricmp(name, "RefreshFilter") == 0) {
 			UI_StartServerRefresh(qfalse);
-			UI_BuildServerDisplayList(qtrue);
+			UI_BuildServerDisplayList(1);
 		} else if (Q_stricmp(name, "RunSPDemo") == 0) {
 			if (uiInfo.demoAvailable) {
 			  trap_Cmd_ExecuteText( EXEC_APPEND, va("demo %s_%i\n", uiInfo.mapList[ui_currentMap.integer].mapLoadName, uiInfo.gameTypes[ui_gameType.integer].gtEnum));
@@ -4495,6 +4657,10 @@ static void UI_RunMenuScript(char **args)
 			UI_LoadMovies();
 		} else if (Q_stricmp(name, "LoadMods") == 0) {
 			UI_LoadMods();
+#ifdef JK2MV_MENU
+		} else if (Q_stricmp(name, "LoadDLFiles") == 0) {
+			UI_LoadDLFiles();
+#endif
 		} else if (Q_stricmp(name, "playMovie") == 0) {
 			if (uiInfo.previewMovie >= 0) {
 			  trap_CIN_StopCinematic(uiInfo.previewMovie);
@@ -4514,7 +4680,7 @@ static void UI_RunMenuScript(char **args)
 				uiInfo.serverStatus.nextDisplayRefresh = 0;
 				uiInfo.nextServerStatusRefresh = 0;
 				uiInfo.nextFindPlayerRefresh = 0;
-				UI_BuildServerDisplayList(qtrue);
+				UI_BuildServerDisplayList(1);
 			} else {
 				Menus_CloseByName("joinserver");
 				Menus_OpenByName("main");
@@ -4528,7 +4694,7 @@ static void UI_RunMenuScript(char **args)
 			if (ui_netSource.integer == AS_LOCAL) {
 				UI_StartServerRefresh(qtrue);
 			}
-			UI_BuildServerDisplayList(qtrue);
+			UI_BuildServerDisplayList(1);
 			UI_FeederSelection(FEEDER_SERVERS, 0);
 		} else if (Q_stricmp(name, "ServerStatus") == 0) {
 			trap_LAN_GetServerAddressString(ui_netSource.integer, uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], uiInfo.serverStatusAddress, sizeof(uiInfo.serverStatusAddress));
@@ -4860,9 +5026,40 @@ static void UI_RunMenuScript(char **args)
 			{
 				UI_Update(name2);
 			}
-		}
-		else 
-		{
+#ifdef JK2MV_MENU
+		} else if (Q_stricmp(name, "MVContinueDownload") == 0) {
+			// download popup
+			trap_Key_SetCatcher(trap_Key_GetCatcher() & ~KEYCATCH_UI);
+			trap_Key_ClearStates();
+			Menus_CloseAll();
+
+			if (String_Parse(args, &name2)) {
+				if (!Q_stricmp(name2, "accept")) {
+					trap_CL_ContinueCurrentDownload(DL_ACCEPT);
+				} else if (!Q_stricmp(name2, "deny")) {
+					trap_CL_ContinueCurrentDownload(DL_ABORT);
+				} else if (!Q_stricmp(name2, "deny_blacklist")) {
+					trap_CL_ContinueCurrentDownload(DL_ABORT_BLACKLIST);
+				}
+			}
+		} else if (Q_stricmp(name, "DLInfo") == 0) {
+			if (uiInfo.downloadsCount) {
+				trap_Cvar_Set("ui_dlinfo_name", uiInfo.downloadsList[uiInfo.downloadsIndex].name);
+
+				Menus_ActivateByName("download_info");
+			}
+		} else if (Q_stricmp(name, "DLPermanent") == 0) {
+			if (uiInfo.downloadsCount && !uiInfo.downloadsList[uiInfo.downloadsIndex].blacklisted) {
+				trap_FS_RMDLPrefix(uiInfo.downloadsList[uiInfo.downloadsIndex].name);
+				UI_LoadDLFiles();
+			}
+		} else if (Q_stricmp(name, "DLRemove") == 0) {
+			if (uiInfo.downloadsCount) {
+				trap_UI_DeleteDLFile(&uiInfo.downloadsList[uiInfo.downloadsIndex]);
+				UI_LoadDLFiles();
+			}
+#endif
+		} else {
 			Com_Printf("unknown UI script %s\n", name);
 		}
 	}
@@ -5061,7 +5258,7 @@ UI_BinaryServerInsertion
 ==================
 */
 static void UI_BinaryServerInsertion(int num) {
-	int mid, offset, res, len;
+	int mid, offset, res, len, fakeKey;
 
 	// use binary search to insert server
 	len = uiInfo.serverStatus.numDisplayServers;
@@ -5071,7 +5268,15 @@ static void UI_BinaryServerInsertion(int num) {
 	while(mid > 0) {
 		mid = len >> 1;
 		//
-		res = trap_LAN_CompareServers( ui_netSource.integer, uiInfo.serverStatus.sortKey,
+
+		fakeKey = uiInfo.serverStatus.sortKey;
+
+		// fake over to new sorting without bots
+		if (fakeKey == SORT_CLIENTS && trap_Cvar_VariableValue("ui_botfilter")) {
+			fakeKey = MVSORT_CLIENTS_NOBOTS;
+		}
+
+		res = trap_LAN_CompareServers(ui_netSource.integer, fakeKey,
 					uiInfo.serverStatus.sortDir, num, uiInfo.serverStatus.displayServers[offset+mid]);
 		// if equal
 		if (res == 0) {
@@ -5100,7 +5305,8 @@ UI_BuildServerDisplayList
 ==================
 */
 static void UI_BuildServerDisplayList(int force) {
-	int i, count, clients, maxClients, ping, game, len, visible;
+	int i, count, maxClients, ping, game, visible;
+	int len;
 	char info[MAX_STRING_CHARS];
 //	qboolean startRefresh = qtrue; TTimo: unused
 	static int numinvisible;
@@ -5115,10 +5321,10 @@ static void UI_BuildServerDisplayList(int force) {
 
 	// do motd updates here too
 	trap_Cvar_VariableStringBuffer( "cl_motdString", uiInfo.serverStatus.motd, sizeof(uiInfo.serverStatus.motd) );
-	len = strlen(uiInfo.serverStatus.motd);
+	len = (int)strlen(uiInfo.serverStatus.motd);
 	if (len == 0) {
 		strcpy(uiInfo.serverStatus.motd, "Welcome to JK2MP!");
-		len = strlen(uiInfo.serverStatus.motd);
+		len = (int)strlen(uiInfo.serverStatus.motd);
 	} 
 	if (len != uiInfo.serverStatus.motdLen) {
 		uiInfo.serverStatus.motdLen = len;
@@ -5156,14 +5362,26 @@ static void UI_BuildServerDisplayList(int force) {
 		// get the ping for this server
 		ping = trap_LAN_GetServerPing(ui_netSource.integer, i);
 		if (ping > 0 || ui_netSource.integer == AS_FAVORITES) {
+			// botfilter
+			int realPlayers;
+			int clients;
+			int bots;
 
 			trap_LAN_GetServerInfo(ui_netSource.integer, i, info, MAX_STRING_CHARS);
 
 			clients = atoi(Info_ValueForKey(info, "clients"));
-			uiInfo.serverStatus.numPlayersOnServers += clients;
+			bots = atoi(Info_ValueForKey(info, "bots"));
+
+			if (trap_Cvar_VariableValue("ui_botfilter")) {
+				realPlayers = clients - bots;
+			} else {
+				realPlayers = clients;
+			}
+
+			uiInfo.serverStatus.numPlayersOnServers += realPlayers;
 
 			if (ui_browserShowEmpty.integer == 0) {
-				if (clients == 0) {
+				if (realPlayers == 0) {
 					trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
 					continue;
 				}
@@ -5186,7 +5404,20 @@ static void UI_BuildServerDisplayList(int force) {
 			}
 				
 			if (ui_serverFilterType.integer > 0) {
+#ifdef JK2MV_MENU
+				mvversion_t gameVersion; // Using the "gameVersion" now to support seperate lists for 1.02, 1.03 and 1.04
+
+				if (ui_serverFilterType.integer == 1)
+					gameVersion = VERSION_1_02;
+				else if (ui_serverFilterType.integer == 2)
+					gameVersion = VERSION_1_03;
+				else
+					gameVersion = VERSION_1_04;
+
+				if (atoi(Info_ValueForKey(info, "gameVersion")) != (int)gameVersion) {
+#else
 				if (Q_stricmp(Info_ValueForKey(info, "game"), serverFilters[ui_serverFilterType.integer].basedir) != 0) {
+#endif
 					trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
 					continue;
 				}
@@ -5216,16 +5447,17 @@ static void UI_BuildServerDisplayList(int force) {
 
 typedef struct
 {
-	char *name, *altName;
+	const char *name, *altName;
 } serverStatusCvar_t;
 
-serverStatusCvar_t serverStatusCvars[] = {
+static const serverStatusCvar_t serverStatusCvars[] = {
 	{"sv_hostname", "Name"},
 	{"Address", ""},
 	{"gamename", "Game name"},
 	{"g_gametype", "Game type"},
 	{"mapname", "Map"},
 	{"version", ""},
+	{"JK2MV", ""},
 	{"protocol", ""},
 	{"timelimit", ""},
 	{"fraglimit", ""},
@@ -5239,7 +5471,7 @@ UI_SortServerStatusInfo
 */
 static void UI_SortServerStatusInfo( serverStatusInfo_t *info ) {
 	int i, j, index;
-	char *tmp1, *tmp2;
+	const char *tmp1, *tmp2;
 
 	// FIXME: if "gamename" == "base" or "missionpack" then
 	// replace the gametype number by FFA, CTF etc.
@@ -5275,7 +5507,8 @@ UI_GetServerStatusInfo
 */
 static int UI_GetServerStatusInfo( const char *serverAddress, serverStatusInfo_t *info ) {
 	char *p, *score, *ping, *name;
-	int i, len;
+	int i;
+	size_t len;
 
 	if (!info) {
 		trap_LAN_ServerStatus( serverAddress, NULL, 0);
@@ -5617,6 +5850,11 @@ static int UI_FeederCount(float feederID)
 		case FEEDER_MODS:
 			return uiInfo.modCount;
 	
+#ifdef JK2MV_MENU
+		case FEEDER_DOWNLOADS:
+			return uiInfo.downloadsCount;
+#endif
+
 		case FEEDER_DEMOS:
 			return uiInfo.demoCount;
 	}
@@ -5699,6 +5937,8 @@ static const char *UI_SelectedTeamHead(int index, int *actual) {
 			}
 		}
 	}
+
+	*actual = -1;
 	return "";
 }
 
@@ -5725,14 +5965,14 @@ static void UI_UpdatePendingPings() {
 }
 
 static const char *UI_FeederItemText(float feederID, int index, int column, 
-									 qhandle_t *handle1, qhandle_t *handle2, qhandle_t *handle3) {
+	qhandle_t *handle1, qhandle_t *handle2, qhandle_t *handle3, qhandle_t *handle4, qhandle_t *handle5, qhandle_t *handle6) {
 	static char info[MAX_STRING_CHARS];
 	static char hostname[1024];
 	static char clientBuff[32];
 	static char needPass[32];
 	static int lastColumn = -1;
 	static int lastTime = 0;
-	*handle1 = *handle2 = *handle3 = -1;
+	*handle1 = *handle2 = *handle3 = *handle4 = -1;
 	if (feederID == FEEDER_HEADS) {
 		int actual;
 		return UI_SelectedHead(index, &actual);
@@ -5805,11 +6045,59 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 						return Info_ValueForKey(info, "addr");
 					} else {
 						int gametype = 0;
+						int int_protocol;
+						int int_gameVersion;
 						//check for password
 						if ( atoi(Info_ValueForKey(info, "needpass")) )
 						{
 							*handle3 = trap_R_RegisterShaderNoMip( "gfx/menus/needpass" );
 						}
+
+						// serverversion icon
+						if ( handle5 )
+						{
+							int_protocol = atoi(Info_ValueForKey(info, "protocol"));
+							switch ((mvprotocol_t)int_protocol) {
+							case PROTOCOL15:
+							case PROTOCOL16:
+								*handle5 = (mvprotocol_t)int_protocol;
+								break;
+							default:
+								*handle5 = PROTOCOL_UNDEF;
+								break;
+							}
+						}
+
+						if ( handle6 )
+						{
+							// 1.03
+							int_gameVersion = atoi(Info_ValueForKey(info, "gameVersion"));
+							switch((mvversion_t)int_gameVersion) {
+							case VERSION_1_02:
+							case VERSION_1_03:
+							case VERSION_1_04:
+								*handle6 = (mvversion_t)int_gameVersion;
+								break;
+							default:
+								*handle6 = VERSION_UNDEF;
+								break;
+							}
+						}
+
+						// do this only if no gameversion is selected
+						if (!ui_serverFilterType.integer && handle6) {
+							if ( *handle6 == PROTOCOL16 ) {
+								*handle4 = trap_R_RegisterShaderNoMip("gfx/menus/srv_104");
+							} else {
+								if ( *handle6 == VERSION_1_03 )
+									*handle4 = trap_R_RegisterShaderNoMip("gfx/menus/srv_103");
+								else if ( *handle6 == VERSION_1_02 )
+									*handle4 = trap_R_RegisterShaderNoMip("gfx/menus/srv_102");
+								else
+									*handle4 = -1;
+							}
+						}
+
 						//check for saberonly and restricted force powers
 						gametype = atoi(Info_ValueForKey(info, "gametype"));
 						if ( gametype != GT_JEDIMASTER )
@@ -5878,8 +6166,22 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 				case SORT_MAP : 
 					return Info_ValueForKey(info, "mapname");
 				case SORT_CLIENTS : 
-					Com_sprintf( clientBuff, sizeof(clientBuff), "%s (%s)", Info_ValueForKey(info, "clients"), Info_ValueForKey(info, "sv_maxclients"));
+				{
+					// botfilter
+					int clients = atoi(Info_ValueForKey(info, "clients"));
+					int bots = atoi(Info_ValueForKey(info, "bots"));
+					int maxclients = atoi(Info_ValueForKey(info, "sv_maxclients"));
+
+					int realPlayers;
+					if (trap_Cvar_VariableValue("ui_botfilter")) {
+						realPlayers = clients - bots;
+					} else {
+						realPlayers = clients;
+					}
+
+					Com_sprintf(clientBuff, sizeof(clientBuff), "%i (%i)", realPlayers, maxclients);
 					return clientBuff;
+				}
 				case SORT_GAME : 
 					game = atoi(Info_ValueForKey(info, "gametype"));
 					if (game >= 0 && game < numTeamArenaGameTypes) {
@@ -5928,6 +6230,12 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 				return uiInfo.modList[index].modName;
 			}
 		}
+	#ifdef JK2MV_MENU
+	} else if (feederID == FEEDER_DOWNLOADS) {
+		if (index >= 0 && index < uiInfo.downloadsCount) {
+			return uiInfo.downloadsList[index].name;
+		}
+	#endif
 	} else if (feederID == FEEDER_CINEMATICS) {
 		if (index >= 0 && index < uiInfo.movieCount) {
 			return uiInfo.movieList[index];
@@ -5985,7 +6293,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				int i = 0;
 				int skinPlace;
 
-				i = strlen(uiInfo.q3HeadNames[index]);
+				i = (int)strlen(uiInfo.q3HeadNames[index]);
 
 				while (uiInfo.q3HeadNames[index][i] != '/')
 				{
@@ -5998,7 +6306,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				//now, build a full path out of what's in q3HeadNames, into iconNameFromSkinName
 				Com_sprintf(iconNameFromSkinName, sizeof(iconNameFromSkinName), "models/players/%s", uiInfo.q3HeadNames[index]);
 
-				i = strlen(iconNameFromSkinName);
+				i = (int)strlen(iconNameFromSkinName);
 
 				while (iconNameFromSkinName[i] != '/')
 				{
@@ -6010,7 +6318,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				Q_strcat(iconNameFromSkinName, 256, "icon_");
 
 				//and now, for the final step, append the skin name from q3HeadNames onto the end of iconNameFromSkinName
-				i = strlen(iconNameFromSkinName);
+				i = (int)strlen(iconNameFromSkinName);
 
 				while (uiInfo.q3HeadNames[index][skinPlace])
 				{
@@ -6137,17 +6445,12 @@ qboolean UI_FeederSelection(float feederID, int index) {
 		}
 
 	} else if (feederID == FEEDER_SERVERS) {
-		const char *mapName = NULL;
 		uiInfo.serverStatus.currentServer = index;
 		trap_LAN_GetServerInfo(ui_netSource.integer, uiInfo.serverStatus.displayServers[index], info, MAX_STRING_CHARS);
 		uiInfo.serverStatus.currentServerPreview = trap_R_RegisterShaderNoMip(va("levelshots/%s", Info_ValueForKey(info, "mapname")));
 		if (uiInfo.serverStatus.currentServerCinematic >= 0) {
 		  trap_CIN_StopCinematic(uiInfo.serverStatus.currentServerCinematic);
 			uiInfo.serverStatus.currentServerCinematic = -1;
-		}
-		mapName = Info_ValueForKey(info, "mapname");
-		if (mapName && *mapName) {
-			uiInfo.serverStatus.currentServerCinematic = trap_CIN_PlayCinematic(va("%s.roq", mapName), 0, 0, 0, 0, (CIN_loop | CIN_silent) );
 		}
 	} else if (feederID == FEEDER_SERVERSTATUS) {
 		//
@@ -6166,6 +6469,10 @@ qboolean UI_FeederSelection(float feederID, int index) {
 		uiInfo.teamIndex = index;
 	} else if (feederID == FEEDER_MODS) {
 		uiInfo.modIndex = index;
+#ifdef JK2MV_MENU
+	} else if (feederID == FEEDER_DOWNLOADS) {
+		uiInfo.downloadsIndex = index;
+#endif
 	} else if (feederID == FEEDER_CINEMATICS) {
 		uiInfo.movieIndex = index;
 		if (uiInfo.previewMovie >= 0) {
@@ -6180,10 +6487,10 @@ qboolean UI_FeederSelection(float feederID, int index) {
 }
 
 
-static qboolean GameType_Parse(char **p, qboolean join) {
-	char *token;
+static qboolean GameType_Parse(const char **p, qboolean join) {
+	const char *token;
 
-	token = COM_ParseExt((const char **)p, qtrue);
+	token = COM_ParseExt(p, qtrue);
 
 	if (token[0] != '{') {
 		return qfalse;
@@ -6196,7 +6503,7 @@ static qboolean GameType_Parse(char **p, qboolean join) {
 	}
 
 	while ( 1 ) {
-		token = COM_ParseExt((const char **)p, qtrue);
+		token = COM_ParseExt(p, qtrue);
 
 		if (Q_stricmp(token, "}") == 0) {
 			return qtrue;
@@ -6241,10 +6548,10 @@ static qboolean GameType_Parse(char **p, qboolean join) {
 	return qfalse;
 }
 
-static qboolean MapList_Parse(char **p) {
-	char *token;
+static qboolean MapList_Parse(const char **p) {
+	const char *token;
 
-	token = COM_ParseExt((const char **)p, qtrue);
+	token = COM_ParseExt(p, qtrue);
 
 	if (token[0] != '{') {
 		return qfalse;
@@ -6253,7 +6560,7 @@ static qboolean MapList_Parse(char **p) {
 	uiInfo.mapCount = 0;
 
 	while ( 1 ) {
-		token = COM_ParseExt((const char **)p, qtrue);
+		token = COM_ParseExt(p, qtrue);
 
 		if (Q_stricmp(token, "}") == 0) {
 			return qtrue;
@@ -6276,7 +6583,7 @@ static qboolean MapList_Parse(char **p) {
 			uiInfo.mapList[uiInfo.mapCount].typeBits = 0;
 
 			while (1) {
-				token = COM_ParseExt((const char **)p, qtrue);
+				token = COM_ParseExt(p, qtrue);
 				if (token[0] >= '0' && token[0] <= '9') {
 					uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << (token[0] - 0x030));
 					if (!Int_Parse(p, &uiInfo.mapList[uiInfo.mapCount].timeToBeat[token[0] - 0x30])) {
@@ -6307,8 +6614,8 @@ static qboolean MapList_Parse(char **p) {
 
 static void UI_ParseGameInfo(const char *teamFile) {
 	char	*token;
-	char *p;
-	char *buff = NULL;
+	const char *p;
+	const char *buff = NULL;
 	//int mode = 0; TTimo: unused
 
 	buff = GetMenuBuffer(teamFile);
@@ -6319,7 +6626,7 @@ static void UI_ParseGameInfo(const char *teamFile) {
 	p = buff;
 
 	while ( 1 ) {
-		token = COM_ParseExt( (const char **)(&p), qtrue );
+		token = COM_ParseExt( &p, qtrue );
 		if( !token || token[0] == 0 || token[0] == '}') {
 			break;
 		}
@@ -6421,7 +6728,7 @@ void UI_LoadForceConfig_List( void )
 	char		configname[128];
 	char		*fileptr = NULL;
 	int			j = 0;
-	int			filelen = 0;
+	size_t			filelen = 0;
 	qboolean	lightSearch = qfalse;
 
 	uiInfo.forceConfigCount = 0;
@@ -6446,7 +6753,7 @@ nextSearch:
 	for (j=0; j<numfiles && uiInfo.forceConfigCount < MAX_FORCE_CONFIGS;j++,fileptr+=filelen+1)
 	{
 		filelen = strlen(fileptr);
-		COM_StripExtension(fileptr, configname);
+		COM_StripExtension(fileptr, configname, sizeof(configname));
 
 		if (lightSearch)
 		{
@@ -6457,7 +6764,7 @@ nextSearch:
 			uiInfo.forceConfigSide[uiInfo.forceConfigCount] = qfalse; //dark side config
 		}
 
-		Q_strncpyz( uiInfo.forceConfigNames[uiInfo.forceConfigCount], configname, sizeof(uiInfo.forceConfigNames[0]) );
+		Com_sprintf( uiInfo.forceConfigNames[uiInfo.forceConfigCount], sizeof(uiInfo.forceConfigNames[uiInfo.forceConfigCount]), "%s", configname);
 		uiInfo.forceConfigCount++;
 	}
 
@@ -6485,8 +6792,8 @@ static void UI_BuildQ3Model_List( void )
 	char*	fileptr;
 	int		i;
 	int		j, k, p, s;
-	int		dirlen;
-	int		filelen;
+	size_t		dirlen;
+	size_t		filelen;
 
 	uiInfo.q3HeadCount = 0;
 
@@ -6514,9 +6821,9 @@ static void UI_BuildQ3Model_List( void )
 
 			filelen = strlen(fileptr);
 
-			COM_StripExtension(fileptr,skinname);
+			COM_StripExtension(fileptr,skinname,sizeof(skinname));
 
-			skinLen = strlen(skinname);
+			skinLen = (int)strlen(skinname);
 			k = 0;
 			while (k < skinLen && skinname[k] && skinname[k] != '_')
 			{
@@ -6590,7 +6897,6 @@ UI_Init
 void _UI_Init( qboolean inGameLoad ) {
 	int i;
 	const char *menuSet;
-	int start;
 
 	uiInfo.inGameLoad = inGameLoad;
 
@@ -6675,12 +6981,15 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
 	uiInfo.uiDC.drawCinematic = &UI_DrawCinematic;
 	uiInfo.uiDC.runCinematicFrame = &UI_RunCinematicFrame;
+	uiInfo.uiDC.getClipboardData = &trap_GetClipboardData;
+	uiInfo.uiDC.isDown = &trap_Key_IsDown;
 
 	for (i=0; i<10; i++)
 	{
 		if (!trap_SP_Register(va("menus%d",i)))	//, /*SP_REGISTER_REQUIRED|*/SP_REGISTER_MENU))
 			break;
 	}
+	trap_SP_Register("mv"); // language file
 
 
 	Init_Display(&uiInfo.uiDC);
@@ -6691,8 +7000,6 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.uiDC.whiteShader = trap_R_RegisterShaderNoMip( "white" );
 
 	AssetCache();
-
-	start = trap_Milliseconds();
 
   uiInfo.teamCount = 0;
   uiInfo.characterCount = 0;
@@ -6752,7 +7059,12 @@ void _UI_Init( qboolean inGameLoad ) {
 
 	trap_Cvar_Set("ui_actualNetGameType", va("%d", ui_netGameType.integer));
 
-	(void)start;
+	trap_Cvar_Register(&ui_serverFilterType, "ui_serverFilterType", "0", CVAR_ARCHIVE | CVAR_GLOBAL);
+
+	// botfilter
+	trap_Cvar_Register(&ui_botfilter, "ui_botfilter", "0", CVAR_ARCHIVE | CVAR_GLOBAL);
+
+	trap_Cvar_Set("ui_menulevel", "1");
 }
 
 
@@ -6766,7 +7078,7 @@ void _UI_KeyEvent( int key, qboolean down ) {
   if (Menu_Count() > 0) {
     menuDef_t *menu = Menu_GetFocused();
 		if (menu) {
-			if (key == A_ESCAPE && down && !Menus_AnyFullScreenVisible()) {
+			if (key == A_ESCAPE && down && !Menus_AnyFullScreenVisible() && strcmp(menu->window.name, "download_popup")) {
 				Menus_CloseAll();
 			} else {
 				Menu_HandleKey(menu, key, down );
@@ -6916,6 +7228,12 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			Menus_ActivateByName("ingame_playerforce");
 			UpdateForceUsed();
 		  return;
+		  // download popup
+	  case UIMENU_MV_DOWNLOAD_POPUP:
+			trap_Key_SetCatcher(KEYCATCH_UI);
+			Menus_CloseAll();
+			Menus_ActivateByName("download_popup");
+			return;
 	  }
   }
 }
@@ -6929,7 +7247,7 @@ qboolean _UI_IsFullscreen( void ) {
 static connstate_t	lastConnState;
 static char			lastLoadingText[MAX_INFO_VALUE];
 
-static void UI_ReadableSize ( char *buf, int bufsize, int value )
+static void UI_ReadableSize ( char *buf, size_t bufsize, int value )
 {
 	if (value > 1024*1024*1024 ) { // gigs
 		Com_sprintf( buf, bufsize, "%d", value / (1024*1024*1024) );
@@ -6947,7 +7265,7 @@ static void UI_ReadableSize ( char *buf, int bufsize, int value )
 }
 
 // Assumes time is in msec
-static void UI_PrintTime ( char *buf, int bufsize, int time ) {
+static void UI_PrintTime ( char *buf, size_t bufsize, int time ) {
 	time /= 1000;  // change to seconds
 
 	if (time > 3600) { // in the hours range
@@ -6959,12 +7277,13 @@ static void UI_PrintTime ( char *buf, int bufsize, int time ) {
 	}
 }
 
-void Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *text, float adjust, int iMenuFont) {
+static void Text_PaintCenter(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int iMenuFont) {
 	int len = Text_Width(text, scale, iMenuFont);
 	Text_Paint(x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, iMenuFont);
 }
 
-
+// made this look a little bit better
+// also prints the download method now
 static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint, float yStart, float scale, int iMenuFont) {
 	char sDownLoading[256];
 	char sEstimatedTimeLeft[256];
@@ -6972,85 +7291,106 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 	char sOf[20];
 	char sCopied[256];
 	char sSec[20];
-	//
+	char downloadProtocol[32];
 	int downloadSize, downloadCount, downloadTime;
+	double percent;
 	char dlSizeBuf[64], totalSizeBuf[64], xferRateBuf[64], dlTimeBuf[64];
 	int xferRate;
 	int leftWidth;
 	const char *s;
 
+#ifdef JK2MV_MENU
+	vec4_t colorLtGreyAlpha = {0, 0, 0, .8f};
+#else
 	vec4_t colorLtGreyAlpha = {0, 0, 0, .5};
+#endif
 
 	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, colorLtGreyAlpha );
 
-	s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 0);	// "Downloading:"
-	strcpy(sDownLoading,s?s:"");
-	s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 1);	// "Estimated time left:"
-	strcpy(sEstimatedTimeLeft,s?s:"");
-	s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 2);	// "Transfer rate:"
-	strcpy(sTransferRate,s?s:"");
-	s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 3);	// "of"
-	strcpy(sOf,s?s:"");
-	s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 4);	// "copied"
-	strcpy(sCopied,s?s:"");
-	s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 5);	// "sec."
-	strcpy(sSec,s?s:"");
+	downloadSize = trap_Cvar_VariableValue("cl_downloadSize");
+	if (downloadSize) {
+		s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 0);	// "Downloading:"
+		strcpy(sDownLoading,s?s:"");
+		s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 1);	// "Estimated time left:"
+		strcpy(sEstimatedTimeLeft,s?s:"");
+		s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 2);	// "Transfer rate:"
+		strcpy(sTransferRate,s?s:"");
+		s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 3);	// "of"
+		strcpy(sOf,s?s:"");
+		s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 4);	// "copied"
+		strcpy(sCopied,s?s:"");
+		s = GetCRDelineatedString("MENUS3","DOWNLOAD_STUFF", 5);	// "sec."
+		strcpy(sSec,s?s:"");
 
-	downloadSize = trap_Cvar_VariableValue( "cl_downloadSize" );
-	downloadCount = trap_Cvar_VariableValue( "cl_downloadCount" );
-	downloadTime = trap_Cvar_VariableValue( "cl_downloadTime" );
+		downloadCount = trap_Cvar_VariableValue( "cl_downloadCount" );
+		downloadTime = trap_Cvar_VariableValue( "cl_downloadTime" );
+		trap_Cvar_VariableStringBuffer("cl_downloadProtocol", downloadProtocol, sizeof(downloadProtocol));
 
-	leftWidth = 320;
-
-	UI_SetColor(colorWhite);
-
-	Text_PaintCenter(centerPoint, yStart + 112, scale, colorWhite, sDownLoading, 0, iMenuFont);
-	Text_PaintCenter(centerPoint, yStart + 192, scale, colorWhite, sEstimatedTimeLeft, 0, iMenuFont);
-	Text_PaintCenter(centerPoint, yStart + 248, scale, colorWhite, sTransferRate, 0, iMenuFont);
-
-	if (downloadSize > 0) {
-		s = va( "%s (%d%%)", downloadName, downloadCount * 100 / downloadSize );
-	} else {
-		s = downloadName;
-	}
-
-	Text_PaintCenter(centerPoint, yStart+136, scale, colorWhite, s, 0, iMenuFont);
-
-	UI_ReadableSize( dlSizeBuf,		sizeof dlSizeBuf,		downloadCount );
-	UI_ReadableSize( totalSizeBuf,	sizeof totalSizeBuf,	downloadSize );
-
-	if (downloadCount < 4096 || !downloadTime) {
-		Text_PaintCenter(leftWidth, yStart+216, scale, colorWhite, "estimating", 0, iMenuFont);
-		Text_PaintCenter(leftWidth, yStart+160, scale, colorWhite, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), 0, iMenuFont);
-	} else {
-		if ((uiInfo.uiDC.realTime - downloadTime) / 1000) {
-			xferRate = downloadCount / ((uiInfo.uiDC.realTime - downloadTime) / 1000);
-		} else {
-			xferRate = 0;
+		if ( !downloadProtocol[0] )
+		{
+			Q_strncpyz( downloadProtocol, "UDP", sizeof(downloadProtocol) );
 		}
-		UI_ReadableSize( xferRateBuf, sizeof xferRateBuf, xferRate );
 
-		// Extrapolate estimated completion time
-		if (downloadSize && xferRate) {
-			int n = downloadSize / xferRate; // estimated time for entire d/l in secs
+		UI_SetColor(colorWhite);
 
-			// We do it in K (/1024) because we'd overflow around 4MB
-			UI_PrintTime ( dlTimeBuf, sizeof dlTimeBuf, 
-				(n - (((downloadCount/1024) * n) / (downloadSize/1024))) * 1000);
+		// round() = floor(x + 0.5)
+		// microsoft has no round() in vs2010, wtf?
+		percent = (double)downloadCount * 100 / downloadSize + 0.5;
 
-			Text_PaintCenter(leftWidth, yStart+216, scale, colorWhite, dlTimeBuf, 0, iMenuFont);
-			Text_PaintCenter(leftWidth, yStart+160, scale, colorWhite, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), 0, iMenuFont);
+		Text_PaintCenter(centerPoint, yStart + 100, scale, colorWhite, va("%s ^1[^7%s^1] ^1(^7%i%%^1)", sDownLoading, downloadProtocol, (int) percent), 0, iMenuFont);
+
+		Text_PaintCenter(centerPoint, yStart + 125, scale, colorWhite, va("%s", downloadName), 0, iMenuFont);
+
+		//download bar
+		UI_DrawRect( centerPoint - 175, yStart + 157, 350.0f, 20.0f, colorRed );
+		UI_FillRect( centerPoint - 170, yStart + 162, (percent * 3.4), 10.0f, colorRed );
+
+		UI_ReadableSize( dlSizeBuf,		sizeof dlSizeBuf,		downloadCount );
+		UI_ReadableSize( totalSizeBuf,	sizeof totalSizeBuf,	downloadSize );
+		leftWidth = 320;
+
+		if (downloadCount < 4096 || !downloadTime) {
+			Text_PaintCenter(leftWidth, yStart + 205, scale, colorWhite, "estimating", 0, iMenuFont);
+			Text_PaintCenter(leftWidth, yStart + 180, scale, colorWhite, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), 0, iMenuFont);
 		} else {
-			Text_PaintCenter(leftWidth, yStart+216, scale, colorWhite, "estimating", 0, iMenuFont);
-			if (downloadSize) {
-				Text_PaintCenter(leftWidth, yStart+160, scale, colorWhite, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), 0, iMenuFont);
+			static int last_sec = 0;
+			static int last_xferRate = 0;
+			static int last_downloadCount = 0;
+			int dlSec = (uiInfo.uiDC.realTime - downloadTime) / 1000;
+
+#define XFER_RATE_SECS 1
+			if (dlSec >= XFER_RATE_SECS && (dlSec % XFER_RATE_SECS) == 0 && last_sec < dlSec) {
+				xferRate = (downloadCount - last_downloadCount) / XFER_RATE_SECS;
+				last_xferRate = xferRate;
+				last_downloadCount = downloadCount;
+				last_sec = dlSec;
+			} else if (dlSec < XFER_RATE_SECS) {
+				xferRate = last_sec = last_xferRate = 0;
+				last_downloadCount = 0;
 			} else {
-				Text_PaintCenter(leftWidth, yStart+160, scale, colorWhite, va("(%s %s)", dlSizeBuf, sCopied), 0, iMenuFont);
+				xferRate = last_xferRate;
 			}
-		}
 
-		if (xferRate) {
-			Text_PaintCenter(leftWidth, yStart+272, scale, colorWhite, va("%s/%s", xferRateBuf,sSec), 0, iMenuFont);
+			UI_ReadableSize( xferRateBuf, sizeof xferRateBuf, xferRate );
+
+			// Extrapolate estimated completion time
+			if (downloadSize && xferRate) {
+				int n = downloadSize / xferRate; // estimated time for entire d/l in secs
+
+				// We do it in K (/1024) because we'd overflow around 4MB
+				UI_PrintTime ( dlTimeBuf, sizeof dlTimeBuf,
+					(n - (((downloadCount/1024) * n) / (downloadSize/1024))) * 1000);
+
+				Text_PaintCenter(leftWidth, yStart + 205, scale, colorWhite, dlTimeBuf, 0, iMenuFont);
+				Text_PaintCenter(leftWidth, yStart + 180, scale, colorWhite, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), 0, iMenuFont);
+			} else {
+				Text_PaintCenter(leftWidth, yStart + 205, scale, colorWhite, "estimating", 0, iMenuFont);
+				Text_PaintCenter(leftWidth, yStart + 180, scale, colorWhite, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), 0, iMenuFont);
+			}
+
+			if (xferRate) {
+				Text_PaintCenter(leftWidth, yStart+272, scale, colorWhite, va("%s/%s", xferRateBuf,sSec), 0, iMenuFont);
+			}
 		}
 	}
 }
@@ -7172,8 +7512,8 @@ cvars
 
 typedef struct {
 	vmCvar_t	*vmCvar;
-	char		*cvarName;
-	char		*defaultString;
+	const char	*cvarName;
+	const char	*defaultString;
 	int			cvarFlags;
 } cvarTable_t;
 
@@ -7303,12 +7643,15 @@ vmCvar_t	ui_realWarmUp;
 vmCvar_t	ui_serverStatusTimeOut;
 vmCvar_t	ui_s_language;
 
+// botfilter
+vmCvar_t	ui_botfilter;
+
 vmCvar_t	ui_widescreen;
 
 vmCvar_t	ui_MVSDK;
 
 // bk001129 - made static to avoid aliasing
-static cvarTable_t		cvarTable[] = {
+static const cvarTable_t cvarTable[] = {
 	{ &ui_ffa_fraglimit, "ui_ffa_fraglimit", "20", CVAR_ARCHIVE },
 	{ &ui_ffa_timelimit, "ui_ffa_timelimit", "0", CVAR_ARCHIVE },
 
@@ -7452,7 +7795,7 @@ UI_RegisterCvars
 */
 void UI_RegisterCvars( void ) {
 	int			i;
-	cvarTable_t	*cv;
+	const cvarTable_t *cv;
 
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
@@ -7468,7 +7811,7 @@ UI_UpdateCvars
 */
 void UI_UpdateCvars( void ) {
 	int			i;
-	cvarTable_t	*cv;
+	const cvarTable_t	*cv;
 
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Update( cv->vmCvar );
@@ -7500,7 +7843,7 @@ static void UI_StopServerRefresh( void )
 					uiInfo.serverStatus.numPlayersOnServers);
 	count = trap_LAN_GetServerCount(ui_netSource.integer);
 	if (count - uiInfo.serverStatus.numDisplayServers > 0) {
-		Com_Printf("%d servers not listed due to packet loss or pings higher than %d\n",
+		Com_Printf("%d servers not listed due to packet loss, filters or pings higher than %d\n",
 						count - uiInfo.serverStatus.numDisplayServers,
 						(int) trap_Cvar_VariableValue("cl_maxPing"));
 	}
@@ -7560,10 +7903,13 @@ static void UI_StartServerRefresh(qboolean full)
 {
 	int		i;
 	char	*ptr;
+	char cvarstr[64];
 
 	qtime_t q;
 	trap_RealTime(&q);
- 	trap_Cvar_Set( va("ui_lastServerRefresh_%i", ui_netSource.integer), va("%s-%i, %i @ %i:%2i", GetMonthAbbrevString(q.tm_mon),q.tm_mday, 1900+q.tm_year,q.tm_hour,q.tm_min));
+	// serverlist refresh datetime fix
+	Com_sprintf(cvarstr, sizeof(cvarstr), "ui_lastServerRefresh_%i", ui_netSource.integer);
+	trap_Cvar_Set(cvarstr, va("%s-%i, %i @ %02i:%02i", GetMonthAbbrevString(q.tm_mon), q.tm_mday, 1900 + q.tm_year, q.tm_hour, q.tm_min));
 
 	if (!full) {
 		UI_UpdatePendingPings();
@@ -7600,7 +7946,11 @@ static void UI_StartServerRefresh(qboolean full)
 			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s\n", i, ptr));
 		}
 		else {
+#ifdef JK2MV_MENU
+			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d 15+16\n", i ) );
+#else
 			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %d\n", i, (int)trap_Cvar_VariableValue( "protocol" ) ) );
+#endif
 		}
 	}
 }

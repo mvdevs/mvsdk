@@ -68,7 +68,7 @@ int uiForcePowersRank[NUM_FORCE_POWERS] = {
 	0//FP_SABERTHROW,
 };
 
-int uiForcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
+const int uiForcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
 { //nothing should be usable at rank 0..
 	FORCE_LIGHTSIDE,//FP_HEAL,//instant
 	0,//FP_LEVITATION,//hold/duration
@@ -91,7 +91,7 @@ int uiForcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
 		//NUM_FORCE_POWERS
 };
 
-int uiForceStarShaders[NUM_FORCE_STAR_IMAGES][2];
+static int uiForceStarShaders[NUM_FORCE_STAR_IMAGES][2];
 int uiSaberColorShaders[NUM_SABER_COLORS];
 void UI_InitForceShaders(void)
 {
@@ -210,7 +210,7 @@ void UI_SaveForceTemplate()
 	char fcfString[512];
 	char forceStringValue[4];
 	fileHandle_t f;
-	int strPlace = 0;
+	size_t strPlace = 0;
 	int forcePlace = 0;
 	int i = 0;
 	qboolean foundFeederItem = qfalse;
@@ -250,7 +250,7 @@ void UI_SaveForceTemplate()
 	fcfString[strPlace] = '\n';
 	fcfString[strPlace+1] = 0;
 
-	trap_FS_Write(fcfString, strlen(fcfString), f);
+	trap_FS_Write(fcfString, (int)strlen(fcfString), f);
 	trap_FS_FCloseFile(f);
 
 	Com_Printf("Template saved as \"%s\".\n", selectedName);
@@ -463,7 +463,7 @@ void UI_ReadLegalForce(void)
 {
 	char fcfString[512];
 	char forceStringValue[4];
-	int strPlace = 0;
+	size_t strPlace = 0;
 	int forcePlace = 0;
 	int i = 0;
 	char singleBuf[64];
@@ -534,7 +534,7 @@ void UI_ReadLegalForce(void)
 	//	return;
 	}
 
-	uiForceRank = iBuf;
+	uiForceRank = Com_Clampi(0, uiMaxRank, iBuf);
 
 	while (fcfString[i] && fcfString[i] != '-')
 	{
@@ -651,14 +651,8 @@ void UI_UpdateForcePowers()
 				uiForceSide = 0;
 				goto validitycheck;
 			}
-			uiForceRank = atoi(readBuf);
+			uiForceRank = Com_Clampi(0, uiMaxRank, atoi(readBuf));
 			i_r = 0;
-
-			if (uiForceRank > uiMaxRank)
-			{
-				uiForceRank = uiMaxRank;
-			}
-
 			i++;
 
 			while (forcePowers[i] && forcePowers[i] != '-' && i_r < 255)
@@ -1075,7 +1069,7 @@ qboolean UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num
 int gCustRank = 0;
 int gCustSide = 0;
 
-int gCustPowersRank[NUM_FORCE_POWERS] = {
+static int gCustPowersRank[NUM_FORCE_POWERS] = {
 	0,//FP_HEAL = 0,//instant
 	1,//FP_LEVITATION,//hold/duration, this one defaults to 1 (gives a free point)
 	0,//FP_SPEED,//duration
@@ -1234,7 +1228,7 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 		return;
 	}
 
-	uiForceRank = iBuf;
+	uiForceRank = Com_Clampi(0, uiMaxRank, iBuf);
 
 	while (fcfBuffer[i] && fcfBuffer[i] != '-')
 	{

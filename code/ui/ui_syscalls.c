@@ -76,7 +76,7 @@ void trap_Argv( int n, char *buffer, int bufferLength ) {
 	syscall( UI_ARGV, n, buffer, bufferLength );
 }
 
-void trap_Cmd_ExecuteText( int exec_when, const char *text ) {
+void trap_Cmd_ExecuteText( cbufExec_t exec_when, const char *text ) {
 	syscall( UI_CMD_EXECUTETEXT, exec_when, text );
 }
 
@@ -259,7 +259,7 @@ void trap_GetClientState( uiClientState_t *state ) {
 	syscall( UI_GETCLIENTSTATE, state );
 }
 
-void trap_GetGlconfig( glconfig_t *glconfig ) {
+void trap_GetGlconfig( vmglconfig_t *glconfig ) {
 	syscall( UI_GETGLCONFIG, glconfig );
 }
 
@@ -625,3 +625,21 @@ void trap_MVAPI_SetVirtualScreen( float w, float h )
 {
 	syscall( UI_MVAPI_SETVIRTUALSCREEN, PASSFLOAT(w), PASSFLOAT(h) );
 }
+
+#ifdef JK2MV_MENU
+void trap_CL_ContinueCurrentDownload(dldecision_t decision) {
+	syscall(UI_MV_CONTINUE_DOWNLOAD, decision);
+}
+
+int trap_FS_GetDLList(dlfile_t *files, int maxfiles) {
+	return syscall(UI_MV_GETDLLIST, files, maxfiles);
+}
+
+qboolean trap_FS_RMDLPrefix(const char *qpath) {
+	return syscall(UI_MV_RMDLPREFIX, qpath);
+}
+
+qboolean trap_UI_DeleteDLFile(const dlfile_t *file) {
+	return syscall(UI_MV_DELDLFILE, file);
+}
+#endif

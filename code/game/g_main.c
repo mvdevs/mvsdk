@@ -932,7 +932,7 @@ void G_ShutdownGame( int restart ) {
 
 //===================================================================
 
-Q_NORETURN void QDECL Com_Error ( int level, const char *error, ... ) {
+Q_NORETURN void QDECL Com_Error ( errorParm_t level, const char *error, ... ) {
 	va_list		argptr;
 	char		text[1024];
 

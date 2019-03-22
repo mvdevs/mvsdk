@@ -59,6 +59,16 @@ float Com_Clamp( float min, float max, float value ) {
 	return value;
 }
 
+int Com_Clampi( int min, int max, int value ) {
+	if ( value < min ) {
+		return min;
+	}
+	if ( value > max ) {
+		return max;
+	}
+	return value;
+}
+
 
 /*
 ============
@@ -82,13 +92,24 @@ char *COM_SkipPath (char *pathname)
 /*
 ============
 COM_StripExtension
+
+R_RemapShader exploit
+http://www.exploit-db.com/exploits/1750/
+http://ioqsrc.vampireducks.com/d8/dbe/q__shared_8c-source.html#l00061
 ============
 */
-void COM_StripExtension( const char *in, char *out ) {
-	while ( *in && *in != '.' ) {
-		*out++ = *in++;
+void COM_StripExtension(const char *in, char *out, int destsize) {
+	int length;
+	assert(out != in);
+	Q_strncpyz(out, in, destsize);
+	length = (int)strlen(out) - 1;
+	while (length > 0 && out[length] != '.') {
+		length--;
+		if (out[length] == '/')
+			return;   // no extension
 	}
-	*out = 0;
+	if (length)
+		out[length] = 0;
 }
 
 

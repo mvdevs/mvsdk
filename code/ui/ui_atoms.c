@@ -9,15 +9,15 @@
 
 qboolean		m_entersound;		// after a frame, so caching won't disrupt the sound
 
-void QDECL Com_Error( int level, const char *error, ... ) {
+void QDECL Com_Error( errorParm_t level, const char *error, ... ) {
 	va_list		argptr;
 	char		text[1024];
 
 	va_start (argptr, error);
-	vsprintf (text, error, argptr);
+	vsprintf (text, error, argptr); // MVMENU-MERGE-FIXME: Replace vsprintf
 	va_end (argptr);
 
-	trap_Error( va("%s", text) );
+	trap_Error(text);
 }
 
 void QDECL Com_Printf( const char *msg, ... ) {
@@ -25,10 +25,10 @@ void QDECL Com_Printf( const char *msg, ... ) {
 	char		text[1024];
 
 	va_start (argptr, msg);
-	vsprintf (text, msg, argptr);
+	vsprintf (text, msg, argptr); // MVMENU-MERGE-FIXME: Replace vsprintf
 	va_end (argptr);
 
-	trap_Print( va("%s", text) );
+	trap_Print(text);
 }
 
 qboolean newUI = qfalse;
@@ -142,7 +142,8 @@ UI_ClearScores
 void UI_ClearScores() {
 	char	gameList[4096];
 	char *gameFile;
-	int		i, len, count, size;
+	int		i, count, size;
+	size_t len;
 	fileHandle_t f;
 	postGameInfo_t newInfo;
 

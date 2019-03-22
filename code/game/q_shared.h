@@ -277,6 +277,7 @@ typedef enum {
 
 #define MIN(x,y) ((x)<(y)?(x):(y))
 #define MAX(x,y) ((x)>(y)?(x):(y))
+#define CTRL(a)		((a)-'a'+1)
 
 #define ARRAY_LEN(x) (sizeof (x) / sizeof( *(x) ))
 
@@ -454,9 +455,6 @@ void *Hunk_AllocDebug( int size, ha_pref preference, char *label, char *file, in
 #else
 void *Hunk_Alloc( int size, ha_pref preference );
 #endif
-
-void Com_Memset (void* dest, const int val, const size_t count);
-void Com_Memcpy (void* dest, const void* src, const size_t count);
 
 #define CIN_system	1
 #define CIN_loop	2
@@ -842,9 +840,10 @@ void PerpendicularVector( vec3_t dst, const vec3_t src );
 //=============================================
 
 float Com_Clamp( float min, float max, float value );
+int Com_Clampi( int min, int max, int value );
 
 char	*COM_SkipPath( char *pathname );
-void	COM_StripExtension( const char *in, char *out );
+void	COM_StripExtension( const char *in, char *out, int destsize );
 void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
 
 void	COM_BeginParseSession( const char *name );
@@ -908,6 +907,22 @@ typedef enum {
 	FS_SEEK_END,
 	FS_SEEK_SET
 } fsOrigin_t;
+
+#ifdef JK2MV_MENU
+typedef enum {
+	DL_ACCEPT,
+	DL_ABORT,
+	DL_ABORT_BLACKLIST,
+} dldecision_t;
+
+typedef struct {
+	char name[256];
+	time_t time;
+
+	int checkksum;
+	qboolean blacklisted;
+} dlfile_t;
+#endif
 
 //=============================================
 
@@ -982,7 +997,7 @@ qboolean Info_Validate( const char *s );
 void Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
-Q_NORETURN void	QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
+Q_NORETURN void	QDECL Com_Error( errorParm_t level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
 void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 
 
@@ -1017,6 +1032,9 @@ default values.
 #define CVAR_NORESTART		0x00000400		// do not clear when a cvar_restart is issued
 #define CVAR_INTERNAL		0x00000800		// cvar won't be displayed, ever (for passwords and such)
 #define	CVAR_PARENTAL		0x00001000		// lets cvar system know that parental stuff needs to be updated
+#define	CVAR_GLOBAL			0x00002000		// the cvar is going to be written into jk2mvglobal.cfg rather then jk2mvconfig.cfg
+#define CVAR_VM_NOREAD		0x00004000		// the cvar can NOT be read-accessed by the vm modules
+#define CVAR_VM_NOWRITE		0x00008000		// the cvar can NOT be write-accessed by the vm modules
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s {
