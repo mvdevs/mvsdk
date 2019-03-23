@@ -312,7 +312,7 @@ void COM_ParseError( char *format, ... )
 	static char string[4096];
 
 	va_start (argptr, format);
-	vsprintf (string, format, argptr);
+	Q_vsnprintf (string, sizeof(string), format, argptr);
 	va_end (argptr);
 
 	Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, com_lines, string);
@@ -324,7 +324,7 @@ void COM_ParseWarning( char *format, ... )
 	static char string[4096];
 
 	va_start (argptr, format);
-	vsprintf (string, format, argptr);
+	Q_vsnprintf (string, sizeof(string), format, argptr);
 	va_end (argptr);
 
 	Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, com_lines, string);
@@ -991,6 +991,31 @@ char *Q_CleanStr( char *string, qboolean use102color ) {
 	return string;
 }
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+/*
+=============
+Q_vsnprintf
+
+Special wrapper function for Microsoft's broken _vsnprintf() function.
+=============
+*/
+
+size_t Q_vsnprintf(char *str, size_t size, const char *format, va_list ap) {
+	int retval;
+	retval = _vsnprintf(str, size, format, ap);
+	if (retval < 0 || retval == size) {
+		// Microsoft doesn't adhere to the C99 standard of vsnprintf,
+		// which states that the return value must be the number of
+		// bytes written if the output string had sufficient length.
+		//
+		// Obviously we cannot determine that value from Microsoft's
+		// implementation, so we have no choice but to return size.
+		str[size - 1] = '\0';
+		return size;
+	}
+	return retval;
+}
+#endif
 
 void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	int		len;
@@ -998,7 +1023,7 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	char	bigbuffer[32000];	// big, but small enough to fit in PPC stack
 
 	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
+	len = Q_vsnprintf (bigbuffer,sizeof(bigbuffer),fmt,argptr);
 	va_end (argptr);
 	if ( len >= (int)sizeof( bigbuffer ) ) {
 		Com_Error( ERR_FATAL, "Com_sprintf: overflowed bigbuffer" );
@@ -1026,9 +1051,11 @@ varargs versions of all text functions.
 FIXME: make this buffer size safe someday
 ============
 */
+#define MAX_VA_STRING 32000
+#define MAX_VA_BUFFERS 2
 char	* QDECL va( const char *format, ... ) {
 	va_list		argptr;
-	static char		string[2][32000];	// in case va is called by nested functions
+	static char		string[MAX_VA_BUFFERS][MAX_VA_STRING];	// in case va is called by nested functions
 	static int		index = 0;
 	char	*buf;
 
@@ -1036,7 +1063,7 @@ char	* QDECL va( const char *format, ... ) {
 	index++;
 
 	va_start (argptr, format);
-	vsprintf (buf, format,argptr);
+	Q_vsnprintf (buf, MAX_VA_STRING, format,argptr);
 	va_end (argptr);
 
 	return buf;

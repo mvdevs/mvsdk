@@ -893,6 +893,12 @@ void Parse3DMatrix (const char **buf_p, int z, int y, int x, float *m);
 
 void	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+size_t Q_vsnprintf(char *str, size_t size, const char *format, va_list ap);
+#else
+#define Q_vsnprintf vsnprintf
+#endif
+
 
 // mode parm for FS_FOpenFile
 typedef enum {
