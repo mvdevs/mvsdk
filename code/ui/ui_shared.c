@@ -4688,15 +4688,15 @@ void Item_ListBox_Paint(itemDef_t *item) {
 						else 
 						*/
 
-						// Mark 1.04 server BEFORE writing text (so the "box" is under the text, not over it)
+						// Mark 1.03 and 1.04 servers BEFORE writing text (so the "box" is under the text, not over it)
 						if (optionalImage4 >= 0 && menuInJK2MV)
 						{
-							if (protocol == PROTOCOL16)
+							if (gameVersion == VERSION_1_04 || protocol == PROTOCOL16)
 							{
 								vec4_t color = { 0.00f, 0.00f, 0.00f, 0.30f };
 								DC->fillRect(x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight, color);
 							}
-							else if ( gameVersion == VERSION_1_03 )
+							else if (gameVersion == VERSION_1_03)
 							{
 								vec4_t color = { 1.00f, 1.00f, 1.00f, 0.10f };
 								DC->fillRect(x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight, color);

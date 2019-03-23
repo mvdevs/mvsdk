@@ -113,6 +113,7 @@ int MVAPI_Init(int apilevel, int inGameLoad)
 		trap_Error("This mvmenu version requires JK2MV " MV_MIN_VERSION);
 	}
 
+	menuInJK2MV = qtrue;
 	mvapi = apilevel;
 
 	// always using the newest api internally.
@@ -6076,7 +6077,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 
 						// serverversion icon
 						if ( handle5 )
-						{
+						{ // protocol
 							int_protocol = atoi(Info_ValueForKey(info, "protocol"));
 							switch ((mvprotocol_t)int_protocol) {
 							case PROTOCOL15:
@@ -6090,8 +6091,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 						}
 
 						if ( handle6 )
-						{
-							// 1.03
+						{ // gameVersion
 							int_gameVersion = atoi(Info_ValueForKey(info, "gameVersion"));
 							switch((mvversion_t)int_gameVersion) {
 							case VERSION_1_02:
@@ -6106,8 +6106,8 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 						}
 
 						// do this only if no gameversion is selected
-						if (!ui_serverFilterType.integer && handle6) {
-							if ( *handle6 == PROTOCOL16 ) {
+						if (!ui_serverFilterType.integer && handle5 && handle6) {
+							if ( *handle5 == PROTOCOL16 || *handle6 == VERSION_1_04 ) {
 								*handle4 = trap_R_RegisterShaderNoMip("gfx/menus/srv_104");
 							} else {
 								if ( *handle6 == VERSION_1_03 )
