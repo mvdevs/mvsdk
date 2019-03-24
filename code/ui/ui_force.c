@@ -750,39 +750,50 @@ validitycheck:
 }
 extern int	uiSkinColor;
 
+extern const char *UI_GetModelWithTeamColor(const char *model);
+extern int UI_HeadIndexForModel(const char *model);
+extern void UI_FeederScrollTo(float feederId, int scrollTo);
 qboolean UI_SkinColor_HandleKey(int flags, float *special, int key, int num, int min, int max, int type) 
 {
-  if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) 
-  {
-  	int i = num;
-
-	if (key == A_MOUSE2)
+	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER)
 	{
-	    i--;
+		int i = num;
+		int selModel;
+
+		if (key == A_MOUSE2)
+		{
+			i--;
+		}
+		else
+		{
+			i++;
+		}
+
+		if (i < min)
+		{
+			i = max;
+		}
+		else if (i > max)
+		{
+			i = min;
+		}
+
+		num = i;
+
+		uiSkinColor = num;
+
+		selModel = UI_HeadIndexForModel(UI_GetModelWithTeamColor(UI_Cvar_VariableString("model")));
+
+		if ( selModel != -1 ) {
+			Menu_SetFeederSelection(NULL, FEEDER_Q3HEADS, selModel, NULL);
+			UI_FeederScrollTo(FEEDER_Q3HEADS, selModel);
+		} else {
+			Menu_SetFeederSelection(NULL, FEEDER_Q3HEADS, 0, NULL);
+		}
+
+		return qtrue;
 	}
-	else
-	{
-	    i++;
-	}
-
-    if (i < min)
-	{
-		i = max;
-	}
-	else if (i > max)
-	{
-      i = min;
-    }
-
-    num = i;
-
-	uiSkinColor = num;
-
-	UI_FeederSelection(FEEDER_Q3HEADS, uiInfo.q3SelectedHead);
-
-    return qtrue;
-  }
-  return qfalse;
+	return qfalse;
 }
 
 
