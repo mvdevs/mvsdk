@@ -249,7 +249,7 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 
 	//final_Powers now contains all the stuff from the string
 	//Set the maximum allowed points used based on the max rank level, and count the points actually used.
-	if ( maxRank < 0 || maxRank >= NUM_FORCE_MASTERY_LEVELS ) allowedPoints = /*Q3_INFINITE*/16777216; // Some servers set their "maxRank" to 200 to allow players to use all force powers (of one side). That is actually an invalid read - a memory bug. Let's fix that...
+	if ( maxRank < 0 || maxRank >= NUM_FORCE_MASTERY_LEVELS ) allowedPoints = (1 << 24); // Some servers set their "maxRank" to 200 to allow players to use all force powers (of one side). That is actually an invalid read - a memory bug. Let's fix that...
 	else													  allowedPoints = forceMasteryPoints[maxRank];
 
 	i = 0;

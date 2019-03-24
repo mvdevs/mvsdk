@@ -777,6 +777,7 @@ void _UI_Refresh( int realtime )
 
 		//if (uiMaxRank > ui_rankChange.integer)
 		{
+			uiServerForceRank = ui_rankChange.integer;
 			uiMaxRank = Com_Clampi(1, MAX_FORCE_RANK, ui_rankChange.integer);
 			uiForceRank = uiMaxRank;
 
@@ -856,6 +857,9 @@ _UI_Shutdown
 */
 void _UI_Shutdown( void ) {
 	trap_LAN_SaveCachedServers();
+
+	// Don't forget the server's force rank when vid_restart is used
+	trap_Cvar_Set("ui_rankChange", va("%i", uiServerForceRank));
 }
 
 char *defaultMenu = NULL;
@@ -2386,10 +2390,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 		}
 		break;
     case UI_FORCE_RANK:
-		i = uiForceRank;
-		if (i < 1 || i > MAX_FORCE_RANK) {
-			i = 1;
-		}
+		i = Com_Clampi(1, MAX_FORCE_RANK, uiForceRank);
 
 		s = (char *)UI_GetStripEdString("INGAMETEXT", forceMasteryLevels[i]);
 		break;
@@ -4650,7 +4651,8 @@ static void UI_RunMenuScript(const char **args)
 			UI_LoadArenas();
 			UI_MapCountByGameType(qfalse);
 			Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, gUISelectedMap, "createserver");
-			uiForceRank = Com_Clampi(0, MAX_FORCE_RANK, trap_Cvar_VariableValue("g_maxForceRank"));
+			uiServerForceRank = trap_Cvar_VariableValue("g_maxForceRank");
+			uiForceRank = Com_Clampi(0, MAX_FORCE_RANK, uiServerForceRank);
 		} else if (Q_stricmp(name, "saveControls") == 0) {
 			Controls_SetConfig(qtrue);
 		} else if (Q_stricmp(name, "loadControls") == 0) {

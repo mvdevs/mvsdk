@@ -7,6 +7,7 @@
 extern int uiForceSide;
 extern int uiJediNonJedi;
 extern int uiForceRank;
+extern int uiServerForceRank;
 extern int uiMaxRank;
 extern int uiForceUsed;
 extern int uiForceAvailable;
