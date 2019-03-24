@@ -15,7 +15,7 @@ FORCE INTERFACE
 int uiForceSide = FORCE_LIGHTSIDE;
 int uiJediNonJedi = -1;
 int uiForceRank = FORCE_MASTERY_JEDI_KNIGHT;
-int uiServerForceRank = FORCE_MASTERY_JEDI_KNIGHT;
+int uiServerForceRank = -1; // Until we get a valid value from the server use -1 to allow all force powers
 int uiMaxRank = MAX_FORCE_RANK;
 int uiMaxPoints = 20;
 int	uiForceUsed = 0;
@@ -294,7 +294,7 @@ void UpdateForceUsed()
 	uiForceRank = uiMaxRank;
 
 	uiForceUsed = 0;
-	uiForceAvailable = (uiServerForceRank >= NUM_FORCE_MASTERY_LEVELS ? (1 << 24) : forceMasteryPoints[uiForceRank]);
+	uiForceAvailable = (uiServerForceRank < 0 || uiServerForceRank >= NUM_FORCE_MASTERY_LEVELS ? (1 << 24) : forceMasteryPoints[uiForceRank]);
 
 	// Make sure that we have one freebie in jump.
 	if (uiForcePowersRank[FP_LEVITATION]<1)
@@ -563,7 +563,7 @@ void UI_ReadLegalForce(void)
 		c++;
 	}
 	uiForceUsed = 0;
-	uiForceAvailable = (uiServerForceRank >= NUM_FORCE_MASTERY_LEVELS ? (1 << 24) : forceMasteryPoints[uiForceRank]);
+	uiForceAvailable = (uiServerForceRank < 0 || uiServerForceRank >= NUM_FORCE_MASTERY_LEVELS ? (1 << 24) : forceMasteryPoints[uiForceRank]);
 	gTouchedForce = qtrue;
 
 	for (c=0;fcfString[i]&&c<NUM_FORCE_POWERS;c++,i++)
@@ -1276,7 +1276,7 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 		c++;
 	}
 	uiForceUsed = 0;
-	uiForceAvailable = (uiServerForceRank >= NUM_FORCE_MASTERY_LEVELS ? (1 << 24) : forceMasteryPoints[uiForceRank]);
+	uiForceAvailable = (uiServerForceRank < 0 || uiServerForceRank >= NUM_FORCE_MASTERY_LEVELS ? (1 << 24) : forceMasteryPoints[uiForceRank]);
 	gTouchedForce = qtrue;
 
 	for (c=0;fcfBuffer[i]&&c<NUM_FORCE_POWERS;c++,i++)

@@ -858,8 +858,13 @@ _UI_Shutdown
 void _UI_Shutdown( void ) {
 	trap_LAN_SaveCachedServers();
 
-	// Don't forget the server's force rank when vid_restart is used
-	trap_Cvar_Set("ui_rankChange", va("%i", uiServerForceRank));
+	// We don't get a new force rank from the server during vid_restart (the server sends "nfr" on force init, the cgame
+	// receives it and tells the engine to change the "ui_rankChange" cvar and ui just checks the value of that cvar each
+	// refresh). So when shutting down the UI module we have to store the old ui_rankChange to restore it afterwards.
+	// We only want to do this during a vid_restart, cause otherwise we would carry over the force rank from our previous
+	// server to the next one. So we store the rank in a temporary cvar and let the UI_Init method decide whether it's
+	// relevant or not.
+	trap_Cvar_Set("_ui_serverForceRank", va("%i", uiServerForceRank));
 }
 
 char *defaultMenu = NULL;
@@ -4651,8 +4656,7 @@ static void UI_RunMenuScript(const char **args)
 			UI_LoadArenas();
 			UI_MapCountByGameType(qfalse);
 			Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, gUISelectedMap, "createserver");
-			uiServerForceRank = trap_Cvar_VariableValue("g_maxForceRank");
-			uiForceRank = Com_Clampi(0, MAX_FORCE_RANK, uiServerForceRank);
+			//uiForceRank = Com_Clampi(0, MAX_FORCE_RANK, trap_Cvar_VariableValue("g_maxForceRank"));
 		} else if (Q_stricmp(name, "saveControls") == 0) {
 			Controls_SetConfig(qtrue);
 		} else if (Q_stricmp(name, "loadControls") == 0) {
@@ -6916,12 +6920,22 @@ UI_Init
 void _UI_Init( qboolean inGameLoad ) {
 	int i;
 	const char *menuSet;
+	uiClientState_t cstate;
 
 	uiInfo.inGameLoad = inGameLoad;
 
+	trap_GetClientState( &cstate );
+	if ( cstate.connState > CA_LOADING ) {
+		// This is probably a vid_restart, so copy "_ui_serverForceRank" over to "ui_rankChange"
+		if ( !ui_rankChange.integer ) {
+			trap_Cvar_Set( "ui_rankChange", UI_Cvar_VariableString("_ui_serverForceRank") );
+		}
+	}
+
 	UI_SetServerFilter();
 
-	UI_UpdateForcePowers();
+	// Do NOT initialize force powers, yet. See "UI_UpdateForce" for details.
+	//UI_UpdateForcePowers();
 
 	UI_RegisterCvars();
 	UI_InitMemory();
@@ -7152,6 +7166,30 @@ void UI_LoadNonIngame() {
 	UI_SetServerFilter();
 }
 
+void UI_UpdateForce( qboolean update ) {
+	static int forceInitialized = 0;
+	// Workaround for force powers getting mixed up when joining most servers. That's actually caused by the engine not
+	// loading new settings in time during fs_game switches. The engine adds "exec jk2mvconfig.cfg" to the end of the
+	// command buffer to load the new config, but the command does NOT get executed right away. That means the UI module
+	// is getting initialized BEFORE the correct config has been executed and we try to apply the previous force to the
+	// menu and we overwrite the force powers. Additionally we don't even have the server's force rank on initialization,
+	// so we can't even properly verify the powers (which can lead to force powers being removed even though they would be
+	// valid on the server).
+
+	// As workaround we don't update our force powers until the first time we open some of the ingame menus, hoping
+	// that we have all the information by that time (at that time we need SOMETHING, so we can't wait anylonger anyway).
+	if ( !forceInitialized ) {
+		forceInitialized = 1;
+		UI_UpdateForcePowers();
+
+		// Until we get a valid force rank from the server we use "-1" to allow all force powers, so don't try to validate
+		// our powers if we don't know what rank the server permits.
+		if ( uiServerForceRank != -1 ) UI_ReadLegalForce();
+	} else if ( update ) {
+		UpdateForceUsed();
+	}
+}
+
 void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 	char buf[256];
 
@@ -7231,6 +7269,7 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			UI_BuildPlayerList();
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame");
+			UI_UpdateForce(qfalse);
 		  return;
 	  case UIMENU_PLAYERCONFIG:
 		 // trap_Cvar_Set( "cl_paused", "1" );
@@ -7238,7 +7277,7 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			UI_BuildPlayerList();
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame_player");
-			UpdateForceUsed();
+			UI_UpdateForce(qtrue);
 		  return;
 	  case UIMENU_PLAYERFORCE:
 		 // trap_Cvar_Set( "cl_paused", "1" );
@@ -7246,7 +7285,7 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			UI_BuildPlayerList();
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame_playerforce");
-			UpdateForceUsed();
+			UI_UpdateForce(qtrue);
 		  return;
 		  // download popup
 	  case UIMENU_MV_DOWNLOAD_POPUP:
