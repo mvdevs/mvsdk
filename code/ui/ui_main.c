@@ -5415,8 +5415,6 @@ static void UI_BuildServerDisplayList(int force) {
 				realPlayers = clients;
 			}
 
-			uiInfo.serverStatus.numPlayersOnServers += realPlayers;
-
 			if (ui_browserShowEmpty.integer == 0) {
 				if (realPlayers == 0) {
 					trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
@@ -5467,6 +5465,7 @@ static void UI_BuildServerDisplayList(int force) {
 			}
 			// insert the server into the list
 			UI_BinaryServerInsertion(i);
+			uiInfo.serverStatus.numPlayersOnServers += realPlayers;
 			// done with this server
 			if (ping > 0) {
 				trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
