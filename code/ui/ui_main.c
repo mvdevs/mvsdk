@@ -7108,93 +7108,76 @@ static int UI_GetFileList( const char *path, const char *extension, char *listbu
 }
 static void UI_BuildQ3Model_List( void )
 {
-	int		numdirs;
-	int		numfiles;
-	char	dirlist[2048];
-	char	filelist[2048];
-	char	skinname[64];
-	char*	dirptr;
-	char*	fileptr;
-	int		i;
-	int		j, k, p;
-	size_t		dirlen;
-	size_t		filelen;
+	int    numfiles;
+	char   fpath[2048];
+	char   filelist[8192];
+	char   *fileptr;
+	char   *skin;
+	char   *model;
+	int    i;
+	int    k, p;
+	int    f = 0;
+	int    skinLen;
 
-	size_t dirBufSize = 2048;
-	size_t fileBufSize = 2048;
+	size_t filelen;
+	size_t fileBufSize = 8192;
 
 	uiInfo.q3HeadCount = 0;
 
-	numdirs = UI_GetFileList("models/players", "/", dirlist, sizeof(dirlist), &dirptr, &dirBufSize);
-
-	for (i=0; i<numdirs; i++,dirptr+=dirlen+1)
+	numfiles = UI_GetFileList( "models/players/", ".skin", filelist, sizeof(filelist), &fileptr, &fileBufSize );
+	for ( i = 0; i < numfiles; i++, fileptr += filelen+1 )
 	{
-		int f = 0;
-		char fpath[2048];
+		filelen = strlen(fileptr);
 
-		dirlen = strlen(dirptr);
-		
-		// Skip empty directory path
-		if ( !dirlen ) continue;
+		if ( !filelen ) continue;
 
-		if (dirlen && dirptr[dirlen-1]=='/') dirptr[dirlen-1]='\0';
+		model = fileptr;
+		skin = strchr(fileptr, '/');
+		if ( !skin ) continue;
+		*skin = 0;
+		skin++;
 
-		if (!strcmp(dirptr,".") || !strcmp(dirptr,".."))
+		if ( !*skin ) continue;
+
+		if ( !strcmp(model,".") || !strcmp(model,"..") )
 			continue;
-			
-		// Just do the fallback method for skin variations, it's very unlikely that one model would have enough skins to exceed
-		// our filelist array of 2048 bytes and it's faster if we avoid the additional filelist syscall per model
-		numfiles = UI_GetFileList(va("models/players/%s",dirptr), "skin", filelist, sizeof(filelist), NULL, &fileBufSize);
-		fileptr = filelist;
-		fileBufSize = 0;
-		for (j=0; j<numfiles;j++,fileptr+=filelen+1)
+
+		for ( skinLen = (int)strlen(skin)-1; skinLen >= 0; skinLen-- )
 		{
-			int skinLen = 0;
-
-			filelen = strlen(fileptr);
-
-			if ( !filelen ) continue;
-
-			COM_StripExtension(fileptr,skinname,sizeof(skinname));
-
-			skinLen = (int)strlen(skinname);
-			k = 0;
-			while (k < skinLen && skinname[k] && skinname[k] != '_')
+			if ( skin[skinLen] == '.' )
 			{
-				k++;
-			}
-			if (skinname[k] == '_')
-			{
-				p = 0;
-
-				while (skinname[k])
-				{
-					skinname[p] = skinname[k];
-					k++;
-					p++;
-				}
-				skinname[p] = '\0';
-			}
-
-			Com_sprintf(fpath, 2048, "models/players/%s/icon%s.jpg", dirptr, skinname);
-
-			trap_FS_FOpenFile(fpath, &f, FS_READ);
-
-			if (f)
-			{ //if it exists
-				trap_FS_FCloseFile(f);
-
-				if (skinname[0] == '_')
-				{ //change character to append properly
-					skinname[0] = '/';
-				}
-
-				UI_InsertHead( va("%s%s", dirptr, skinname) );
+				skin[skinLen] = 0;
+				break;
 			}
 		}
-		if ( fileBufSize ) BG_TempFree( fileBufSize );
+		if ( skinLen == -1 ) skinLen = (int)strlen(skin);
+
+		k = 0;
+		while ( k < skinLen && skin[k] && skin[k] != '_' ) k++;
+
+		if ( skin[k] == '_' )
+		{
+			p = 0;
+			while ( skin[k] ) skin[p++] = skin[k++];
+			skin[p] = '\0';
+		}
+
+		Com_sprintf( fpath, sizeof(fpath), "models/players/%s/icon%s.jpg", model, skin );
+		trap_FS_FOpenFile( fpath, &f, FS_READ );
+
+		if ( f )
+		{ //if it exists
+			trap_FS_FCloseFile( f );
+
+			if ( skin[0] == '_' )
+			{ //change character to append properly
+				skin[0] = '/';
+			}
+
+			UI_InsertHead( va("%s%s", model, skin) );
+		}
 	}
-	if ( dirBufSize )	BG_TempFree( dirBufSize);
+	if ( fileBufSize ) BG_TempFree( fileBufSize );
 }
 
 
