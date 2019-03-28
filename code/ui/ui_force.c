@@ -782,7 +782,7 @@ qboolean UI_SkinColor_HandleKey(int flags, float *special, int key, int num, int
 
 		uiSkinColor = num;
 
-		selModel = UI_HeadIndexForModel(UI_GetModelWithTeamColor(UI_Cvar_VariableString("model")));
+		selModel = UI_HeadIndexForModel(UI_GetModelWithTeamColor(ui_model.string));
 
 		if ( selModel != -1 ) {
 			Menu_SetFeederSelection(NULL, FEEDER_Q3HEADS, selModel, NULL);

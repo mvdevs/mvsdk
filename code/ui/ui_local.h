@@ -115,6 +115,9 @@ extern vmCvar_t ui_serverStatusTimeOut;
 // botfilter
 extern vmCvar_t	ui_botfilter;
 
+extern vmCvar_t	ui_model;
+extern vmCvar_t	ui_team_model;
+
 
 //
 // ui_qmenu.c
@@ -624,6 +627,11 @@ typedef struct {
 
 #define MAX_SCROLLTEXT_SIZE		4096
 #define MAX_SCROLLTEXT_LINES		64
+
+#define SKINCOLOR_DEFAULT   0
+#define SKINCOLOR_RED       1
+#define SKINCOLOR_BLUE      2
+#define SKINCOLOR_OTHER     3
 
 typedef struct {
   const char *name;

@@ -302,7 +302,7 @@ static const char *UI_SelectedHead(int index, int *actual);
 static int UI_GetIndexFromSelection(int actual);
 
 int ProcessNewUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 );
-int	uiSkinColor=TEAM_FREE;
+int	uiSkinColor = SKINCOLOR_DEFAULT;
 
 static serverFilter_t serverGameFilters[] = {
 	{"All", "" },
@@ -2000,15 +2000,15 @@ void UpdateForceStatus()
 		switch((int)(trap_Cvar_VariableValue("ui_myteam")))
 		{
 		case TEAM_RED:
-			uiSkinColor = TEAM_RED;
+			uiSkinColor = SKINCOLOR_RED;
 			uiInfo.effectsColor = SABER_RED;
 			break;
 		case TEAM_BLUE:
-			uiSkinColor = TEAM_BLUE;
+			uiSkinColor = SKINCOLOR_BLUE;
 			uiInfo.effectsColor = SABER_BLUE;
 			break;
 		default:
-			uiSkinColor = TEAM_FREE;
+			uiSkinColor = SKINCOLOR_DEFAULT;
 			break;
 		}
 	}
@@ -2358,11 +2358,14 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
     case UI_SKIN_COLOR:
 		switch(uiSkinColor)
 		{
-		case TEAM_RED:
+		case SKINCOLOR_RED:
 			s = "Red";
 			break;
-		case TEAM_BLUE:
+		case SKINCOLOR_BLUE:
 			s = "Blue";
+			break;
+		case SKINCOLOR_OTHER:
+			s = "Other";
 			break;
 		default:
 			s = "Default";
@@ -5245,17 +5248,24 @@ static q3Head_t *UI_GetHeadByName( const char *name )
 	return NULL;
 }
 
-static void UI_InsertHead( const char *name )
+static void UI_InsertHeadRaw( q3Head_t *head )
 {
-	q3Head_t *newHead;
 	q3Head_t **current;
-
-	// Prevent duplicates
-	if ( UI_GetHeadByName(name) ) return;
 
 	// Find the end of the list
 	current = &uiInfo.q3Heads;
 	while ( *current ) current = &(*current)->next;
+	*current = head;
+
+	uiInfo.q3HeadCount++;
+}
+
+static void UI_InsertHead( const char *name )
+{
+	q3Head_t *newHead;
+
+	// Prevent duplicates
+	if ( UI_GetHeadByName(name) ) return;
 
 	// Get the memory and copy the string
 	newHead = BG_Alloc( sizeof(q3Head_t) );
@@ -5264,9 +5274,36 @@ static void UI_InsertHead( const char *name )
 	newHead->icon = 0;
 	newHead->next = NULL;
 
-	*current = newHead;
+	UI_InsertHeadRaw( newHead );
+}
 
-	uiInfo.q3HeadCount++;
+static const char *UI_GetSkinSuffixForTeamColor( void )
+{
+	switch(uiSkinColor)
+	{
+		case SKINCOLOR_RED:
+			return "/red";
+		case SKINCOLOR_BLUE:
+			return "/blue";
+		case SKINCOLOR_OTHER:
+			return "";
+		default:
+			return "/default";
+	}
+}
+
+static qboolean UI_HeadBelongsToCurrentTeamColor( q3Head_t *head )
+{
+	const char *teamname = UI_GetSkinSuffixForTeamColor();
+
+	if ( !head || !head->name ) return qfalse;
+
+	if ( uiSkinColor == SKINCOLOR_OTHER && !(strstr(head->name, "/red") || strstr(head->name, "/blue") || strstr(head->name, "/default")) )
+		return qtrue;
+	if ( uiSkinColor != SKINCOLOR_OTHER && strstr(head->name, teamname) )
+		return qtrue;
+
+	return qfalse;
 }
 
 /*
@@ -5276,27 +5313,14 @@ UI_HeadCountByColor
 */
 static int UI_HeadCountByColor() {
 	int c;
-	char *teamname;
 	q3Head_t *head = uiInfo.q3Heads;
 
 	c = 0;
 
-	switch(uiSkinColor)
-	{
-		case TEAM_BLUE:
-			teamname = "/blue";
-			break;
-		case TEAM_RED:
-			teamname = "/red";
-			break;
-		default:
-			teamname = "/default";
-	}
-
 	// Count each head with this color
 	while ( head )
 	{
-		if (head->name && strstr(head->name, teamname))
+		if ( UI_HeadBelongsToCurrentTeamColor(head) )
 		{
 			c++;
 		}
@@ -5995,29 +6019,15 @@ UI_HeadCountByColor
 */
 static const char *UI_SelectedTeamHead(int index, int *actual) {
 	q3Head_t *head;
-	char *teamname;
 	int i,c=0;
 	*actual = 0;
-
-	switch(uiSkinColor)
-	{
-		case TEAM_BLUE:
-			teamname = "/blue";
-			break;
-		case TEAM_RED:
-			teamname = "/red";
-			break;
-		default:
-			teamname = "/default";
-			break;
-	}
 
 	// Count each head with this color
 
 	for (i=0; i<uiInfo.q3HeadCount; i++)
 	{
 		head = UI_GetHeadByIndex(i);
-		if (head && head->name && strstr(head->name, teamname))
+		if (head && head->name && UI_HeadBelongsToCurrentTeamColor(head))
 		{
 			if (c==index)
 			{
@@ -6047,28 +6057,14 @@ const char *UI_GetModelWithSkin(const char *model) {
 
 int UI_HeadIndexForModel(const char *model) {
 	q3Head_t *head = uiInfo.q3Heads;
-	char *teamname;
 	int c = 0;
 
 	if ( !model || !model[0] ) {
 		return -1;
 	}
 
-	switch(uiSkinColor)
-	{
-		case TEAM_BLUE:
-			teamname = "/blue";
-			break;
-		case TEAM_RED:
-			teamname = "/red";
-			break;
-		default:
-			teamname = "/default";
-			break;
-	}
-
 	while ( head ) {
-		if (head->name && strstr(head->name, teamname)) {
+		if ( UI_HeadBelongsToCurrentTeamColor(head) ) {
 			if (!Q_stricmp(head->name, model)) {
 				return c;
 			}
@@ -6083,11 +6079,13 @@ qboolean UI_SetTeamColorFromModel(const char *model) {
 	int oldSkinColor = uiSkinColor;
 
 	if ( strstr(model, "/blue") ) {
-		uiSkinColor = TEAM_BLUE;
+		uiSkinColor = SKINCOLOR_BLUE;
 	} else if ( strstr(model, "/red") ) {
-		uiSkinColor = TEAM_RED;
+		uiSkinColor = SKINCOLOR_RED;
+	} else if ( strstr(model, "/default") ) {
+		uiSkinColor = SKINCOLOR_DEFAULT;
 	} else {
-		uiSkinColor = TEAM_FREE;
+		uiSkinColor = SKINCOLOR_OTHER;
 	}
 
 	if ( uiSkinColor != oldSkinColor ) {
@@ -6098,21 +6096,8 @@ qboolean UI_SetTeamColorFromModel(const char *model) {
 
 const char *UI_GetModelWithTeamColor(const char *model) {
 	static char newModel[MAX_STRING_CHARS];
-	char *teamname;
+	const char *teamname = UI_GetSkinSuffixForTeamColor();
 	char *ptr;
-
-	switch(uiSkinColor)
-	{
-		case TEAM_BLUE:
-			teamname = "/blue";
-			break;
-		case TEAM_RED:
-			teamname = "/red";
-			break;
-		default:
-			teamname = "/default";
-			break;
-	}
 
 	ptr = strchr(model, '/');
 
@@ -6459,6 +6444,7 @@ void UI_FeederScrollTo(float feederId, int scrollTo) {
 	}
 }
 
+qboolean uiUpdateModel = qtrue;
 static qhandle_t UI_FeederItemImage(float feederID, int index) {
 	if (feederID == FEEDER_HEADS) 
 	{
@@ -6484,20 +6470,45 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 		{ //we want it to load them as it draws them, like the TA feeder
 		      //return uiInfo.q3HeadIcons[index];
 			q3Head_t *head;
-			const char *playerModel;
-			int selModel;
+			const char *playerModel = NULL;
+			static int selModel;
 
-			if ( serverGameType >= GT_TEAM ) {
-				playerModel = UI_GetModelWithSkin(UI_Cvar_VariableString("team_model"));
-			} else {
-				playerModel = UI_GetModelWithSkin(UI_Cvar_VariableString("model"));
-				if ( UI_SetTeamColorFromModel(playerModel) ) {
-					uiInfo.q3SelectedHead = -1;
+			if (uiUpdateModel)
+			{
+				if (serverGameType >= GT_TEAM)
+				{
+					playerModel = UI_GetModelWithSkin(ui_team_model.string);
 				}
+				else
+				{
+					playerModel = UI_GetModelWithSkin(ui_model.string);
+					if (UI_SetTeamColorFromModel(playerModel))
+					{
+						uiInfo.q3SelectedHead = -1;
+					}
+				}
+				selModel = UI_HeadIndexForModel(playerModel);
+				uiUpdateModel = qfalse;
 			}
-			selModel = UI_HeadIndexForModel(playerModel);
 
 			//if ( selModel == -1 ) selModel = trap_Cvar_VariableValue("ui_selectedModelIndex");
+			if (selModel == -1 && playerModel)
+			{
+				static q3Head_t noIconHead;
+				static char noIconHeadName[128];
+
+				if (!noIconHead.name)
+				{
+					noIconHead.next = NULL;
+					noIconHead.icon = trap_R_RegisterShaderNoMip("menu/art/unknownmap");
+					noIconHead.name = noIconHeadName;
+
+					UI_InsertHeadRaw(&noIconHead);
+				}
+
+				Q_strncpyz( noIconHeadName, playerModel, sizeof(noIconHeadName) );
+				selModel = UI_HeadIndexForModel(playerModel);
+			}
 
 			if (selModel != -1)
 			{
@@ -7982,6 +7993,9 @@ vmCvar_t	ui_botfilter;
 
 vmCvar_t	ui_widescreen;
 
+vmCvar_t	ui_model;
+vmCvar_t	ui_team_model;
+
 vmCvar_t	ui_MVSDK;
 
 // bk001129 - made static to avoid aliasing
@@ -8116,12 +8130,17 @@ static const cvarTable_t cvarTable[] = {
 	{ &ui_widescreen, "ui_widescreen", "1", CVAR_ARCHIVE | CVAR_LATCH },
 
 	{ &ui_MVSDK, "ui_MVSDK", MVSDK_VERSION, CVAR_ROM | CVAR_USERINFO },
+
+	{ &ui_model, "model", "", CVAR_USERINFO | CVAR_ARCHIVE },
+	{ &ui_team_model, "team_model", "", CVAR_USERINFO | CVAR_ARCHIVE },
 };
 
 // bk001129 - made static to avoid aliasing
 static int		cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
 
 int widescreenModificationCount = - 1;
+int modelModificationCount = -1;
+int teamModelModificationCount = -1;
 /*
 =================
 UI_RegisterCvars
@@ -8136,6 +8155,8 @@ void UI_RegisterCvars( void ) {
 	}
 
 	widescreenModificationCount = ui_widescreen.modificationCount;
+	modelModificationCount = ui_model.modificationCount;
+	teamModelModificationCount = ui_team_model.modificationCount;
 }
 
 /*
@@ -8154,6 +8175,15 @@ void UI_UpdateCvars( void ) {
 	if (widescreenModificationCount != ui_widescreen.modificationCount) {
 		widescreenModificationCount = ui_widescreen.modificationCount;
 		UI_UpdateWidescreen();
+	}
+
+	if (modelModificationCount != ui_model.modificationCount) {
+		modelModificationCount = ui_model.modificationCount;
+		uiUpdateModel = qtrue;
+	}
+	if (teamModelModificationCount != ui_team_model.modificationCount) {
+		teamModelModificationCount = ui_team_model.modificationCount;
+		uiUpdateModel = qtrue;
 	}
 }
 
