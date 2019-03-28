@@ -5217,14 +5217,67 @@ static int UI_HeadCountByTeam() {
 	return c;
 }
 
+
+q3Head_t *UI_GetHeadByIndex( int index )
+{
+	q3Head_t *current = uiInfo.q3Heads;
+	int i = 0;
+
+	while ( current )
+	{
+		if ( i == index ) return current;
+		i++;
+
+		current = current->next;
+	}
+	return NULL;
+}
+
+static q3Head_t *UI_GetHeadByName( const char *name )
+{
+	q3Head_t *current = uiInfo.q3Heads;
+
+	while ( current )
+	{
+		if ( !Q_stricmp(name, current->name) ) return current;
+		current = current->next;
+	}
+	return NULL;
+}
+
+static void UI_InsertHead( const char *name )
+{
+	q3Head_t *newHead;
+	q3Head_t **current;
+
+	// Prevent duplicates
+	if ( UI_GetHeadByName(name) ) return;
+
+	// Find the end of the list
+	current = &uiInfo.q3Heads;
+	while ( *current ) current = &(*current)->next;
+
+	// Get the memory and copy the string
+	newHead = BG_Alloc( sizeof(q3Head_t) );
+	newHead->name = BG_Alloc( strlen(name) + 1 );
+	strcpy( (char*)newHead->name, name );
+	newHead->icon = 0;
+	newHead->next = NULL;
+
+	*current = newHead;
+
+	uiInfo.q3HeadCount++;
+}
+
 /*
 ==================
 UI_HeadCountByColor
 ==================
 */
 static int UI_HeadCountByColor() {
-	int i, c;
+	int c;
 	char *teamname;
+	q3Head_t *head = uiInfo.q3Heads;
 
 	c = 0;
 
@@ -5241,12 +5294,13 @@ static int UI_HeadCountByColor() {
 	}
 
 	// Count each head with this color
-	for (i=0; i<uiInfo.q3HeadCount; i++)
+	while ( head )
 	{
-		if (uiInfo.q3HeadNames[i] && strstr(uiInfo.q3HeadNames[i], teamname))
+		if (head->name && strstr(head->name, teamname))
 		{
 			c++;
 		}
+		head = head->next;
 	}
 	return c;
 }
@@ -5940,6 +5994,7 @@ UI_HeadCountByColor
 ==================
 */
 static const char *UI_SelectedTeamHead(int index, int *actual) {
+	q3Head_t *head;
 	char *teamname;
 	int i,c=0;
 	*actual = 0;
@@ -5961,12 +6016,13 @@ static const char *UI_SelectedTeamHead(int index, int *actual) {
 
 	for (i=0; i<uiInfo.q3HeadCount; i++)
 	{
-		if (uiInfo.q3HeadNames[i] && strstr(uiInfo.q3HeadNames[i], teamname))
+		head = UI_GetHeadByIndex(i);
+		if (head && head->name && strstr(head->name, teamname))
 		{
 			if (c==index)
 			{
 				*actual = i;
-				return uiInfo.q3HeadNames[i];
+				return head->name;
 			}
 			else
 			{
@@ -5990,8 +6046,8 @@ const char *UI_GetModelWithSkin(const char *model) {
 }
 
 int UI_HeadIndexForModel(const char *model) {
+	q3Head_t *head = uiInfo.q3Heads;
 	char *teamname;
-	int i;
 	int c = 0;
 
 	if ( !model || !model[0] ) {
@@ -6011,18 +6067,21 @@ int UI_HeadIndexForModel(const char *model) {
 			break;
 	}
 
-	for (i=0; i<uiInfo.q3HeadCount; i++) {
-		if (uiInfo.q3HeadNames[i] && strstr(uiInfo.q3HeadNames[i], teamname)) {
-			if (!Q_stricmp(uiInfo.q3HeadNames[i], model)) {
+	while ( head ) {
+		if (head->name && strstr(head->name, teamname)) {
+			if (!Q_stricmp(head->name, model)) {
 				return c;
 			}
 			c++;
 		}
+		head = head->next;
 	}
 	return -1;
 }
 
-void UI_SetTeamColorFromModel(const char *model) {
+qboolean UI_SetTeamColorFromModel(const char *model) {
+	int oldSkinColor = uiSkinColor;
+
 	if ( strstr(model, "/blue") ) {
 		uiSkinColor = TEAM_BLUE;
 	} else if ( strstr(model, "/red") ) {
@@ -6030,6 +6089,11 @@ void UI_SetTeamColorFromModel(const char *model) {
 	} else {
 		uiSkinColor = TEAM_FREE;
 	}
+
+	if ( uiSkinColor != oldSkinColor ) {
+		return qtrue;
+	}
+	return qfalse;
 }
 
 const char *UI_GetModelWithTeamColor(const char *model) {
@@ -6419,6 +6483,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 		if (index >= 0 && index < uiInfo.q3HeadCount)
 		{ //we want it to load them as it draws them, like the TA feeder
 		      //return uiInfo.q3HeadIcons[index];
+			q3Head_t *head;
 			const char *playerModel;
 			int selModel;
 
@@ -6426,7 +6491,9 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				playerModel = UI_GetModelWithSkin(UI_Cvar_VariableString("team_model"));
 			} else {
 				playerModel = UI_GetModelWithSkin(UI_Cvar_VariableString("model"));
-				UI_SetTeamColorFromModel(playerModel);
+				if ( UI_SetTeamColorFromModel(playerModel) ) {
+					uiInfo.q3SelectedHead = -1;
+				}
 			}
 			selModel = UI_HeadIndexForModel(playerModel);
 
@@ -6445,7 +6512,9 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				}
 			}
 
-			if (!uiInfo.q3HeadIcons[index])
+			head = UI_GetHeadByIndex(index);
+			if ( !head ) return 0;
+			if ( !head->icon && head->name )
 			{ //this isn't the best way of doing this I guess, but I didn't want a whole seperate string array
 			  //for storing shader names. I can't just replace q3HeadNames with the shader name, because we
 			  //print what's in q3HeadNames and the icon name would look funny.
@@ -6453,9 +6522,9 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				int i = 0;
 				int skinPlace;
 
-				i = (int)strlen(uiInfo.q3HeadNames[index]);
+				i = (int)strlen(head->name);
 
-				while (uiInfo.q3HeadNames[index][i] != '/')
+				while (head->name[i] != '/')
 				{
 					i--;
 				}
@@ -6464,7 +6533,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				skinPlace = i; //remember that this is where the skin name begins
 
 				//now, build a full path out of what's in q3HeadNames, into iconNameFromSkinName
-				Com_sprintf(iconNameFromSkinName, sizeof(iconNameFromSkinName), "models/players/%s", uiInfo.q3HeadNames[index]);
+				Com_sprintf(iconNameFromSkinName, sizeof(iconNameFromSkinName), "models/players/%s", head->name);
 
 				i = (int)strlen(iconNameFromSkinName);
 
@@ -6480,18 +6549,18 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				//and now, for the final step, append the skin name from q3HeadNames onto the end of iconNameFromSkinName
 				i = (int)strlen(iconNameFromSkinName);
 
-				while (uiInfo.q3HeadNames[index][skinPlace])
+				while (head->name[skinPlace])
 				{
-					iconNameFromSkinName[i] = uiInfo.q3HeadNames[index][skinPlace];
+					iconNameFromSkinName[i] = head->name[skinPlace];
 					i++;
 					skinPlace++;
 				}
 				iconNameFromSkinName[i] = 0;
 
 				//and now we are ready to register (thankfully this will only happen once)
-				uiInfo.q3HeadIcons[index] = trap_R_RegisterShaderNoMip(iconNameFromSkinName);
+				head->icon = trap_R_RegisterShaderNoMip(iconNameFromSkinName);
 			}
-			return uiInfo.q3HeadIcons[index];
+			return head->icon;
 		}
     }
 	else if (feederID == FEEDER_ALLMAPS || feederID == FEEDER_MAPS) 
@@ -6532,12 +6601,17 @@ qboolean UI_FeederSelection(float feederID, int index) {
 		index = actual;
 		if (index >= 0 && index < uiInfo.q3HeadCount) 
 		{
-			trap_Cvar_Set( "model", uiInfo.q3HeadNames[index]);
-			//trap_Cvar_Set( "headmodel", uiInfo.q3HeadNames[index]);
+			q3Head_t *head = UI_GetHeadByIndex( index );
 
-			//Update team_model for now here also, because we're using a different team skin system
-			trap_Cvar_Set( "team_model", uiInfo.q3HeadNames[index]);
-			//trap_Cvar_Set( "team_headmodel", uiInfo.q3HeadNames[index]); 
+			if ( head && head->name )
+			{
+				trap_Cvar_Set( "model", head->name);
+				//trap_Cvar_Set( "headmodel", head->name);
+
+				//Update team_model for now here also, because we're using a different team skin system
+				trap_Cvar_Set( "team_model", head->name);
+				//trap_Cvar_Set( "team_headmodel", head->name);
+			}
 
 			updateModel = qtrue;
 		}
@@ -6939,6 +7013,88 @@ nextSearch:
 PlayerModel_BuildList
 =================
 */
+static int UI_GetFileList_Fallback( const char *path, const char *extension, char *listbuf, int bufsize, char **listptr, size_t *memSize )
+{
+	if ( listptr ) *listptr = listbuf;
+	if ( memSize ) *memSize = 0;
+
+	// If we have no fallback return 0
+	if ( !listbuf || !bufsize ) return 0;
+
+	return trap_FS_GetFileList( path, extension, listbuf, bufsize );
+}
+static int UI_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize, char **listptr, size_t *memSize )
+{
+	int amount, amount2;
+
+	// If we were given no listptr or memSize ptr just use the fallback buffer
+	if ( !listptr || !memSize )
+	{
+		return UI_GetFileList_Fallback( path, extension, listbuf, bufsize, listptr, memSize );
+	}
+
+	// Figure out an initial memory size
+	if ( *memSize < MAX_QPATH )
+	{
+		if ( bufsize > MAX_QPATH )
+		{
+			*memSize = bufsize;
+		}
+		else
+		{
+			*memSize = MAX_QPATH;
+		}
+	}
+
+	// Get the inital file list
+	*listptr = BG_TempAllocTry( *memSize );
+	if ( !*listptr ) return UI_GetFileList_Fallback( path, extension, listbuf, bufsize, listptr, memSize );
+	amount = trap_FS_GetFileList( path, extension, *listptr, *memSize );
+
+	// Retry with more memory until two attempts return the same amount
+	while( 1 )
+	{
+		// Free the previous list
+		BG_TempFree( *memSize );
+
+		// Try to get one with size * 2
+		*memSize *= 2;
+		*listptr = BG_TempAllocTry( *memSize );
+
+		if ( !*listptr )
+		{
+			// We just freed the last memory from our last attempt and couldn't allocate twice the size. So we're going to
+			// just allocate the same size we just freed. And as we should get the same chunk of memory we had before all our
+			// data should still be set, so we can just return the amount. Ugly, but we don't have to call the engine again.
+			*memSize /= 2;
+			*listptr = BG_TempAlloc( *memSize );
+			return amount;
+		}
+		amount2 = trap_FS_GetFileList( path, extension, *listptr, *memSize );
+
+		if ( amount == amount2 )
+		{
+#if 1
+			// If the amounts matched we have at least twice as much memory as we need, so we can free half the memory. As
+			// temp memory is growing from the end of our memory pool, we can free our current memory, allocate half of
+			// it (we get the second half which does not contain any of our data) and then move the memory from
+			// the now unallocated, but not overwrriten first half to the valid second half.
+			// This is ugly, but does the trick, unless someone alters the way BG_Temp* works internally.
+			char *oldMem = *listptr;                          // Remember the old pointer
+			BG_TempFree( *memSize );                          // Free the memory (this invalidates the memory above, but it's not reallocated, so we can still use it)
+			*memSize /= 2;                                    // Half memory
+			*listptr = BG_TempAlloc( *memSize );              // Get the new memory (this should give us the second half of our old memory)
+			memmove( *listptr, oldMem, *memSize );            // Copy from the old reference to the new one
+#endif
+			return amount;
+		}
+		else
+		{
+			amount = amount2;
+		}
+	}
+	return 0; // Make lcc happy
+}
 static void UI_BuildQ3Model_List( void )
 {
 	int		numdirs;
@@ -6949,35 +7105,44 @@ static void UI_BuildQ3Model_List( void )
 	char*	dirptr;
 	char*	fileptr;
 	int		i;
-	int		j, k, p, s;
+	int		j, k, p;
 	size_t		dirlen;
 	size_t		filelen;
 
+	size_t dirBufSize = 2048;
+	size_t fileBufSize = 2048;
+
 	uiInfo.q3HeadCount = 0;
 
-	// iterate directory of all player models
-	numdirs = trap_FS_GetFileList("models/players", "/", dirlist, 2048 );
-	dirptr  = dirlist;
-	for (i=0; i<numdirs && uiInfo.q3HeadCount < MAX_PLAYERMODELS; i++,dirptr+=dirlen+1)
+	numdirs = UI_GetFileList("models/players", "/", dirlist, sizeof(dirlist), &dirptr, &dirBufSize);
+
+	for (i=0; i<numdirs; i++,dirptr+=dirlen+1)
 	{
 		int f = 0;
 		char fpath[2048];
 
 		dirlen = strlen(dirptr);
 		
+		// Skip empty directory path
+		if ( !dirlen ) continue;
+
 		if (dirlen && dirptr[dirlen-1]=='/') dirptr[dirlen-1]='\0';
 
 		if (!strcmp(dirptr,".") || !strcmp(dirptr,".."))
 			continue;
 			
-
-		numfiles = trap_FS_GetFileList( va("models/players/%s",dirptr), "skin", filelist, 2048 );
-		fileptr  = filelist;
-		for (j=0; j<numfiles && uiInfo.q3HeadCount < MAX_PLAYERMODELS;j++,fileptr+=filelen+1)
+		// Just do the fallback method for skin variations, it's very unlikely that one model would have enough skins to exceed
+		// our filelist array of 2048 bytes and it's faster if we avoid the additional filelist syscall per model
+		numfiles = UI_GetFileList(va("models/players/%s",dirptr), "skin", filelist, sizeof(filelist), NULL, &fileBufSize);
+		fileptr = filelist;
+		fileBufSize = 0;
+		for (j=0; j<numfiles;j++,fileptr+=filelen+1)
 		{
 			int skinLen = 0;
 
 			filelen = strlen(fileptr);
+
+			if ( !filelen ) continue;
 
 			COM_StripExtension(fileptr,skinname,sizeof(skinname));
 
@@ -7006,8 +7171,6 @@ static void UI_BuildQ3Model_List( void )
 
 			if (f)
 			{ //if it exists
-				qboolean iconExists = qfalse;
-
 				trap_FS_FCloseFile(f);
 
 				if (skinname[0] == '_')
@@ -7015,35 +7178,12 @@ static void UI_BuildQ3Model_List( void )
 					skinname[0] = '/';
 				}
 
-				s = 0;
-
-				while (s < uiInfo.q3HeadCount)
-				{ //check for dupes
-					if (!Q_stricmp(va("%s%s", dirptr, skinname), uiInfo.q3HeadNames[s]))
-					{
-						iconExists = qtrue;
-						break;
-					}
-					s++;
-				}
-
-				if (iconExists)
-				{
-					continue;
-				}
-
-				Com_sprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof(uiInfo.q3HeadNames[uiInfo.q3HeadCount]), "%s%s", dirptr, skinname);
-				uiInfo.q3HeadIcons[uiInfo.q3HeadCount++] = 0;//trap_R_RegisterShaderNoMip(fpath);
-				//rww - we are now registering them as they are drawn like the TA feeder, so as to decrease UI load time.
-			}
-
-			if (uiInfo.q3HeadCount >= MAX_PLAYERMODELS)
-			{
-				return;
+				UI_InsertHead( va("%s%s", dirptr, skinname) );
 			}
 		}
-	}	
-
+		if ( fileBufSize ) BG_TempFree( fileBufSize );
+	}
+	if ( dirBufSize )	BG_TempFree( dirBufSize);
 }
 
 

@@ -620,7 +620,7 @@ typedef struct {
 #define MAX_DOWNLOADS 512
 #define MAX_DEMOS 256
 #define MAX_MOVIES 256
-#define MAX_PLAYERMODELS 256
+//#define MAX_PLAYERMODELS 256
 
 #define MAX_SCROLLTEXT_SIZE		4096
 #define MAX_SCROLLTEXT_LINES		64
@@ -742,6 +742,13 @@ typedef struct {
 	const char *modDescr;
 } modInfo_t;
 
+typedef struct q3Head_s q3Head_t;
+struct q3Head_s {
+	const char *name;
+	qhandle_t  icon;
+
+	q3Head_t *next;
+};
 
 typedef struct {
 	displayContextDef_t uiDC;
@@ -833,8 +840,7 @@ typedef struct {
 	sfxHandle_t newHighScoreSound;
 
 	int				q3HeadCount;
-	char			q3HeadNames[MAX_PLAYERMODELS][64];
-	qhandle_t	q3HeadIcons[MAX_PLAYERMODELS];
+	q3Head_t		*q3Heads;
 	int				q3SelectedHead;
 
 	int				forceConfigCount;

@@ -2416,6 +2416,20 @@ void *BG_TempAlloc( int size )
 	return &bg_pool[bg_poolTail];
 }
 
+void *BG_TempAllocTry( int size )
+{
+	size = ((size + 0x00000003) & 0xfffffffc);
+
+	if (bg_poolTail - size < bg_poolSize)
+	{
+		return 0;
+	}
+
+	bg_poolTail -= size;
+
+	return &bg_pool[bg_poolTail];
+}
+
 void BG_TempFree( int size )
 {
 	size = ((size + 0x00000003) & 0xfffffffc);
