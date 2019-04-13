@@ -3097,6 +3097,24 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 					return qtrue;
 				}
 			}
+		} else if (key == A_MWHEELUP || key == A_MWHEELDOWN) {
+			editFieldDef_t *editDef = item->typeData;
+			if (editDef) {
+				float stepSize = (editDef->maxVal - editDef->minVal) / 50;
+				value = DC->getCVarValue(item->cvar);
+
+				if (key == A_MWHEELUP) {
+					value += stepSize;
+				} else {
+					value -= stepSize;
+				}
+
+				if (value > editDef->maxVal) value = editDef->maxVal;
+				if (value < editDef->minVal) value = editDef->minVal;
+
+				DC->setCVar(item->cvar, va("%f", value));
+				return qtrue;
+			}
 		}
 	}
 	DC->Print("slider handle key exit\n");
