@@ -4562,6 +4562,15 @@ void Item_ListBox_Paint(itemDef_t *item) {
 	qhandle_t image;
 	qhandle_t optionalImage1, optionalImage2, optionalImage3, optionalImage4;
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
+	vec4_t hoverColor;
+
+	if ( listPtr->elementStyle == LISTBOX_IMAGE ) { // The listbox type for images uses borderColor to outline elements
+		Vector4Copy( item->window.borderColor, hoverColor );
+		hoverColor[3] *= 0.3f;
+	} else { // Other types of listbox have a specific outline color
+		Vector4Copy( item->window.outlineColor, hoverColor );
+		hoverColor[3] *= 0.5f;
+	}
 
 	// the listbox is horizontal or vertical and has a fixed size scroll bar going either direction
 	// elements are enumerated from the DC and either text or image handles are acquired from the DC as well
@@ -4607,6 +4616,8 @@ void Item_ListBox_Paint(itemDef_t *item) {
 
 				if (i == item->cursorPos) {
 					DC->drawRect(x, y, listPtr->elementWidth-1, listPtr->elementHeight-1, item->window.borderSize, item->window.borderColor);
+				} else if ( i == listPtr->cursorPos && (item->window.flags & WINDOW_HASFOCUS) && (item->window.flags & WINDOW_MOUSEOVER) ) {
+					DC->drawRect(x, y, listPtr->elementWidth-1, listPtr->elementHeight-1, item->window.borderSize, hoverColor);
 				}
 
 				size -= listPtr->elementWidth;
@@ -4662,6 +4673,8 @@ void Item_ListBox_Paint(itemDef_t *item) {
 
 				if (i == item->cursorPos) {
 					DC->drawRect(x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, item->window.borderColor);
+				} else if ( i == listPtr->cursorPos && (item->window.flags & WINDOW_HASFOCUS) && (item->window.flags & WINDOW_MOUSEOVER) ) {
+					DC->drawRect(x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, hoverColor);
 				}
 
 				listPtr->endPos++;
@@ -4756,6 +4769,8 @@ void Item_ListBox_Paint(itemDef_t *item) {
 
 				if (i == item->cursorPos) {
 					DC->fillRect(x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight, item->window.outlineColor);
+				} else if ( i == listPtr->cursorPos && (item->window.flags & WINDOW_HASFOCUS) && (item->window.flags & WINDOW_MOUSEOVER) ) {
+					DC->fillRect(x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight, hoverColor);
 				}
 
 				size -= listPtr->elementHeight;
