@@ -1997,6 +1997,7 @@ void UpdateForceStatus()
 
 	if ( !UI_TrueJediEnabled() && serverGameType >= GT_TEAM )
 	{// Take the current team and force a skin color based on it.
+		int oldColor = uiSkinColor;
 		switch((int)(trap_Cvar_VariableValue("ui_myteam")))
 		{
 		case TEAM_RED:
@@ -2008,8 +2009,21 @@ void UpdateForceStatus()
 			uiInfo.effectsColor = SABER_BLUE;
 			break;
 		default:
-			uiSkinColor = SKINCOLOR_DEFAULT;
+			//uiSkinColor = SKINCOLOR_DEFAULT;
+			UI_SetTeamColorFromModel(UI_GetModelWithSkin(ui_team_model.string));
 			break;
+		}
+
+		if ( oldColor != uiSkinColor )
+		{ // Scroll to the skin
+			int selModel = UI_HeadIndexForModel(UI_GetModelWithTeamColor(ui_model.string));
+
+			if ( selModel != -1 ) {
+				Menu_SetFeederSelection(NULL, FEEDER_Q3HEADS, selModel, NULL);
+				UI_FeederScrollTo(FEEDER_Q3HEADS, selModel);
+			} else {
+				Menu_SetFeederSelection(NULL, FEEDER_Q3HEADS, 0, NULL);
+			}
 		}
 	}
 }
@@ -6047,10 +6061,34 @@ static const char *UI_SelectedTeamHead(int index, int *actual) {
 
 const char *UI_GetModelWithSkin(const char *model) {
 	static char modelWithSkin[MAX_STRING_CHARS];
+	int currentColor;
 
-	if ( strchr(model, '/') ) return model;
-	Q_strncpyz( modelWithSkin, model, sizeof(modelWithSkin) );
-	Q_strcat( modelWithSkin, sizeof(modelWithSkin), "/default" );
+	if ( serverGameType >= GT_TEAM ) {
+		int myTeam = (int)trap_Cvar_VariableValue("ui_myteam");
+		const char *ptr;
+		if ( strstr(model, "/blue") ) {
+			currentColor = SKINCOLOR_BLUE;
+		} else if ( strstr(model, "/red") ) {
+			currentColor = SKINCOLOR_RED;
+		} else if ( strstr(model, "/default") ) {
+			currentColor = SKINCOLOR_DEFAULT;
+		} else {
+			currentColor = SKINCOLOR_OTHER;
+		}
+
+		if ( currentColor == uiSkinColor || (myTeam != TEAM_RED && myTeam != TEAM_BLUE) ) return model;
+		ptr = strchr(model, '/');
+
+		if ( !ptr ) Q_strncpyz( modelWithSkin, model, sizeof(modelWithSkin) );
+		else if ( ptr-model+1 <= sizeof(modelWithSkin) ) Q_strncpyz( modelWithSkin, model, ptr-model+1 );
+		else return model; // Error
+
+		Q_strcat( modelWithSkin, sizeof(modelWithSkin), UI_GetSkinSuffixForTeamColor() );
+	} else {
+		if ( strchr(model, '/') ) return model;
+		Q_strncpyz( modelWithSkin, model, sizeof(modelWithSkin) );
+		Q_strcat( modelWithSkin, sizeof(modelWithSkin), "/default" );
+	}
 
 	return modelWithSkin;
 }
@@ -6478,6 +6516,13 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				if (serverGameType >= GT_TEAM)
 				{
 					playerModel = UI_GetModelWithSkin(ui_team_model.string);
+					if ( UI_SetTeamColorFromModel(playerModel))
+					{ // Also doing this for team gametypes now, as spectators would otherwise get default skins.
+					  // This should generally be enough for proper skin selection (if team_model is set to a team skin) unless
+					  // someone has a custom skin that only exists for one of the teams. In that case they have to adjust their
+					  // skin after joining the team, cause we don't know their team, yet.
+						uiInfo.q3SelectedHead = -1;
+					}
 				}
 				else
 				{
