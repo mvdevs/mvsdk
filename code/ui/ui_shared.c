@@ -2308,15 +2308,15 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 
 	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS)) {
 		max = Item_ListBox_MaxScroll(item);
-		if (item->window.flags & WINDOW_HORIZONTAL) {
-			viewmax = (item->window.rect.w / listPtr->elementWidth);
+		viewmax = count - max;
 
+		if (item->window.flags & WINDOW_HORIZONTAL) {
 			if ( key == A_MWHEELUP || key == A_MWHEELDOWN )
 			{ // Enable scrolling with the mousewheel.
 				if ( key == A_MWHEELUP )	listPtr->startPos--;
 				if ( key == A_MWHEELDOWN )	listPtr->startPos++;
 
-				if ( listPtr->startPos >= count - viewmax ) listPtr->startPos = count - viewmax;
+				if ( listPtr->startPos > max ) listPtr->startPos = max;
 				if ( listPtr->startPos < 0 ) listPtr->startPos = 0;
 
 				return qtrue;
@@ -2369,14 +2369,12 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 			}
 		}
 		else {
-			viewmax = (item->window.rect.h / listPtr->elementHeight);
-
 			if ( key == A_MWHEELUP || key == A_MWHEELDOWN )
 			{ // Enable scrolling with the mousewheel.
 				if ( key == A_MWHEELUP )	listPtr->startPos--;
 				if ( key == A_MWHEELDOWN )	listPtr->startPos++;
 
-				if ( listPtr->startPos >= count - viewmax ) listPtr->startPos = count - viewmax;
+				if ( listPtr->startPos > max ) listPtr->startPos = max;
 				if ( listPtr->startPos < 0 ) listPtr->startPos = 0;
 
 				return qtrue;

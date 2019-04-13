@@ -6080,7 +6080,7 @@ const char *UI_GetModelWithSkin(const char *model) {
 		ptr = strchr(model, '/');
 
 		if ( !ptr ) Q_strncpyz( modelWithSkin, model, sizeof(modelWithSkin) );
-		else if ( ptr-model+1 <= sizeof(modelWithSkin) ) Q_strncpyz( modelWithSkin, model, ptr-model+1 );
+		else if ( (unsigned long)(ptr-model+1) <= sizeof(modelWithSkin) ) Q_strncpyz( modelWithSkin, model, ptr-model+1 );
 		else return model; // Error
 
 		Q_strcat( modelWithSkin, sizeof(modelWithSkin), UI_GetSkinSuffixForTeamColor() );
