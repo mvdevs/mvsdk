@@ -9,6 +9,7 @@
 #include "keycodes.h"
 #include "../game/bg_public.h"
 #include "ui_shared.h"
+#include "../api/mvmenu.h"
 
 // global display context
 
