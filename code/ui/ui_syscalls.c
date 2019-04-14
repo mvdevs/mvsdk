@@ -627,17 +627,17 @@ void trap_MVAPI_SetVirtualScreen( float w, float h )
 }
 
 void trap_CL_ContinueCurrentDownload(dldecision_t decision) {
-	syscall(UI_MV_CONTINUE_DOWNLOAD, decision);
+	syscall(UI_MVAPI_CONTINUE_DOWNLOAD, decision);
 }
 
 int trap_FS_GetDLList(dlfile_t *files, int maxfiles) {
-	return syscall(UI_MV_GETDLLIST, files, maxfiles);
+	return syscall(UI_MVAPI_GETDLLIST, files, maxfiles);
 }
 
 qboolean trap_FS_RMDLPrefix(const char *qpath) {
-	return syscall(UI_MV_RMDLPREFIX, qpath);
+	return syscall(UI_MVAPI_RMDLPREFIX, qpath);
 }
 
 qboolean trap_UI_DeleteDLFile(const dlfile_t *file) {
-	return syscall(UI_MV_DELDLFILE, file);
+	return syscall(UI_MVAPI_DELDLFILE, file);
 }

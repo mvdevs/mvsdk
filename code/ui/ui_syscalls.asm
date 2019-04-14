@@ -189,7 +189,7 @@ equ trap_R_AddRefEntityToScene2				-707	;UI_MVAPI_R_ADDREFENTITYTOSCENE2
 equ trap_MVAPI_SetVirtualScreen				-708	;UI_MVAPI_SETVIRTUALSCREEN
 
 ; JK2MV Syscalls [mvmenu]
-equ trap_CL_ContinueCurrentDownload         -204    ; UI_MV_CONTINUE_DOWNLOAD
-equ trap_FS_GetDLList                       -205    ; UI_MV_GETDLLIST
-equ trap_FS_RMDLPrefix                      -206    ; UI_MV_RMDLPREFIX
-equ trap_UI_DeleteDLFile                    -207    ; UI_MV_DELDLFILE
+equ trap_CL_ContinueCurrentDownload         -301    ; UI_MVAPI_CONTINUE_DOWNLOAD
+equ trap_FS_GetDLList                       -302    ; UI_MVAPI_GETDLLIST
+equ trap_FS_RMDLPrefix                      -303    ; UI_MVAPI_RMDLPREFIX
+equ trap_UI_DeleteDLFile                    -304    ; UI_MVAPI_DELDLFILE
