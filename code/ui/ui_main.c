@@ -6461,8 +6461,8 @@ void UI_FeederScrollTo(float feederId, int scrollTo) {
 				itemDef_t *item = menu->items[i];
 				listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 
-				int viewmax = (item->window.flags & WINDOW_HORIZONTAL) ? (item->window.rect.w / listPtr->elementWidth) : (item->window.rect.h / listPtr->elementWidth);
-				int endPos = Display_GetContext()->feederCount(item->special) - viewmax;
+				int endPos = Item_ListBox_MaxScroll(item);
+				int viewmax = Display_GetContext()->feederCount(item->special) - endPos;
 
 				if ( viewmax > 1 ) {
 					if ( scrollTo >= viewmax/2 )
