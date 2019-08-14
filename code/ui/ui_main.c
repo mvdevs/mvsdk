@@ -250,7 +250,7 @@ Make 2D drawing functions use widescreen or 640x480 coordinates
 void UI_WideScreenMode(qboolean on) {
 	if (mvapi >= 3) {
 		if (on) {
-			trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, (float)SCREEN_HEIGHT);
+			trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, uiInfo.screenHeight);
 		}
 		else {
 			trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
@@ -266,16 +266,29 @@ UI_UpdateWidescreen
 extern vmCvar_t ui_widescreen;
 static void UI_UpdateWidescreen(void) {
 	if (ui_widescreen.integer && mvapi >= 3) {
-		uiInfo.screenWidth = (float)SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / uiInfo.uiDC.glconfig.vidHeight;
-	}
-	else {
+		if ( uiInfo.uiDC.glconfig.vidWidth >= uiInfo.uiDC.glconfig.vidHeight ) {
+			uiInfo.screenWidth = (float)SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / uiInfo.uiDC.glconfig.vidHeight;
+			uiInfo.screenHeight = (float)SCREEN_HEIGHT;
+			uiInfo.portraitMode = qfalse;
+		} else {
+			uiInfo.screenWidth = (float)SCREEN_WIDTH;
+			uiInfo.screenHeight = (float)SCREEN_WIDTH * uiInfo.uiDC.glconfig.vidHeight / uiInfo.uiDC.glconfig.vidWidth;
+			uiInfo.portraitMode = qtrue;
+		}
+	} else {
 		uiInfo.screenWidth = (float)SCREEN_WIDTH;
+		uiInfo.screenHeight = (float)SCREEN_HEIGHT;
+		uiInfo.portraitMode = qfalse;
 	}
+
 	uiInfo.screenXFactor = (float)SCREEN_WIDTH / uiInfo.screenWidth;
 	uiInfo.screenXFactorInv = uiInfo.screenWidth / (float)SCREEN_WIDTH;
 
+	uiInfo.screenYFactor = (float)SCREEN_HEIGHT / uiInfo.screenHeight;
+	uiInfo.screenYFactorInv = uiInfo.screenHeight / (float)SCREEN_HEIGHT;
+
 	if (mvapi >= 3 && ui_widescreen.integer != 2)
-		trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, (float)SCREEN_HEIGHT);
+		trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, uiInfo.screenHeight);
 }
 
 menuDef_t *Menus_FindByName(const char *p);
@@ -519,7 +532,7 @@ int Text_Width(const char *text, float scale, int iMenuFont)
 
 	UI_WideScreenMode(qtrue);
 	w = trap_R_Font_StrLenPixels(text, iFontIndex, scale) * uiInfo.screenXFactor;
-	UI_WideScreenMode(qfalse);
+	UI_WideScreenMode(uiInfo.portraitMode);
 	return w;
 }
 
@@ -529,7 +542,7 @@ int Text_Height(const char *text, float scale, int iMenuFont)
 	float h;
 	UI_WideScreenMode(qtrue);
 	h = trap_R_Font_HeightPixels(iFontIndex, scale);
-	UI_WideScreenMode(qfalse);
+	UI_WideScreenMode(uiInfo.portraitMode);
 	return h;
 }
 
@@ -562,7 +575,7 @@ static void Text_Paint(float x, float y, float scale, const vec4_t color, const 
 							!limit?-1:limit,		// iCharLimit (-1 = none)
 							scale );				// const float scale = 1.0f
 							
-	UI_WideScreenMode(qfalse);
+	UI_WideScreenMode(uiInfo.portraitMode);
 }
 
 void Text_PaintWithCursor(float x, float y, float scale, const vec4_t color, const char *text, unsigned cursorPos, char cursor, unsigned limit, int style, int iMenuFont)
@@ -664,8 +677,8 @@ _UI_Refresh
 
 void UI_DrawCenteredPic(qhandle_t image, int w, int h) {
   int x, y;
-  x = (SCREEN_WIDTH - w) / 2;
-  y = (SCREEN_HEIGHT - h) / 2;
+  x = (uiInfo.screenWidth - w) / 2;
+  y = (uiInfo.screenHeight - h) / 2;
   UI_DrawHandlePic(x, y, w, h, image);
 }
 
@@ -744,7 +757,7 @@ void _UI_Refresh( int realtime )
 	if (Menu_Count() > 0) {
 		UI_WideScreenMode(qtrue);
 		UI_DrawHandlePic(uiInfo.uiDC.cursorx * uiInfo.screenXFactorInv, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
-		UI_WideScreenMode(qfalse);
+		UI_WideScreenMode(uiInfo.portraitMode);
 	}
 
 #ifndef NDEBUG
@@ -7459,8 +7472,8 @@ void _UI_MouseEvent( int dx, int dy )
 	uiInfo.uiDC.cursory += dy;
 	if (uiInfo.uiDC.cursory < 0)
 		uiInfo.uiDC.cursory = 0;
-	else if (uiInfo.uiDC.cursory > SCREEN_HEIGHT)
-		uiInfo.uiDC.cursory = SCREEN_HEIGHT;
+	else if (uiInfo.uiDC.cursory > uiInfo.screenHeight)
+		uiInfo.uiDC.cursory = uiInfo.screenHeight;
 
   if (Menu_Count() > 0) {
     //menuDef_t *menu = Menu_GetFocused();
@@ -7678,7 +7691,7 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 	vec4_t colorLtGreyAlpha = {0, 0, 0, .5};
 #endif
 
-	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, colorLtGreyAlpha );
+	UI_FillRect( 0, 0, uiInfo.screenWidth, uiInfo.screenHeight, colorLtGreyAlpha );
 
 	downloadSize = trap_Cvar_VariableValue("cl_downloadSize");
 	if (downloadSize) {
@@ -7825,7 +7838,7 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 	//UI_DrawProportionalString( 320, 96, "Press Esc to abort", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
 
 	// display global MOTD at bottom
-	Text_PaintCenter(centerPoint, 425, scale, colorWhite, Info_ValueForKey( cstate.updateInfoString, "motd" ), 0, FONT_MEDIUM);
+	Text_PaintCenter(centerPoint, uiInfo.screenHeight-55, scale, colorWhite, Info_ValueForKey( cstate.updateInfoString, "motd" ), 0, FONT_MEDIUM);
 	// print any server info (server full, bad version, etc)
 	if ( cstate.connState < CA_CONNECTED ) {
 		Text_PaintCenter(centerPoint, yStart + 176, scale, colorWhite, cstate.messageString, 0, FONT_MEDIUM);

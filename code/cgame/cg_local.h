@@ -1306,6 +1306,7 @@ typedef struct {
 	float			screenXScale;		// derived from glconfig
 	float			screenYScale;
 	//float			screenXBias;
+	float			screenHeight;
 	float			screenWidth;		// virtual screen width (originally 640)
 
 	int				serverCommandSequence;	// reliable command stream counter
