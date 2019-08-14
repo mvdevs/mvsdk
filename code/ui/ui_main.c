@@ -29,6 +29,7 @@ This is the only way control passes into the module.
 vmCvar_t  ui_debug;
 vmCvar_t  ui_initialized;
 qboolean menuInJK2MV = qfalse;
+qboolean isMainMenu = qfalse;
 int mvapi = 0;
 int Init_inGameLoad;
 
@@ -47,6 +48,7 @@ LIBEXPORT intptr_t vmMain( intptr_t command, intptr_t arg0, intptr_t arg1, intpt
   }
   switch ( command ) {
 	  case UI_GETAPIVERSION:
+			if ( arg11 ) isMainMenu = qtrue;
 			trap_Cvar_Set("ui_menulevel", "2");
 			return /*UI_API_VERSION*/MV_UiDetectVersion();
 	  case UI_INIT:
@@ -270,10 +272,14 @@ static void UI_UpdateWidescreen(void) {
 			uiInfo.screenWidth = (float)SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / uiInfo.uiDC.glconfig.vidHeight;
 			uiInfo.screenHeight = (float)SCREEN_HEIGHT;
 			uiInfo.portraitMode = qfalse;
-		} else {
+		} else if ( !isMainMenu ) {
 			uiInfo.screenWidth = (float)SCREEN_WIDTH;
 			uiInfo.screenHeight = (float)SCREEN_WIDTH * uiInfo.uiDC.glconfig.vidHeight / uiInfo.uiDC.glconfig.vidWidth;
 			uiInfo.portraitMode = qtrue;
+		} else {
+			uiInfo.screenWidth = (float)SCREEN_WIDTH;
+			uiInfo.screenHeight = (float)SCREEN_HEIGHT;
+			uiInfo.portraitMode = qfalse;
 		}
 	} else {
 		uiInfo.screenWidth = (float)SCREEN_WIDTH;
