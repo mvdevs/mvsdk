@@ -272,14 +272,10 @@ static void UI_UpdateWidescreen(void) {
 			uiInfo.screenWidth = (float)SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / uiInfo.uiDC.glconfig.vidHeight;
 			uiInfo.screenHeight = (float)SCREEN_HEIGHT;
 			uiInfo.portraitMode = qfalse;
-		} else if ( !isMainMenu ) {
+		} else {
 			uiInfo.screenWidth = (float)SCREEN_WIDTH;
 			uiInfo.screenHeight = (float)SCREEN_WIDTH * uiInfo.uiDC.glconfig.vidHeight / uiInfo.uiDC.glconfig.vidWidth;
 			uiInfo.portraitMode = qtrue;
-		} else {
-			uiInfo.screenWidth = (float)SCREEN_WIDTH;
-			uiInfo.screenHeight = (float)SCREEN_HEIGHT;
-			uiInfo.portraitMode = qfalse;
 		}
 	} else {
 		uiInfo.screenWidth = (float)SCREEN_WIDTH;
@@ -292,6 +288,16 @@ static void UI_UpdateWidescreen(void) {
 
 	uiInfo.screenYFactor = (float)SCREEN_HEIGHT / uiInfo.screenHeight;
 	uiInfo.screenYFactorInv = uiInfo.screenHeight / (float)SCREEN_HEIGHT;
+
+	if (uiInfo.portraitMode && isMainMenu) {
+		uiInfo.screenWidth = (float)SCREEN_WIDTH;
+		uiInfo.screenHeight = (float)SCREEN_HEIGHT;
+		if (ui_widescreen.integer != 2) { //for the sake of direct comparison
+			uiInfo.screenYFactor = (float)SCREEN_HEIGHT / uiInfo.screenHeight;
+			uiInfo.screenYFactorInv = uiInfo.screenHeight / (float)SCREEN_HEIGHT;
+			uiInfo.portraitMode = qfalse;
+		}
+	}
 
 	if (mvapi >= 3 && ui_widescreen.integer != 2)
 		trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, uiInfo.screenHeight);
@@ -756,14 +762,19 @@ void _UI_Refresh( int realtime )
 		UI_BuildServerStatus(qfalse);
 		// refresh find player list
 		UI_BuildFindPlayerList(qfalse);
-	} 
-	
-	// draw cursor
-	UI_SetColor( NULL );
-	if (Menu_Count() > 0) {
-		UI_WideScreenMode(qtrue);
-		UI_DrawHandlePic(uiInfo.uiDC.cursorx * uiInfo.screenXFactorInv, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
-		UI_WideScreenMode(uiInfo.portraitMode);
+
+		// draw cursor
+		if (ui_widescreen.integer == 2 && mvapi >= 3 && uiInfo.portraitMode && isMainMenu) { //Scale height on the main menu in portrait mode.
+			UI_SetColor(NULL);
+			trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT * uiInfo.screenYFactorInv);
+			UI_DrawHandlePic(uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory * uiInfo.screenYFactorInv, 48, 48, uiInfo.uiDC.Assets.cursor);
+			trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
+		} else {
+			UI_SetColor(NULL);
+			UI_WideScreenMode(qtrue);
+			UI_DrawHandlePic(uiInfo.uiDC.cursorx * uiInfo.screenXFactorInv, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
+			UI_WideScreenMode(uiInfo.portraitMode);
+		}
 	}
 
 #ifndef NDEBUG
@@ -7475,18 +7486,18 @@ void _UI_MouseEvent( int dx, int dy )
 	else if (uiInfo.uiDC.cursorx > SCREEN_WIDTH)
 		uiInfo.uiDC.cursorx = SCREEN_WIDTH;
 
-	uiInfo.uiDC.cursory += dy;
+	if (ui_widescreen.integer == 2 && uiInfo.portraitMode && isMainMenu)
+		uiInfo.uiDC.cursory += dy * uiInfo.screenYFactor;
+	else
+		uiInfo.uiDC.cursory += dy;
 	if (uiInfo.uiDC.cursory < 0)
 		uiInfo.uiDC.cursory = 0;
 	else if (uiInfo.uiDC.cursory > uiInfo.screenHeight)
 		uiInfo.uiDC.cursory = uiInfo.screenHeight;
 
-  if (Menu_Count() > 0) {
-    //menuDef_t *menu = Menu_GetFocused();
-    //Menu_HandleMouseMove(menu, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
+	if (Menu_Count() > 0) {
 		Display_MouseMove(NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
-  }
-
+	}
 }
 
 void UI_LoadNonIngame() {
