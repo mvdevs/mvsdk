@@ -769,7 +769,7 @@ void _UI_Refresh( int realtime )
 			trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT * uiInfo.screenYFactorInv);
 			UI_DrawHandlePic(uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory * uiInfo.screenYFactorInv, 48, 48, uiInfo.uiDC.Assets.cursor);
 			trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
-		} else {
+		} else if (trap_Key_GetCatcher() & KEYCATCH_UI) {
 			UI_SetColor(NULL);
 			UI_WideScreenMode(qtrue);
 			UI_DrawHandlePic(uiInfo.uiDC.cursorx * uiInfo.screenXFactorInv, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
