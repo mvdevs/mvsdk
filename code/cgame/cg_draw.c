@@ -227,7 +227,22 @@ static void CG_DrawZoomMask( void )
 	}
 	else if ( cg.predictedPlayerState.zoomMode)
 	{
-		float xOffset = 0.5f * (cgs.screenWidth - 640);
+		float xOffset = 0.5f * (cgs.screenWidth - SCREEN_WIDTH);
+		float yOffset = 0.5f * (cgs.screenHeight - SCREEN_HEIGHT);
+
+		// Fill the left and right
+		trap_R_SetColor(colorTable[CT_BLACK]);
+		trap_R_DrawStretchPic(0, 0, xOffset, SCREEN_HEIGHT, 0, 0, 0, 0, cgs.media.whiteShader);
+		trap_R_DrawStretchPic(xOffset + SCREEN_WIDTH, 0, xOffset, SCREEN_HEIGHT, 0, 0, 0, 0, cgs.media.whiteShader);
+
+		// Fill the top and bottom
+		trap_R_DrawStretchPic(0, 0, SCREEN_WIDTH, yOffset, 0, 0, 0, 0, cgs.media.whiteShader);
+		trap_R_DrawStretchPic(0, yOffset + SCREEN_HEIGHT, SCREEN_WIDTH, yOffset, 0, 0, 0, 0, cgs.media.whiteShader);
+
+		// Draw target mask
+		trap_R_SetColor(colorTable[CT_WHITE]);
+		trap_R_DrawStretchPic(xOffset, yOffset, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 1, 1, cgs.media.disruptorMask);
+		trap_R_SetColor(NULL);
 
 		// disruptor zoom mode
 		level = (float)(50.0f - zoomFov) / 50.0f;//(float)(80.0f - zoomFov) / 80.0f;
@@ -245,13 +260,6 @@ static void CG_DrawZoomMask( void )
 		// Using a magic number to convert the zoom level to a rotation amount that correlates more or less with the zoom artwork. 
 		level *= 103.0f;
 
-		// Draw target mask
-		CG_FillRect(0, 0, xOffset, 480, colorTable[CT_BLACK]);
-		CG_FillRect(xOffset + 640, 0, xOffset, 480, colorTable[CT_BLACK]);
-
-		trap_R_SetColor( colorTable[CT_WHITE] );
-		CG_DrawPic(xOffset, 0, 640, 480, cgs.media.disruptorMask);
-
 		// apparently 99.0f is the full zoom level
 		if ( level >= 99 )
 		{
@@ -265,7 +273,7 @@ static void CG_DrawZoomMask( void )
 		}
 
 		// Draw rotating insert
-		CG_DrawRotatePic2(0.5f * cgs.screenWidth, 240, 640, 480, -level, cgs.media.disruptorInsert);
+		CG_DrawRotatePic2(0.5f * cgs.screenWidth, 0.5f * cgs.screenHeight, SCREEN_WIDTH, SCREEN_HEIGHT, -level, cgs.media.disruptorInsert);
 
 		// Increase the light levels under the center of the target
 //		CG_DrawPic( 198, 118, 246, 246, cgs.media.disruptorLight );
@@ -326,10 +334,10 @@ static void CG_DrawZoomMask( void )
 
 		for (fi = 18.5f; fi <= 18.5f + max; fi+= 3 ) // going from 15 to 45 degrees, with 5 degree increments
 		{
-			cx = 320 + sin( (fi+90.0f)/57.296f ) * 190;
-			cy = 240 + cos( (fi+90.0f)/57.296f ) * 190;
+			cx = (SCREEN_WIDTH / 2) + sin( (fi+90.0f)/57.296f ) * 190;
+			cy = (SCREEN_HEIGHT / 2) + cos( (fi+90.0f)/57.296f ) * 190;
 
-			CG_DrawRotatePic2(xOffset + cx, cy, 12, 24, 90 - fi, cgs.media.disruptorInsertTick);
+			CG_DrawRotatePic2(xOffset + cx, yOffset + cy, 12, 24, 90 - fi, cgs.media.disruptorInsertTick);
 		}
 
 		if ( cg.predictedPlayerState.weaponstate == WEAPON_CHARGING_ALT )
@@ -344,7 +352,7 @@ static void CG_DrawZoomMask( void )
 				max = 1.0f;
 			}
 
-			trap_R_DrawStretchPic(xOffset + 257, 435, 134*max, 34, 0, 0, max, 1, cgs.media.disruptorChargeShader);
+			trap_R_DrawStretchPic(xOffset + 257, yOffset + 435, 134 * max, 34, 0, 0, max, 1, cgs.media.disruptorChargeShader);
 		}
 //		trap_R_SetColor( colorTable[CT_WHITE] );
 //		CG_DrawPic( 0, 0, 640, 480, cgs.media.disruptorMask );
@@ -2309,7 +2317,7 @@ static void CG_DrawDisconnect( void ) {
 	}
 
 	x = cgs.screenWidth - 48;
-	y = 480 - 48;
+	y = cgs.screenHeight - 48;
 
 	CG_DrawPic( x, y, 48, 48, trap_R_RegisterShader("gfx/2d/net.tga" ) );
 }
@@ -3744,13 +3752,13 @@ void CG_DrawFlagStatus()
 
 	if (CG_YourTeamHasFlag())
 	{
-		CG_DrawPic( startDrawPos, 365, ico_size, ico_size, theirFlagShader );
+		CG_DrawPic( startDrawPos, cgs.screenHeight-115, ico_size, ico_size, theirFlagShader );
 		startDrawPos += ico_size+2;
 	}
 
 	if (CG_OtherTeamHasFlag())
 	{
-		CG_DrawPic( startDrawPos, 365, ico_size, ico_size, myFlagTakenShader );
+		CG_DrawPic( startDrawPos, cgs.screenHeight-115, ico_size, ico_size, myFlagTakenShader );
 	}
 }
 

@@ -849,6 +849,12 @@ static void CG_UpdateWidescreen(void) {
 		cgs.screenWidth = (float)SCREEN_WIDTH;
 		cgs.screenHeight = (float)SCREEN_HEIGHT;
 	}
+
+	cgs.screenXFactor = (float)SCREEN_WIDTH / cgs.screenWidth;
+	cgs.screenXFactorInv = cgs.screenWidth / (float)SCREEN_WIDTH;
+
+	cgs.screenYFactor = (float)SCREEN_HEIGHT / cgs.screenHeight;
+	cgs.screenYFactorInv = cgs.screenHeight / (float)SCREEN_HEIGHT;
 	
 	if (mvapi >= 3 && cg_widescreen.integer != 2)
 		trap_MVAPI_SetVirtualScreen(cgs.screenWidth, cgs.screenHeight);
@@ -2693,8 +2699,8 @@ Ghoul2 Insert End
 
 	// get the rendering configuration from the client system
 	trap_GetGlconfig( &cgs.glconfig );
-	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
-	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
+	cgs.screenXScale = cgs.glconfig.vidWidth / (float)SCREEN_WIDTH;
+	cgs.screenYScale = cgs.glconfig.vidHeight / (float)SCREEN_HEIGHT;
 
 
 	CG_RegisterCvars();

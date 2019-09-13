@@ -119,6 +119,7 @@ extern vmCvar_t	ui_botfilter;
 extern vmCvar_t	ui_model;
 extern vmCvar_t	ui_team_model;
 
+extern vmCvar_t	ui_widescreen;
 
 //
 // ui_qmenu.c
@@ -358,6 +359,8 @@ qboolean UI_SetTeamColorFromModel(const char *model);
 const char *UI_GetModelWithTeamColor(const char *model);
 
 void UI_FeederScrollTo(float feederId, int scrollTo);
+
+void UI_WideScreenMode(qboolean on);
 
 //
 // ui_menu.c

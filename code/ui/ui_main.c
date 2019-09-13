@@ -265,7 +265,6 @@ void UI_WideScreenMode(qboolean on) {
 UI_UpdateWidescreen
 =================
 */
-extern vmCvar_t ui_widescreen;
 static void UI_UpdateWidescreen(void) {
 	if (ui_widescreen.integer && mvapi >= 3) {
 		if ( uiInfo.uiDC.glconfig.vidWidth >= uiInfo.uiDC.glconfig.vidHeight ) {
@@ -7290,11 +7289,11 @@ void _UI_Init( qboolean inGameLoad ) {
 	UI_UpdateWidescreen();
 
 	// for 640x480 virtualized screen
-	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0/480.0);
-	uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * (1.0/640.0);
-	if ( uiInfo.uiDC.glconfig.vidWidth * 480 > uiInfo.uiDC.glconfig.vidHeight * 640 ) {
+	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0/(float)SCREEN_HEIGHT);
+	uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * (1.0/(float)SCREEN_WIDTH);
+	if ( uiInfo.uiDC.glconfig.vidWidth * SCREEN_HEIGHT > uiInfo.uiDC.glconfig.vidHeight * SCREEN_WIDTH ) {
 		// wide screen
-		uiInfo.uiDC.bias = 0.5 * ( uiInfo.uiDC.glconfig.vidWidth - ( uiInfo.uiDC.glconfig.vidHeight * (640.0/480.0) ) );
+		uiInfo.uiDC.bias = 0.5 * ( uiInfo.uiDC.glconfig.vidWidth - ( uiInfo.uiDC.glconfig.vidHeight * ((float)SCREEN_WIDTH/(float)SCREEN_HEIGHT) ) );
 	}
 	else {
 		// no wide screen
