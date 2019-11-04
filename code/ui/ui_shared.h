@@ -403,6 +403,8 @@ typedef struct {
   int				frameTime;
 	float			cursorx;
 	float			cursory;
+	float			screenWidth;
+	float			screenHeight;
 	qboolean	debug;
 
   cachedAssets_t Assets;

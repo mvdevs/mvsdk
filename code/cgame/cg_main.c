@@ -855,7 +855,10 @@ static void CG_UpdateWidescreen(void) {
 
 	cgs.screenYFactor = (float)SCREEN_HEIGHT / cgs.screenHeight;
 	cgs.screenYFactorInv = cgs.screenHeight / (float)SCREEN_HEIGHT;
-	
+
+	cgDC.screenWidth = cgs.screenWidth;
+	cgDC.screenHeight = cgs.screenHeight;
+
 	if (mvapi >= 3 && cg_widescreen.integer != 2)
 		trap_MVAPI_SetVirtualScreen(cgs.screenWidth, cgs.screenHeight);
 }

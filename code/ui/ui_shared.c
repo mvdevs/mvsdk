@@ -5,12 +5,6 @@
 #include "../game/bg_multiversion.h"
 #include "../api/mvapi.h"
 
-#if defined(JK2_CGAME)
-#include "../cgame/cg_local.h"
-#elif defined(JK2_UI) || defined(JK2MV_MENU)
-#include "../ui/ui_local.h"
-#endif
-
 #define SCROLL_TIME_START					500
 #define SCROLL_TIME_ADJUST				150
 #define SCROLL_TIME_ADJUSTOFFSET	40
@@ -5319,13 +5313,7 @@ void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
 	if (menu->fullScreen) {
 		// implies a background shader
 		// FIXME: make sure we have a default shader if fullscreen is set with no background
-		#if defined(JK2_CGAME)
-		DC->drawHandlePic( 0, 0, cgs.screenWidth, cgs.screenHeight, menu->window.background );
-		#elif defined(JK2_UI) || defined(JK2MV_MENU)
-		DC->drawHandlePic( 0, 0, uiInfo.screenWidth, uiInfo.screenHeight, menu->window.background );
-		#else
-		DC->drawHandlePic( 0, 0, (float)SCREEN_WIDTH, (float)SCREEN_HEIGHT, menu->window.background );
-		#endif
+		DC->drawHandlePic( 0, 0, DC->screenWidth, DC->screenHeight, menu->window.background );
 	} else if (menu->window.background) {
 		// this allows a background shader without being full screen
 		//UI_DrawHandlePic(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, menu->backgroundShader);
@@ -7309,7 +7297,6 @@ void Menu_PaintAll() {
 	int i;
 	char motd[MAX_STRING_CHARS];
 	vec4_t v = { 1, 1, 1, 1 };
-	float y = 465;
 
 	if (captureFunc) {
 		captureFunc(captureData);
@@ -7328,13 +7315,7 @@ void Menu_PaintAll() {
 	// motd
 	DC->getCVarString("cl_motdString", motd, sizeof(motd));
 	if (strlen(motd)) {
-
-		#if defined(JK2_CGAME)
-		y = cgs.screenHeight - 15;
-		#elif defined(JK2_UI) || defined(JK2MV_MENU)
-		y = uiInfo.screenHeight - 15;
-		#endif
-		DC->drawText(10, y, 0.6f, v, motd, 0, 0, 0, 0);
+		DC->drawText(10, DC->screenHeight - 15, 0.6f, v, motd, 0, 0, 0, 0);
 	}
 }
 

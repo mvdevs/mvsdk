@@ -298,6 +298,9 @@ static void UI_UpdateWidescreen(void) {
 		}
 	}
 
+	uiInfo.uiDC.screenWidth = uiInfo.screenWidth;
+	uiInfo.uiDC.screenHeight = uiInfo.screenHeight;
+
 	if (mvapi >= 3 && ui_widescreen.integer != 2)
 		trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, uiInfo.screenHeight);
 }
