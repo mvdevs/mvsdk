@@ -504,6 +504,8 @@ qboolean	trap_SP_RegisterServer( const char *package );
 qboolean	trap_SP_Register(char *file );
 int trap_SP_GetStringTextString(const char *text, char *buffer, int bufferLength);
 
+unsigned int trap_AnyLanguage_ReadCharFromString_1_04( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation );
+
 int Item_ListBox_MaxScroll(itemDef_t *item);
 
 extern qboolean menuInJK2MV;
