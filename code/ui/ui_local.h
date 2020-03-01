@@ -120,6 +120,7 @@ extern vmCvar_t	ui_model;
 extern vmCvar_t	ui_team_model;
 
 extern vmCvar_t	ui_widescreen;
+extern vmCvar_t	ui_widescreenCursorScale;
 
 //
 // ui_qmenu.c

@@ -291,17 +291,12 @@ static void UI_UpdateWidescreen(void) {
 	if (uiInfo.portraitMode && isMainMenu) {
 		uiInfo.screenWidth = (float)SCREEN_WIDTH;
 		uiInfo.screenHeight = (float)SCREEN_HEIGHT;
-		if (ui_widescreen.integer != 2) { //for the sake of direct comparison
-			uiInfo.screenYFactor = (float)SCREEN_HEIGHT / uiInfo.screenHeight;
-			uiInfo.screenYFactorInv = uiInfo.screenHeight / (float)SCREEN_HEIGHT;
-			uiInfo.portraitMode = qfalse;
-		}
 	}
 
 	uiInfo.uiDC.screenWidth = uiInfo.screenWidth;
 	uiInfo.uiDC.screenHeight = uiInfo.screenHeight;
 
-	if (mvapi >= 3 && ui_widescreen.integer != 2)
+	if (mvapi >= 3)
 		trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, uiInfo.screenHeight);
 }
 
@@ -766,15 +761,18 @@ void _UI_Refresh( int realtime )
 		UI_BuildFindPlayerList(qfalse);
 
 		// draw cursor
-		if (ui_widescreen.integer == 2 && mvapi >= 3 && uiInfo.portraitMode && isMainMenu) { //Scale height on the main menu in portrait mode.
+		if ( (trap_Key_GetCatcher() & KEYCATCH_UI) && Menu_Count() > 0 ) {
 			UI_SetColor(NULL);
-			trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT * uiInfo.screenYFactorInv);
-			UI_DrawHandlePic(uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory * uiInfo.screenYFactorInv, 48, 48, uiInfo.uiDC.Assets.cursor);
-			trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
-		} else if (trap_Key_GetCatcher() & KEYCATCH_UI) {
-			UI_SetColor(NULL);
-			UI_WideScreenMode(qtrue);
-			UI_DrawHandlePic(uiInfo.uiDC.cursorx * uiInfo.screenXFactorInv, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
+			if ( (ui_widescreenCursorScale.integer & 2) && mvapi >= 3 && uiInfo.portraitMode && isMainMenu ) { //Scale height on the main menu in portrait mode.
+				trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT * uiInfo.screenYFactorInv);
+				UI_DrawHandlePic(uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory * uiInfo.screenYFactorInv, 48, 48, uiInfo.uiDC.Assets.cursor);
+			} else if ( (ui_widescreenCursorScale.integer & 1) || uiInfo.portraitMode ) { // Ingame portrait mode is a special case, as we draw the menu only on a portion of the screen
+				UI_WideScreenMode(qtrue);
+				UI_DrawHandlePic(uiInfo.uiDC.cursorx * uiInfo.screenXFactorInv, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
+			} else {
+				UI_WideScreenMode(qfalse);
+				UI_DrawHandlePic(uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
+			}
 			UI_WideScreenMode(uiInfo.portraitMode);
 		}
 	}
@@ -7482,13 +7480,17 @@ UI_MouseEvent
 void _UI_MouseEvent( int dx, int dy )
 {
 	// update mouse screen position
-	uiInfo.uiDC.cursorx += dx * uiInfo.screenXFactor;
+	if ( (ui_widescreenCursorScale.integer & 1) )
+		uiInfo.uiDC.cursorx += dx * uiInfo.screenXFactor;
+	else
+		uiInfo.uiDC.cursorx += dx;
+
 	if (uiInfo.uiDC.cursorx < 0)
 		uiInfo.uiDC.cursorx = 0;
 	else if (uiInfo.uiDC.cursorx > SCREEN_WIDTH)
 		uiInfo.uiDC.cursorx = SCREEN_WIDTH;
 
-	if (ui_widescreen.integer == 2 && uiInfo.portraitMode && isMainMenu)
+	if (ui_widescreen.integer && (ui_widescreenCursorScale.integer & 2) && uiInfo.portraitMode && isMainMenu)
 		uiInfo.uiDC.cursory += dy * uiInfo.screenYFactor;
 	else
 		uiInfo.uiDC.cursory += dy;
@@ -8052,6 +8054,7 @@ vmCvar_t	ui_s_language;
 vmCvar_t	ui_botfilter;
 
 vmCvar_t	ui_widescreen;
+vmCvar_t	ui_widescreenCursorScale;
 
 vmCvar_t	ui_model;
 vmCvar_t	ui_team_model;
@@ -8188,6 +8191,7 @@ static const cvarTable_t cvarTable[] = {
 	{ &ui_s_language, "s_language", "english", CVAR_ARCHIVE | CVAR_NORESTART},
 
 	{ &ui_widescreen, "ui_widescreen", "1", CVAR_ARCHIVE | CVAR_LATCH },
+	{ &ui_widescreenCursorScale, "ui_widescreenCursorScale", "3", CVAR_ARCHIVE },
 
 	{ &ui_MVSDK, "ui_MVSDK", MVSDK_VERSION, CVAR_ROM | CVAR_USERINFO },
 

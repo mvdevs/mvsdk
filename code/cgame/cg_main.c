@@ -859,7 +859,7 @@ static void CG_UpdateWidescreen(void) {
 	cgDC.screenWidth = cgs.screenWidth;
 	cgDC.screenHeight = cgs.screenHeight;
 
-	if (mvapi >= 3 && cg_widescreen.integer != 2)
+	if (mvapi >= 3)
 		trap_MVAPI_SetVirtualScreen(cgs.screenWidth, cgs.screenHeight);
 }
 
