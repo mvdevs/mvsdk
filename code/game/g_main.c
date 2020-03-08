@@ -1319,7 +1319,7 @@ void CalculateRanks( void ) {
 
 		if (currentWinner && currentWinner->client)
 		{
-			trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s %s\n\"",
+			G_CenterPrint( -1, 2, va("%s" S_COLOR_WHITE " %s %s\n",
 			currentWinner->client->pers.netname, G_GetStripEdString("SVINGAME", "VERSUS"), level.clients[nonSpecIndex].pers.netname));
 		}
 	}
@@ -2781,6 +2781,11 @@ void	mysrand( unsigned seed ) {
 int		myrand( void ) {
 	myRandSeed = (69069 * myRandSeed + 1);
 	return myRandSeed & 0x7fff;
+}
+
+void G_StringAppendSubstring( char *dst, size_t dstSize, const char *src, size_t srcLen )
+{
+	Q_strcat( dst, strlen(dst)+srcLen+1 >= dstSize ? dstSize : strlen(dst)+srcLen+1, src );
 }
 
 /*
