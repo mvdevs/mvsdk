@@ -1319,7 +1319,7 @@ void CalculateRanks( void ) {
 
 		if (currentWinner && currentWinner->client)
 		{
-			G_CenterPrint( -1, 2, va("%s" S_COLOR_WHITE " %s %s\n",
+			G_CenterPrint( -1, 3, va("%s" S_COLOR_WHITE " %s %s\n",
 			currentWinner->client->pers.netname, G_GetStripEdString("SVINGAME", "VERSUS"), level.clients[nonSpecIndex].pers.netname));
 		}
 	}

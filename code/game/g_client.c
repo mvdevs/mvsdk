@@ -240,7 +240,7 @@ void JMSaberTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		other->client->invulnerableTimer = level.time + g_spawnInvulnerability.integer;
 	}
 
-	G_CenterPrint( -1, 2, va("%s" S_COLOR_WHITE " %s\n", other->client->pers.netname, G_GetStripEdString("SVINGAME", "BECOMEJM")) );
+	G_CenterPrint( -1, 3, va("%s" S_COLOR_WHITE " %s\n", other->client->pers.netname, G_GetStripEdString("SVINGAME", "BECOMEJM")) );
 
 	other->client->ps.isJediMaster = qtrue;
 	other->client->ps.saberIndex = self->s.number;
@@ -2424,11 +2424,15 @@ void G_CenterPrint( int targetNum, int autoLineWraps, const char *message )
 					if ( wordEnd > lineEnd ) // Make sure the word is still in our line and doesn't exceed it
 						break;
 
-					if ( !curLength && wordLength > MAX_CLIENT_CENTERPRINT_LINELENGTH )
-					{ // Oversize word, can't print this without cutting it into pieces
-						if ( autoLineWraps == 2 )
-						{ // Mode 2: split those giant words, too.
-							wordEnd = ptr = wordStart + MAX_CLIENT_CENTERPRINT_LINELENGTH;
+					// & 1: move whole words to the next line (prefered if combined with 2)
+					// & 2: cut words into pieces
+					if ( curLength + wordLength > MAX_CLIENT_CENTERPRINT_LINELENGTH )
+					{ // The next word would make the line too long
+						if ( (autoLineWraps & 2) && (!curLength || !(autoLineWraps & 1)) )
+						{ // We want to cut the word into pieces
+							if ( curLength && !reset ) Q_strcat( newMessage, sizeof(newMessage), " " );
+
+							wordEnd = ptr = wordStart + (MAX_CLIENT_CENTERPRINT_LINELENGTH - curLength);
 							ptr = wordEnd - 1;
 
 							// Make sure we don't accidently split a colorcode
@@ -2439,21 +2443,15 @@ void G_CenterPrint( int targetNum, int autoLineWraps, const char *message )
 
 							G_StringAppendSubstring( newMessage, sizeof(newMessage), wordStart, wordEnd-wordStart );
 							wordStart = wordEnd;
-							reset = 1;
-							continue;
 						}
-						else
-						{ // We don't want it to get split, so just append the whole thing and let the client cut it off
+						else if ( !curLength )
+						{ // We don't to split it, so just append the whole thing and let the client cut it off
 							G_StringAppendSubstring( newMessage, sizeof(newMessage), wordStart, wordLength );
 							wordStart = wordEnd + 1;
-							reset = 1;
-							continue;
 						}
-					}
-					else if ( curLength + wordLength > MAX_CLIENT_CENTERPRINT_LINELENGTH )
-					{ // The next word would make the line too long, so pretend the wordStart is a new line and retry in a new line
+
+						// Reset the counters
 						reset = 1;
-						continue;
 					}
 					else
 					{ // Append the word
