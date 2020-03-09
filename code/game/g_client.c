@@ -1577,6 +1577,12 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 			const char *team = "Red";
 			int preSess;
 
+			if ( !ent->client->pers.botDelayed )
+			{ // Delay bots until all clients are connected
+				ent->client->pers.botDelayed = qtrue;
+				return;
+			}
+
 			//SetTeam(ent, "");
 			ent->client->sess.sessionTeam = PickTeam(clientNum);
 			trap_GetUserinfo(clientNum, userinfo, MAX_INFO_STRING);

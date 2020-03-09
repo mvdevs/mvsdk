@@ -1728,6 +1728,13 @@ void G_RunClient( gentity_t *ent ) {
 	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
 		return;
 	}
+
+	if ( ent->client->pers.botDelayed )
+	{ // Call ClientBegin for delayed bots now
+		ClientBegin( ent-g_entities, qtrue );
+		ent->client->pers.botDelayed = qfalse;
+	}
+
 	ent->client->pers.cmd.serverTime = level.time;
 	ClientThink_real( ent );
 }

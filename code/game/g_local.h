@@ -337,6 +337,7 @@ typedef struct {
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
+	qboolean	botDelayed;			// Is ClientBegin still outstanding for this bot, because it was delayed?
 } clientPersistant_t;
 
 
