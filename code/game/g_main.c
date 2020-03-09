@@ -139,6 +139,7 @@ vmCvar_t	g_mv_forcePowerDisableMode;
 
 // New cvars
 vmCvar_t	g_submodelWorkaround;
+vmCvar_t	g_botTeamAutoBalance;
 
 vmCvar_t	g_MVSDK;
 
@@ -311,6 +312,9 @@ static cvarTable_t		gameCvarTable[] = {
 	// So we have a cvar in the game module to let servers enable the clientside workaround for bigger maps, defaulting to "0".
 	// Clients supporting the workaround are going to inform the server about it in their userinfo, no matter what this cvar is set to.
 	{ &g_submodelWorkaround, "g_submodelWorkaround", "0", CVAR_ARCHIVE, 0, qtrue },
+
+	// Bots reset their teams on map_restart and map change on basejk. This is often undesired, so let the host decide.
+	{ &g_botTeamAutoBalance, "g_botTeamAutoBalance", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_MVSDK, "g_MVSDK", MVSDK_VERSION, CVAR_ROM | CVAR_SERVERINFO, 0, qfalse },
 };

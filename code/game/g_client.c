@@ -1572,13 +1572,13 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 
 	if ((ent->r.svFlags & SVF_BOT) && g_gametype.integer >= GT_TEAM)
 	{
-		if (allowTeamReset)
+		if (allowTeamReset && g_botTeamAutoBalance.integer)
 		{
 			const char *team = "Red";
 			int preSess;
 
 			//SetTeam(ent, "");
-			ent->client->sess.sessionTeam = PickTeam(-1);
+			ent->client->sess.sessionTeam = PickTeam(clientNum);
 			trap_GetUserinfo(clientNum, userinfo, MAX_INFO_STRING);
 
 			if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
