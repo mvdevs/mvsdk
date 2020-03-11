@@ -267,7 +267,7 @@ UI_UpdateWidescreen
 */
 static void UI_UpdateWidescreen(void) {
 	if (ui_widescreen.integer && mvapi >= 3) {
-		if ( uiInfo.uiDC.glconfig.vidWidth >= uiInfo.uiDC.glconfig.vidHeight ) {
+		if ( 3 * uiInfo.uiDC.glconfig.vidWidth >= 4 * uiInfo.uiDC.glconfig.vidHeight ) {
 			uiInfo.screenWidth = (float)SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / uiInfo.uiDC.glconfig.vidHeight;
 			uiInfo.screenHeight = (float)SCREEN_HEIGHT;
 			uiInfo.portraitMode = qfalse;
