@@ -874,13 +874,14 @@ typedef struct {
 
 	qboolean inGameLoad;
 
-	float		screenHeight;
-	float		screenWidth;
-	float		screenXFactor;
-	float		screenXFactorInv;
-	float		screenYFactor;
-	float		screenYFactorInv;
-	qboolean	portraitMode;
+	float		virtualScreenHeightOn;	// renderer virtual screen height when widescreen is on
+	float		virtualScreenHeightOff;	// renderer virtual screen height when widescreen is off
+	float		screenHeight;			// virtual screen heigth for the UI module
+	float		screenWidth;			// virtual screen width for the UI module
+	float		screenXFactor;			// SCREEN_WIDTH / screenWidth
+	float		screenXFactorInv;		// screenWidth / SCREEN_WIDTH
+	float		screenYFactor;			// SCREEN_HEIGHT / screenHeight
+	float		screenYFactorInv;		// screenHeight / SCREEN_HEIGHT
 
 }	uiInfo_t;
 

@@ -252,10 +252,10 @@ Make 2D drawing functions use widescreen or 640x480 coordinates
 void UI_WideScreenMode(qboolean on) {
 	if (mvapi >= 3) {
 		if (on) {
-			trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, uiInfo.screenHeight);
+			trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, uiInfo.virtualScreenHeightOn);
 		}
 		else {
-			trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
+			trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, uiInfo.virtualScreenHeightOff);
 		}
 	}
 }
@@ -266,21 +266,38 @@ UI_UpdateWidescreen
 =================
 */
 static void UI_UpdateWidescreen(void) {
+	float		vidWidth = uiInfo.uiDC.glconfig.vidWidth;
+	float		vidHeight = uiInfo.uiDC.glconfig.vidHeight;
+	qboolean	portrait;
+	qboolean	landscape;
+
 	if (ui_widescreen.integer && mvapi >= 3) {
-		if ( 3 * uiInfo.uiDC.glconfig.vidWidth >= 4 * uiInfo.uiDC.glconfig.vidHeight ) {
-			uiInfo.screenWidth = (float)SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / uiInfo.uiDC.glconfig.vidHeight;
-			uiInfo.screenHeight = (float)SCREEN_HEIGHT;
-			uiInfo.portraitMode = qfalse;
-		} else {
-			uiInfo.screenWidth = (float)SCREEN_WIDTH;
-			uiInfo.screenHeight = (float)SCREEN_WIDTH * uiInfo.uiDC.glconfig.vidHeight / uiInfo.uiDC.glconfig.vidWidth;
-			uiInfo.portraitMode = qtrue;
-		}
+		landscape = (3 * vidWidth >= 4 * vidHeight);
+		portrait = !landscape;
+	} else {
+		portrait = qfalse;
+		landscape = qfalse;
+	}
+
+	if (isMainMenu) {
+		portrait = qfalse;
+	}
+
+	if (landscape) {
+		uiInfo.screenWidth = (float)SCREEN_HEIGHT * vidWidth / vidHeight;
+		uiInfo.screenHeight = (float)SCREEN_HEIGHT;
+		uiInfo.virtualScreenHeightOn = (float)SCREEN_HEIGHT;
+	} else if (portrait) {
+		uiInfo.screenWidth = (float)SCREEN_WIDTH;
+		uiInfo.screenHeight = (float)SCREEN_HEIGHT;
+		uiInfo.virtualScreenHeightOn = (float)SCREEN_WIDTH * vidHeight / vidWidth;
 	} else {
 		uiInfo.screenWidth = (float)SCREEN_WIDTH;
 		uiInfo.screenHeight = (float)SCREEN_HEIGHT;
-		uiInfo.portraitMode = qfalse;
+		uiInfo.virtualScreenHeightOn = (float)SCREEN_HEIGHT;
 	}
+
+	uiInfo.virtualScreenHeightOff = uiInfo.virtualScreenHeightOn;
 
 	uiInfo.screenXFactor = (float)SCREEN_WIDTH / uiInfo.screenWidth;
 	uiInfo.screenXFactorInv = uiInfo.screenWidth / (float)SCREEN_WIDTH;
@@ -288,16 +305,10 @@ static void UI_UpdateWidescreen(void) {
 	uiInfo.screenYFactor = (float)SCREEN_HEIGHT / uiInfo.screenHeight;
 	uiInfo.screenYFactorInv = uiInfo.screenHeight / (float)SCREEN_HEIGHT;
 
-	if (uiInfo.portraitMode && isMainMenu) {
-		uiInfo.screenWidth = (float)SCREEN_WIDTH;
-		uiInfo.screenHeight = (float)SCREEN_HEIGHT;
-	}
-
 	uiInfo.uiDC.screenWidth = uiInfo.screenWidth;
 	uiInfo.uiDC.screenHeight = uiInfo.screenHeight;
 
-	if (mvapi >= 3)
-		trap_MVAPI_SetVirtualScreen(uiInfo.screenWidth, uiInfo.screenHeight);
+	UI_WideScreenMode(qfalse);
 }
 
 menuDef_t *Menus_FindByName(const char *p);
@@ -541,7 +552,7 @@ int Text_Width(const char *text, float scale, int iMenuFont)
 
 	UI_WideScreenMode(qtrue);
 	w = trap_R_Font_StrLenPixels(text, iFontIndex, scale) * uiInfo.screenXFactor;
-	UI_WideScreenMode(uiInfo.portraitMode);
+	UI_WideScreenMode(qfalse);
 	return w;
 }
 
@@ -550,8 +561,8 @@ int Text_Height(const char *text, float scale, int iMenuFont)
 	int iFontIndex = MenuFontToHandle(iMenuFont);
 	float h;
 	UI_WideScreenMode(qtrue);
-	h = trap_R_Font_HeightPixels(iFontIndex, scale);
-	UI_WideScreenMode(uiInfo.portraitMode);
+	h = trap_R_Font_HeightPixels(iFontIndex, scale) * uiInfo.screenYFactor;
+	UI_WideScreenMode(qfalse);
 	return h;
 }
 
@@ -576,6 +587,7 @@ static void Text_Paint(float x, float y, float scale, const vec4_t color, const 
 
 	UI_WideScreenMode(qtrue);
 	x *= uiInfo.screenXFactorInv;
+	y *= uiInfo.screenYFactorInv;
 	trap_R_Font_DrawString(	x,						// int ox
 							y,						// int oy
 							text,					// const char *text
@@ -583,8 +595,8 @@ static void Text_Paint(float x, float y, float scale, const vec4_t color, const 
 							iStyleOR | iFontIndex,	// const int iFontHandle
 							!limit?-1:limit,		// iCharLimit (-1 = none)
 							scale );				// const float scale = 1.0f
-							
-	UI_WideScreenMode(uiInfo.portraitMode);
+
+	UI_WideScreenMode(qfalse);
 }
 
 void Text_PaintWithCursor(float x, float y, float scale, const vec4_t color, const char *text, unsigned cursorPos, char cursor, unsigned limit, int style, int iMenuFont)
@@ -762,18 +774,13 @@ void _UI_Refresh( int realtime )
 
 		// draw cursor
 		if ( (trap_Key_GetCatcher() & KEYCATCH_UI) && Menu_Count() > 0 ) {
+			float	cursorx = uiInfo.uiDC.cursorx * uiInfo.screenXFactorInv;
+			float	cursory = uiInfo.uiDC.cursory * uiInfo.screenYFactorInv;
+
 			UI_SetColor(NULL);
-			if ( (ui_widescreenCursorScale.integer & 2) && mvapi >= 3 && uiInfo.portraitMode && isMainMenu ) { //Scale height on the main menu in portrait mode.
-				trap_MVAPI_SetVirtualScreen((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT * uiInfo.screenYFactorInv);
-				UI_DrawHandlePic(uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory * uiInfo.screenYFactorInv, 48, 48, uiInfo.uiDC.Assets.cursor);
-			} else if ( (ui_widescreenCursorScale.integer & 1) || uiInfo.portraitMode ) { // Ingame portrait mode is a special case, as we draw the menu only on a portion of the screen
-				UI_WideScreenMode(qtrue);
-				UI_DrawHandlePic(uiInfo.uiDC.cursorx * uiInfo.screenXFactorInv, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
-			} else {
-				UI_WideScreenMode(qfalse);
-				UI_DrawHandlePic(uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
-			}
-			UI_WideScreenMode(uiInfo.portraitMode);
+			UI_WideScreenMode(qtrue);
+			UI_DrawHandlePic(cursorx, cursory , 48, 48, uiInfo.uiDC.Assets.cursor);
+			UI_WideScreenMode(qfalse);
 		}
 	}
 
@@ -7479,25 +7486,29 @@ UI_MouseEvent
 */
 void _UI_MouseEvent( int dx, int dy )
 {
+	// hack for portrait mode. virtualScreenHeightOff should be
+	// private to Widescreen functions
+	float	yMax = uiInfo.virtualScreenHeightOff;
+	float	xScale = 1;
+
+	if (ui_widescreenCursorScale.integer) {
+		xScale *= uiInfo.screenXFactor;
+	}
+
 	// update mouse screen position
-	if ( (ui_widescreenCursorScale.integer & 1) )
-		uiInfo.uiDC.cursorx += dx * uiInfo.screenXFactor;
-	else
-		uiInfo.uiDC.cursorx += dx;
+	uiInfo.uiDC.cursorx += dx * xScale;
 
 	if (uiInfo.uiDC.cursorx < 0)
 		uiInfo.uiDC.cursorx = 0;
 	else if (uiInfo.uiDC.cursorx > SCREEN_WIDTH)
 		uiInfo.uiDC.cursorx = SCREEN_WIDTH;
 
-	if (ui_widescreen.integer && (ui_widescreenCursorScale.integer & 2) && uiInfo.portraitMode && isMainMenu)
-		uiInfo.uiDC.cursory += dy * uiInfo.screenYFactor;
-	else
-		uiInfo.uiDC.cursory += dy;
+	uiInfo.uiDC.cursory += dy;
+
 	if (uiInfo.uiDC.cursory < 0)
 		uiInfo.uiDC.cursory = 0;
-	else if (uiInfo.uiDC.cursory > uiInfo.screenHeight)
-		uiInfo.uiDC.cursory = uiInfo.screenHeight;
+	else if (uiInfo.uiDC.cursory > yMax)
+		uiInfo.uiDC.cursory = yMax;
 
 	if (Menu_Count() > 0) {
 		Display_MouseMove(NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
@@ -8191,7 +8202,7 @@ static const cvarTable_t cvarTable[] = {
 	{ &ui_s_language, "s_language", "english", CVAR_ARCHIVE | CVAR_NORESTART},
 
 	{ &ui_widescreen, "ui_widescreen", "1", CVAR_ARCHIVE | CVAR_LATCH },
-	{ &ui_widescreenCursorScale, "ui_widescreenCursorScale", "3", CVAR_ARCHIVE },
+	{ &ui_widescreenCursorScale, "ui_widescreenCursorScale", "1", CVAR_ARCHIVE },
 
 	{ &ui_MVSDK, "ui_MVSDK", MVSDK_VERSION, CVAR_ROM | CVAR_USERINFO },
 
