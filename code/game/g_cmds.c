@@ -2458,22 +2458,28 @@ ClientCommand
 void ClientCommand( int clientNum ) {
 	gentity_t *ent;
 	char	cmd[MAX_TOKEN_CHARS];
+	char token[BIG_INFO_STRING]; // As the engine uses Cmd_TokenizeString2 a single parameter is theoretically not limited by MAX_TOKEN_CHARS, but by BIG_INFO_STRING
+	int i, argc;
 
 	ent = g_entities + clientNum;
 	if ( !ent->client || ent->client->pers.connected < CON_CONNECTED ) {
 		return;		// not fully in game yet
 	}
 
+	// Filter '\n' and '\r'
+	argc = trap_Argc();
+	for ( i = 0; i < argc; i++ )
+	{
+		trap_Argv( i, token, sizeof(token) );
+		if ( strchr(token, '\n') || strchr(token, '\r') )
+		{
+			trap_SendServerCommand( clientNum, "print \"Invalid input - command blocked.\n\"" );
+			G_Printf("ClientCommand: client '%i' (%s) tried to use an invalid command - command blocked.\n", clientNum, ent->client->pers.netname);
+			return;
+		}
+	}
 
 	trap_Argv( 0, cmd, sizeof( cmd ) );
-	
-	// Filter "\n" and "\r"
-	if( strchr(ConcatArgs(0), '\n') != NULL || strchr(ConcatArgs(0), '\r') != NULL )
-	{
-		trap_SendServerCommand( clientNum, "print \"Invalid input - command blocked.\n\"" );
-		G_Printf("ClientCommand: client '%i' (%s) tried to use an invalid command - command blocked.\n", clientNum, ent->client->pers.netname);
-		return;
-	}
 
 	//rww - redirect bot commands
 	if (strstr(cmd, "bot_") && AcceptBotCommand(cmd, ent))
