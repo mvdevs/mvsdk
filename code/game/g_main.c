@@ -1004,7 +1004,7 @@ void AddTournamentPlayer( void ) {
 			continue;
 		}
 
-		if ( !nextInLine || client->sess.spectatorTime < nextInLine->sess.spectatorTime ) {
+		if ( !nextInLine || client->sess.spectatorOrder > nextInLine->sess.spectatorOrder ) {
 			nextInLine = client;
 		}
 	}
@@ -1219,10 +1219,10 @@ int QDECL SortRanks( const void *a, const void *b ) {
 
 	// then spectators
 	if ( ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR ) {
-		if ( ca->sess.spectatorTime < cb->sess.spectatorTime ) {
+		if ( ca->sess.spectatorOrder > cb->sess.spectatorOrder ) {
 			return -1;
 		}
-		if ( ca->sess.spectatorTime > cb->sess.spectatorTime ) {
+		if ( ca->sess.spectatorOrder < cb->sess.spectatorOrder ) {
 			return 1;
 		}
 		return 0;

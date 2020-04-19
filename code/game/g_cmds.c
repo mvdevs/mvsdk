@@ -752,7 +752,15 @@ void SetTeam( gentity_t *ent, char *s ) {
 	// they go to the end of the line for tournements
 	if ( team == TEAM_SPECTATOR ) {
 		if ( (g_gametype.integer != GT_TOURNAMENT) || (oldTeam != TEAM_SPECTATOR) )	{//so you don't get dropped to the bottom of the queue for changing skins, etc.
-			client->sess.spectatorTime = level.time;
+			gclient_t *otherClient;
+			int i;
+			for ( i = 0; i < level.maxclients; i++ ) {
+				otherClient = &g_clients[i];
+				if ( otherClient == client )
+					otherClient->sess.spectatorOrder = 0;
+				else if ( otherClient->pers.connected >= CON_CONNECTING )
+					otherClient->sess.spectatorOrder++;
+			}
 		}
 	}
 
