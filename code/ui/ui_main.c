@@ -287,14 +287,17 @@ static void UI_UpdateWidescreen(void) {
 		uiInfo.screenWidth = (float)SCREEN_HEIGHT * vidWidth / vidHeight;
 		uiInfo.screenHeight = (float)SCREEN_HEIGHT;
 		uiInfo.virtualScreenHeightOn = (float)SCREEN_HEIGHT;
+		uiInfo.cursorXScale = (SCREEN_WIDTH * vidHeight) / (SCREEN_HEIGHT * vidWidth);
 	} else if (portrait) {
 		uiInfo.screenWidth = (float)SCREEN_WIDTH;
 		uiInfo.screenHeight = (float)SCREEN_HEIGHT;
 		uiInfo.virtualScreenHeightOn = (float)SCREEN_WIDTH * vidHeight / vidWidth;
+		uiInfo.cursorXScale = 1.0f;
 	} else {
 		uiInfo.screenWidth = (float)SCREEN_WIDTH;
 		uiInfo.screenHeight = (float)SCREEN_HEIGHT;
 		uiInfo.virtualScreenHeightOn = (float)SCREEN_HEIGHT;
+		uiInfo.cursorXScale = (SCREEN_WIDTH * vidHeight) / (SCREEN_HEIGHT * vidWidth);
 	}
 
 	uiInfo.virtualScreenHeightOff = uiInfo.virtualScreenHeightOn;
@@ -7492,7 +7495,7 @@ void _UI_MouseEvent( int dx, int dy )
 	float	xScale = 1;
 
 	if (ui_widescreenCursorScale.integer) {
-		xScale *= uiInfo.screenXFactor;
+		xScale *= uiInfo.cursorXScale;
 	}
 
 	// update mouse screen position

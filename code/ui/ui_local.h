@@ -882,6 +882,7 @@ typedef struct {
 	float		screenXFactorInv;		// screenWidth / SCREEN_WIDTH
 	float		screenYFactor;			// SCREEN_HEIGHT / screenHeight
 	float		screenYFactorInv;		// screenHeight / SCREEN_HEIGHT
+	float		cursorXScale;			// scale cursor X sensitivity
 
 }	uiInfo_t;
 
