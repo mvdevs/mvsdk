@@ -7495,8 +7495,8 @@ void _UI_MouseEvent( int dx, int dy )
 	// hack for portrait mode. virtualScreenHeightOff should be
 	// private to Widescreen functions
 	float	yMax = uiInfo.virtualScreenHeightOff;
-	float	xScale = 1;
-	float	yscale = 1;
+	float	xScale = ui_sensitivity.value;
+	float	yscale = ui_sensitivity.value;
 
 	if (ui_widescreenCursorScale.integer) {
 		xScale *= uiInfo.cursorXScale;
@@ -8074,6 +8074,7 @@ vmCvar_t	ui_botfilter;
 
 vmCvar_t	ui_widescreen;
 vmCvar_t	ui_widescreenCursorScale;
+vmCvar_t	ui_sensitivity;
 
 vmCvar_t	ui_model;
 vmCvar_t	ui_team_model;
@@ -8211,6 +8212,7 @@ static const cvarTable_t cvarTable[] = {
 
 	{ &ui_widescreen, "ui_widescreen", "1", CVAR_ARCHIVE | CVAR_LATCH },
 	{ &ui_widescreenCursorScale, "ui_widescreenCursorScale", "1", CVAR_ARCHIVE },
+	{ &ui_sensitivity, "ui_sensitivity", "1", CVAR_ARCHIVE },
 
 	{ &ui_MVSDK, "ui_MVSDK", MVSDK_VERSION, CVAR_ROM | CVAR_USERINFO },
 
