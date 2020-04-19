@@ -1676,6 +1676,14 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} 
 	else
 	{
+		if ( !Q_stricmp( arg1, "g_doWarmup" ) || !Q_stricmp( arg1, "timelimit" ) || !Q_stricmp( arg1, "fraglimit" ) )
+		{
+			if ( strlen(arg2) >= MAX_CVAR_VALUE_STRING )
+			{
+				trap_SendServerCommand( ent-g_entities, "print \"The specified value is too long.\n" );
+				return;
+			}
+		}
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s \"%s\"", arg1, arg2 );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
 	}
