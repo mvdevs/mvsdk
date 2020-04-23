@@ -2373,6 +2373,7 @@ void G_CenterPrint( int targetNum, int autoLineWraps, const char *message )
 		int wordLength;
 		int curLength;
 		int reset;
+		int isMultiLang;
 
 		*newMessage = 0;
 
@@ -2383,7 +2384,19 @@ void G_CenterPrint( int targetNum, int autoLineWraps, const char *message )
 			while ( *lineEnd && *lineEnd != '\n' ) lineEnd++;
 			lineLength = lineEnd - lineStart;
 
-			if ( lineLength > MAX_CLIENT_CENTERPRINT_LINELENGTH )
+			isMultiLang = 0;
+			ptr = lineStart;
+			while ( ptr < lineEnd-2 )
+			{
+				if ( *ptr == '@' && *(ptr+1) == '@' && *(ptr+2) == '@' )
+				{
+					isMultiLang = 1;
+					break;
+				}
+				ptr++;
+			}
+
+			if ( lineLength > MAX_CLIENT_CENTERPRINT_LINELENGTH || isMultiLang )
 			{ // Now we have to cut the line.
 				wordStart = wordEnd = lineStart;
 				curLength = 0;
@@ -2391,6 +2404,7 @@ void G_CenterPrint( int targetNum, int autoLineWraps, const char *message )
 
 				while ( lineStart < lineEnd )
 				{
+					isMultiLang = 0;
 					if ( reset )
 					{
 						curLength = 0;
@@ -2411,6 +2425,7 @@ void G_CenterPrint( int targetNum, int autoLineWraps, const char *message )
 
 									Q_strcat( newMessage, sizeof(newMessage), va("^%c", *(ptr+1)) );
 									curLength += 2;
+									reset = 2;
 									break;
 								}
 								ptr--;
@@ -2424,11 +2439,14 @@ void G_CenterPrint( int targetNum, int autoLineWraps, const char *message )
 					if ( wordEnd > lineEnd ) // Make sure the word is still in our line and doesn't exceed it
 						break;
 
+					if ( wordLength >= 3 && *wordStart == '@' && *(wordStart+1) == '@' && *(wordStart+2) == '@' )
+						isMultiLang = 1;
+
 					// & 1: move whole words to the next line (prefered if combined with 2)
 					// & 2: cut words into pieces
-					if ( curLength + wordLength > MAX_CLIENT_CENTERPRINT_LINELENGTH )
+					if ( curLength + wordLength > MAX_CLIENT_CENTERPRINT_LINELENGTH || isMultiLang )
 					{ // The next word would make the line too long
-						if ( (autoLineWraps & 2) && (!curLength || !(autoLineWraps & 1)) )
+						if ( (autoLineWraps & 2) && (!curLength || !(autoLineWraps & 1)) && !isMultiLang )
 						{ // We want to cut the word into pieces
 							if ( curLength && !reset ) Q_strcat( newMessage, sizeof(newMessage), " " );
 
@@ -2444,7 +2462,7 @@ void G_CenterPrint( int targetNum, int autoLineWraps, const char *message )
 							G_StringAppendSubstring( newMessage, sizeof(newMessage), wordStart, wordEnd-wordStart );
 							wordStart = wordEnd;
 						}
-						else if ( !curLength )
+						else if ( !curLength || reset == 2 )
 						{ // We don't to split it, so just append the whole thing and let the client cut it off
 							G_StringAppendSubstring( newMessage, sizeof(newMessage), wordStart, wordLength );
 							wordStart = wordEnd + 1;
