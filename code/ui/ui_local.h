@@ -359,6 +359,7 @@ const char *UI_GetModelWithSkin(const char *model);
 int UI_HeadIndexForModel(const char *model);
 qboolean UI_SetTeamColorFromModel(const char *model);
 const char *UI_GetModelWithTeamColor(const char *model);
+int UI_HeadCountByColor( void );
 
 void UI_FeederScrollTo(float feederId, int scrollTo);
 

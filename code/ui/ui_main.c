@@ -334,7 +334,6 @@ static void UI_BuildFindPlayerList(qboolean force);
 static int QDECL UI_ServersQsortCompare( const void *arg1, const void *arg2 );
 static int UI_MapCountByGameType(qboolean singlePlayer);
 static int UI_HeadCountByTeam( void );
-static int UI_HeadCountByColor( void );
 static void UI_ParseGameInfo(const char *teamFile);
 static const char *UI_SelectedMap(int index, int *actual);
 static const char *UI_SelectedHead(int index, int *actual);
@@ -1498,11 +1497,14 @@ static void UI_DrawSkinColor(rectDef_t *rect, float scale, vec4_t color, int tex
 
 	switch(val)
 	{
-	case TEAM_RED:
+	case SKINCOLOR_RED:
 		s = "Red";
 		break;
-	case TEAM_BLUE:
+	case SKINCOLOR_BLUE:
 		s = "Blue";
+		break;
+	case SKINCOLOR_OTHER:
+		s = "Other";
 		break;
 	default:
 		s = "Default";
@@ -2933,7 +2935,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
       UI_DrawHandicap(&rect, scale, color, textStyle, iMenuFont);
       break;
     case UI_SKIN_COLOR:
-      UI_DrawSkinColor(&rect, scale, color, textStyle, uiSkinColor, TEAM_FREE, TEAM_BLUE, iMenuFont);
+      UI_DrawSkinColor(&rect, scale, color, textStyle, uiSkinColor, SKINCOLOR_DEFAULT, SKINCOLOR_OTHER, iMenuFont);
       break;
 	case UI_FORCE_SIDE:
       UI_DrawForceSide(&rect, scale, color, textStyle, uiForceSide, 1, 2, iMenuFont);
@@ -3769,7 +3771,7 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
       return UI_Handicap_HandleKey(flags, special, key);
       break;
     case UI_SKIN_COLOR:
-      return UI_SkinColor_HandleKey(flags, special, key, uiSkinColor, TEAM_FREE, TEAM_BLUE, ownerDraw);
+      return UI_SkinColor_HandleKey(flags, special, key, uiSkinColor, SKINCOLOR_DEFAULT, SKINCOLOR_OTHER, ownerDraw);
       break;
     case UI_FORCE_SIDE:
       return UI_ForceSide_HandleKey(flags, special, key, uiForceSide, 1, 2, ownerDraw);
@@ -5368,7 +5370,7 @@ static qboolean UI_HeadBelongsToCurrentTeamColor( q3Head_t *head )
 UI_HeadCountByColor
 ==================
 */
-static int UI_HeadCountByColor() {
+int UI_HeadCountByColor() {
 	int c;
 	q3Head_t *head = uiInfo.q3Heads;
 
