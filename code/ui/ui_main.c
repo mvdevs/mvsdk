@@ -6527,7 +6527,7 @@ void UI_FeederScrollTo(float feederId, int scrollTo) {
 	}
 }
 
-qboolean uiUpdateModel = qtrue;
+int uiUpdateModel = 1;
 static qhandle_t UI_FeederItemImage(float feederID, int index) {
 	if (feederID == FEEDER_HEADS) 
 	{
@@ -6556,7 +6556,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 			const char *playerModel = NULL;
 			static int selModel;
 
-			if (uiUpdateModel)
+			if (uiUpdateModel > 0)
 			{
 				if (serverGameType >= GT_TEAM)
 				{
@@ -6578,7 +6578,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 					}
 				}
 				selModel = UI_HeadIndexForModel(playerModel);
-				uiUpdateModel = qfalse;
+				uiUpdateModel = 0;
 			}
 
 			//if ( selModel == -1 ) selModel = trap_Cvar_VariableValue("ui_selectedModelIndex");
@@ -6600,7 +6600,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				selModel = UI_HeadIndexForModel(playerModel);
 			}
 
-			if (selModel != -1)
+			if (selModel != -1 && uiUpdateModel != -1)
 			{
 				if (uiInfo.q3SelectedHead != selModel)
 				{
@@ -8266,11 +8266,11 @@ void UI_UpdateCvars( void ) {
 
 	if (modelModificationCount != ui_model.modificationCount) {
 		modelModificationCount = ui_model.modificationCount;
-		uiUpdateModel = qtrue;
+		uiUpdateModel = 1;
 	}
 	if (teamModelModificationCount != ui_team_model.modificationCount) {
 		teamModelModificationCount = ui_team_model.modificationCount;
-		uiUpdateModel = qtrue;
+		uiUpdateModel = 1;
 	}
 }
 
