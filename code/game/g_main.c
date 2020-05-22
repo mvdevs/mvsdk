@@ -590,6 +590,9 @@ void G_RegisterCvars( void ) {
 		}
 	}
 
+	trap_Cvar_Set("gamename", GAME_VERSION);
+	trap_Cvar_Set("gamedate", __DATE__);
+
 	if (remapped) {
 		G_RemapTeamShaders();
 	}
