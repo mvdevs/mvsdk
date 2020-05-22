@@ -5412,7 +5412,7 @@ static void UI_InsertServerIntoDisplayList(int num, int position) {
 UI_RemoveServerFromDisplayList
 ==================
 */
-static void UI_RemoveServerFromDisplayList(int num) {
+static qboolean UI_RemoveServerFromDisplayList(int num) {
 	int i, j;
 
 	for (i = 0; i < uiInfo.serverStatus.numDisplayServers; i++) {
@@ -5421,9 +5421,10 @@ static void UI_RemoveServerFromDisplayList(int num) {
 			for (j = i; j < uiInfo.serverStatus.numDisplayServers; j++) {
 				uiInfo.serverStatus.displayServers[j] = uiInfo.serverStatus.displayServers[j+1];
 			}
-			return;
+			return qtrue;
 		}
 	}
+	return qfalse;
 }
 
 /*
@@ -5598,7 +5599,9 @@ static void UI_BuildServerDisplayList(int force) {
 			}
 			// make sure we never add a favorite server twice
 			if (ui_netSource.integer == AS_FAVORITES) {
-				UI_RemoveServerFromDisplayList(i);
+				if ( UI_RemoveServerFromDisplayList(i) ) {
+					uiInfo.serverStatus.numPlayersOnServers -= realPlayers;
+				}
 			}
 			// insert the server into the list
 			UI_BinaryServerInsertion(i);
