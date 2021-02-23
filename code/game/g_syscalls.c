@@ -1041,3 +1041,14 @@ qboolean trap_MVAPI_DisableStructConversion( qboolean disable )
 {
 	return syscall( G_MVAPI_DISABLE_STRUCT_CONVERSION, disable );
 }
+
+qboolean trap_MVAPI_ResetServerTime( qboolean enable )
+{
+	return syscall( G_MVAPI_RESET_SERVER_TIME, enable );
+}
+
+qboolean trap_MVAPI_EnablePlayerSnapshots( qboolean enable )
+{
+	return syscall( G_MVAPI_ENABLE_PLAYERSNAPSHOTS, enable );
+}
+

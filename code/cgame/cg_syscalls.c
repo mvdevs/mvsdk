@@ -907,3 +907,8 @@ void trap_MVAPI_SetVirtualScreen( float w, float h )
 {
 	syscall( CG_MVAPI_SETVIRTUALSCREEN, PASSFLOAT(w), PASSFLOAT(h) );
 }
+
+qboolean trap_MVAPI_EnableSubmodelBypass( qboolean enable )
+{
+	return syscall( CG_MVAPI_ENABLE_SUBMODELBYPASS, enable );
+}

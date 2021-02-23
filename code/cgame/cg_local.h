@@ -2294,5 +2294,8 @@ void trap_MVAPI_SetVersion( mvversion_t version );                   // Level: 3
 void trap_R_AddRefEntityToScene2( const refEntity_t *re );           // Level: 3
 void trap_MVAPI_SetVirtualScreen( float w, float h );                // Level: 3
 
+/* Level 4 */
+qboolean trap_MVAPI_EnableSubmodelBypass( qboolean enable );         // Level: 4
+
 #include "../api/mvapi.h"
 #include "cg_multiversion.h"

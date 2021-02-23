@@ -499,6 +499,9 @@ void MVAPI_AfterInit(void)
 
 	// Disable those JK2MV Engine fixes we can take care of in the VM
 	trap_MVAPI_ControlFixes( MVFIX_NAMECRASH | MVFIX_FORCECRASH | MVFIX_GALAKING | MVFIX_BROKENMODEL | MVFIX_TURRETCRASH | MVFIX_CHARGEJUMP | MVFIX_SPEEDHACK | MVFIX_SABERSTEALING | MVFIX_PLAYERGHOSTING );
+
+	// Inform JK2MV that we can handle level.time resetting on mapchanges
+	if ( mvapi >= 4 ) trap_MVAPI_ResetServerTime( qtrue );
 }
 
 /*
