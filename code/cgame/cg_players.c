@@ -439,6 +439,8 @@ retryModel:
 
 		ci->bolt_lhand = trap_G2API_AddBolt(ci->ghoul2Model, 0, "*l_hand");
 		ci->bolt_head = trap_G2API_AddBolt(ci->ghoul2Model, 0, "*head_top");
+		// Try ceyebrow as fallback, because some jka models might not have a *head_top
+		if ( ci->bolt_head == -1 ) ci->bolt_head = trap_G2API_AddBolt(ci->ghoul2Model, 0, "ceyebrow");
 
 		ci->bolt_motion = trap_G2API_AddBolt(ci->ghoul2Model, 0, "Motion");
 
