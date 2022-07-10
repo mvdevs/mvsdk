@@ -996,6 +996,99 @@ int _atoi( const char **stringPtr ) {
 	return value * sign;
 }
 
+/*
+==============
+strtol
+This function is from ioquake3
+https://github.com/ioquake/ioq3/blob/6d74896557d8c193a9f19bc6845a47e9d0f77db2/code/game/bg_lib.c#L1239
+
+Handles any base from 2 to 36. If base is 0 then it guesses
+decimal, hex, or octal based on the format of the number (leading 0 or 0x)
+Will not overflow - returns LONG_MIN or LONG_MAX as appropriate
+*endptr is set to the location of the first character not used
+==============
+*/
+long strtol( const char *nptr, char **endptr, int base )
+{
+	long res;
+	qboolean pos = qtrue;
+
+	if( endptr )
+		*endptr = (char *)nptr;
+	// bases other than 0, 2, 8, 16 are very rarely used, but they're
+	// not much extra effort to support
+	if( base < 0 || base == 1 || base > 36 )
+		return 0;
+	// skip leading whitespace
+	while( isspace( *nptr ) )
+		nptr++;
+	// sign
+	if( *nptr == '-' )
+	{
+		nptr++;
+		pos = qfalse;
+	}
+	else if( *nptr == '+' )
+		nptr++;
+	// look for base-identifying sequences e.g. 0x for hex, 0 for octal
+	if( nptr[0] == '0' )
+	{
+		nptr++;
+		// 0 is always a valid digit
+		if( endptr )
+			*endptr = (char *)nptr;
+		if( *nptr == 'x' || *nptr == 'X' )
+		{
+			if( base != 0 && base != 16 )
+			{
+				// can't be hex, reject x (accept 0)
+				if( endptr )
+					*endptr = (char *)nptr;
+				return 0;
+			}
+			nptr++;
+			base = 16;
+		}
+		else if( base == 0 )
+			base = 8;
+	}
+	else if( base == 0 )
+		base = 10;
+	res = 0;
+	while( qtrue )
+	{
+		int val;
+		if( isdigit( *nptr ) )
+			val = *nptr - '0';
+		else if( islower( *nptr ) )
+			val = 10 + *nptr - 'a';
+		else if( isupper( *nptr ) )
+			val = 10 + *nptr - 'A';
+		else
+			break;
+		if( val >= base )
+			break;
+		// we go negative because LONG_MIN is further from 0 than
+		// LONG_MAX
+		if( res < ( LONG_MIN + val ) / base )
+			res = LONG_MIN; // overflow
+		else
+			res = res * base - val;
+		nptr++;
+		if( endptr )
+			*endptr = (char *)nptr;
+	}
+	if( pos )
+	{
+		// can't represent LONG_MIN positive
+		if( res == LONG_MIN )
+			res = LONG_MAX;
+		else
+			res = -res;
+	}
+	return res;
+}
+
 int abs( int n ) {
 	return n < 0 ? -n : n;
 }
