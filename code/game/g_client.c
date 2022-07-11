@@ -1135,6 +1135,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	char	redTeam[MAX_INFO_STRING];
 	char	blueTeam[MAX_INFO_STRING];
 	char	userinfo[MAX_INFO_STRING];
+	char	modelColor[MAX_INFO_STRING];
 
 	// NameCrashFix (whitelisted characters)
 	static const char	validChars[]  = " ~QqWwEeRrTtYyUuIiOoPpAaSsDdFfGgHhJjKkLlZzXxCcVvBbNnMm1234567890<>?,./';:][{}`-=!@#$^&*()_+|";
@@ -1293,17 +1294,19 @@ void ClientUserinfoChanged( int clientNum ) {
 	strcpy(redTeam, Info_ValueForKey( userinfo, "g_redteam" ));
 	strcpy(blueTeam, Info_ValueForKey( userinfo, "g_blueteam" ));
 
+	Q_strncpyz(modelColor, Info_ValueForKey(userinfo, "mvmc"), sizeof(modelColor));
+
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
 	if ( ent->r.svFlags & SVF_BOT ) {
-		s = va("n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d\\mvgp\\%i",
+		s = va("n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d\\mvgp\\%i\\mvmc\\%s",
 			client->pers.netname, team, model,  c1, c2, 
 			client->pers.maxHealth, client->sess.wins, client->sess.losses,
-			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader, jk2gameplay );
+			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader, jk2gameplay, modelColor);
 	} else {
-		s = va("n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\mvgp\\%i",
+		s = va("n\\%s\\t\\%i\\model\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\mvgp\\%i\\mvmc\\%s",
 			client->pers.netname, client->sess.sessionTeam, model, redTeam, blueTeam, c1, c2, 
-			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, jk2gameplay);
+			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, jk2gameplay, modelColor);
 	}
 
 	trap_SetConfigstring( CS_PLAYERS+clientNum, s );

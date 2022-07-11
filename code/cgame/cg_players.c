@@ -984,7 +984,10 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	char		*slash;
 	void *oldGhoul2;
 	int i = 0;
+	int c;
 	qboolean wasATST = qfalse;
+	char modelColor[MAX_INFO_VALUE];
+	long int modelColorConverted;
 
 	ci = &cgs.clientinfo[clientNum];
 
@@ -1174,6 +1177,30 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	{ // If this was about our own gameplay change the settings...
 		CG_Printf("CGame: Setting gameplay to 1.0%i\n", newInfo.jk2gameplay);
 		MV_SetGamePlay( newInfo.jk2gameplay );
+	}
+
+	// Model color
+	v = Info_ValueForKey( configstring, "mvmc" );
+	modelColorConverted = strtol(v, NULL, 16);
+
+	if (modelColorConverted < 0 || modelColorConverted > 0xFFFFFF)
+	{ // someone put invalid string in mvmc, need to reset to some bright value
+		modelColorConverted = 0xC8C8C8;
+	}
+
+	// modelColorConverted = FF9B3E
+	// for (...)
+	// {
+	//     modelColor[c] = modelColorConverted % 16^2;
+	//     modelColorConverted /= 16^2;
+	// }
+	// modelColor[0] == 62   (3E)
+	// modelColor[1] == 155  (9B)
+	// modelColor[2] == 255  (FF)
+	for (c = 0; c < 3; c++)
+	{
+		newInfo.modelColor[c] = modelColorConverted % 0x100;
+		modelColorConverted /= 0x100;
 	}
 
 	newInfo.ATST = wasATST;
@@ -6186,6 +6213,12 @@ void CG_Player( centity_t *cent ) {
 	if (cent->isATST)
 	{
 		legs.radius = 400;
+	}
+
+	if ((cent->currentState.eType == ET_PLAYER || cent->currentState.eType == ET_BODY) && (clientNum >= 0 && clientNum < cgs.maxclients))
+	{
+		VectorCopy(cgs.clientinfo[clientNum].modelColor, legs.shaderRGBA);
+		legs.shaderRGBA[3] = 255;
 	}
 
 // minimal_add:

@@ -984,6 +984,12 @@ Ghoul2 Insert End
 */
 
 	memset (&ent, 0, sizeof(ent));
+	
+	if ((s1->eType == ET_PLAYER || s1->eType == ET_BODY) && (s1->clientNum >= 0 && s1->clientNum < cgs.maxclients))
+	{
+		VectorCopy(cgs.clientinfo[s1->clientNum].modelColor, ent.shaderRGBA);
+		ent.shaderRGBA[3] = 255;
+	}
 
 	// set frame
 

@@ -2858,6 +2858,42 @@ void CG_PrevForcePower_f( void )
 	}
 }
 
+void CG_SetModelColor_f(void)
+{
+	int argc;
+	byte modelColor[3];
+	long int modelColorConverted;
+	int i;
+
+	argc = trap_Argc();
+
+	if (argc == 1)
+	{
+		VectorCopy(cgs.clientinfo[cg.clientNum].modelColor, modelColor);
+		CG_Printf("modelColor (RGB) is set to %d %d %d\n", modelColor[0], modelColor[1], modelColor[2]);
+		return;
+	}
+	if (argc != 4)
+	{
+		CG_Printf("Usage: modelColor <red> <green> <blue>\nExample: modelColor 62 155 255\n");
+		return;
+	}
+
+	for (i = 0; i < sizeof(modelColor); i++)
+	{
+		modelColor[i] = atoi(CG_Argv(i + 1));
+	}
+
+	// modelColor[0] = 62   (3E)
+	// modelColor[1] = 155  (9B)
+	// modelColor[2] = 255  (FF)
+	// modelColorConverted = modelColor[0] * 16^0 + modelColor[1] * 16^2 + modelColor[2] * 16^4
+	// modelColorConverted == FF9B3E
+	modelColorConverted = modelColor[0] + modelColor[1] * 0x100 + modelColor[2] * 0x10000;
+
+	trap_Cvar_Set("mvmc", va("%lX", modelColorConverted));
+}
+
 void CG_NextInventory_f(void)
 {
 	if ( !cg.snap )

@@ -541,6 +541,7 @@ typedef struct {
 	int				torsoAnim;
 
 	mvversion_t		jk2gameplay;
+	byte			modelColor[3];
 } clientInfo_t;
 
 
@@ -1599,6 +1600,7 @@ void CG_NextInventory_f(void);
 void CG_PrevInventory_f(void);
 void CG_NextForcePower_f(void);
 void CG_PrevForcePower_f(void);
+void CG_SetModelColor_f(void);
 void MV_LoadSettings( const char *info );
 void MV_UpdateCgFlags( void );
 void CG_WideScreenMode(qboolean on);
