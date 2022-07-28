@@ -1020,7 +1020,7 @@ long strtol( const char *nptr, char **endptr, int base )
 	if( base < 0 || base == 1 || base > 36 )
 		return 0;
 	// skip leading whitespace
-	while( isspace( *nptr ) )
+	while( Q_isspace( *nptr ) )
 		nptr++;
 	// sign
 	if( *nptr == '-' )
@@ -1058,11 +1058,11 @@ long strtol( const char *nptr, char **endptr, int base )
 	while( qtrue )
 	{
 		int val;
-		if( isdigit( *nptr ) )
+		if( Q_isdigit( *nptr ) )
 			val = *nptr - '0';
-		else if( islower( *nptr ) )
+		else if( Q_islower( *nptr ) )
 			val = 10 + *nptr - 'a';
-		else if( isupper( *nptr ) )
+		else if( Q_isupper( *nptr ) )
 			val = 10 + *nptr - 'A';
 		else
 			break;
