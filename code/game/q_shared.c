@@ -806,6 +806,16 @@ int Q_isalpha( int c )
 	return ( 0 );
 }
 
+int Q_isdigit( int c )
+{
+	return (c >= '0' && c <= '9');
+}
+
+int Q_isspace( int c )
+{
+	return ((c) == ' ' || (c) == '\f' || (c) == '\n' || (c) == '\r' || (c) == '\t' || (c) == '\v');
+}
+
 char* Q_strrchr( const char* string, int c )
 {
 	char cc = c;
