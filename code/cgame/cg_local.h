@@ -86,6 +86,8 @@
 #define DEFAULT_REDTEAM_NAME		"Empire"
 #define DEFAULT_BLUETEAM_NAME		"Rebellion"
 
+#define CAMERA_MIN_FPS		15
+
 typedef enum {
 	FOOTSTEP_NORMAL,
 	FOOTSTEP_METAL,
@@ -659,6 +661,7 @@ typedef struct {
 //	snapshot_t	activeSnapshots[2];
 
 	float		frameInterpolation;	// (float)( cg.time - cg.frame->serverTime ) / (cg.nextFrame->serverTime - cg.frame->serverTime)
+	float		predictedTimeFrac;	// frameInterpolation * (next->commandTime - prev->commandTime)
 
 	qboolean	mMapChange;
 
@@ -719,6 +722,9 @@ typedef struct {
 	float		constrictValue;
 	float		constrict;
 	int			doConstrict;
+
+	qboolean	hasFallVector;
+	vec3_t		fallVector;
 
 	// zoom key
 	qboolean	zoomed;
@@ -1560,10 +1566,13 @@ extern  vmCvar_t		cg_recordSPDemo;
 extern  vmCvar_t		cg_recordSPDemoName;
 
 extern	vmCvar_t		cg_ui_myteam;
+extern	vmCvar_t		cg_com_maxfps;
 
 extern	vmCvar_t		cg_mv_fixbrokenmodelsclient;
 extern	vmCvar_t		cg_drawPlayerSprites;
 extern	vmCvar_t		cg_developer;
+extern	vmCvar_t		cg_smoothCamera;
+extern	vmCvar_t		cg_smoothCameraFPS;
 /*
 Ghoul2 Insert Start
 */
