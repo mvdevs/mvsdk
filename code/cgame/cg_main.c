@@ -583,6 +583,7 @@ vmCvar_t	cg_ui_myteam;
 
 vmCvar_t	cg_mv_fixbrokenmodelsclient;
 vmCvar_t	cg_drawPlayerSprites;
+vmCvar_t	cg_developer;
 
 vmCvar_t	cg_MVSDK;
 vmCvar_t	mvsdk_cgFlags;
@@ -737,6 +738,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_ui_myteam, "ui_myteam", "0", CVAR_ROM|CVAR_INTERNAL},
 
+	{ &cg_developer, "cg_developer", "0", CVAR_TEMP},
 	{ &cg_mv_fixbrokenmodelsclient, "mv_fixbrokenmodelsclient", "2", CVAR_ARCHIVE },
 	{ &cg_drawPlayerSprites, "cg_drawPlayerSprites", "3", CVAR_ARCHIVE },
 
@@ -933,6 +935,19 @@ void QDECL CG_Printf( const char *msg, ... ) {
 	va_end (argptr);
 
 	trap_Print( text );
+}
+
+void QDECL CG_DPrintf( const char *msg, ... ) {
+	va_list		argptr;
+	char		text[1024];
+
+	if (cg_developer.integer) {
+		va_start (argptr, msg);
+		Q_vsnprintf (text, sizeof(text), msg, argptr);
+		va_end (argptr);
+
+		trap_Print( text );
+	}
 }
 
 Q_NORETURN void QDECL CG_Error( const char *msg, ... ) {

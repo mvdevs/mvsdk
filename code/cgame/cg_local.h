@@ -1563,6 +1563,7 @@ extern	vmCvar_t		cg_ui_myteam;
 
 extern	vmCvar_t		cg_mv_fixbrokenmodelsclient;
 extern	vmCvar_t		cg_drawPlayerSprites;
+extern	vmCvar_t		cg_developer;
 /*
 Ghoul2 Insert Start
 */
@@ -1580,6 +1581,7 @@ const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
 
 void QDECL CG_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+void QDECL CG_DPrintf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 Q_NORETURN void QDECL CG_Error( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 
 void CG_StartMusic( qboolean bForceStart );
