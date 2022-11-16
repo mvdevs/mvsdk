@@ -246,8 +246,10 @@ retryModel:
 	{
 		modelName = "kyle";
 		skinName = "default";
-		Com_Printf("WARNING: Attempted to load an unsupported multiplayer model! (bad or missing bone, or missing animation sequence)\n");
-
+		// MVSDK: Suppress warning message for other client models
+		if (cg_developer.integer || clientNum == -1 || clientNum == cg.clientNum) {
+			Com_Printf("WARNING: Attempted to load an unsupported multiplayer model! (bad or missing bone, or missing animation sequence)\n");
+		}
 		badModel = qfalse;
 		retriedAlready = qtrue;
 	}
