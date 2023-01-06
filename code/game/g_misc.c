@@ -2292,11 +2292,14 @@ void ExampleAnimEntNavigation(gentity_t *self, vec3_t goalPos)
 	}
 }
 
-void ExampleAnimEntEnemyHandling(gentity_t *self, float enDist)
+void ExampleAnimEntEnemyHandling(gentity_t *self, float enDist, qboolean enDistSet)
 {
 	int i = 0;
 	int bestIndex = -1;
-	float minDist = enDist;
+	float minDist = 0; // We shouldn't need to initialize this, because we're using minDistSet, but gcc doesn't trust it...
+	qboolean minDistSet = enDistSet;
+
+	if ( minDistSet ) minDist = enDist;
 
 	if (ExampleAnimEntAlignment(self) == ANIMENT_ALIGNED_GOOD)
 	{
@@ -2311,13 +2314,14 @@ void ExampleAnimEntEnemyHandling(gentity_t *self, float enDist)
 
 				fCheckLen = VectorLength(checkLen);
 
-				if (fCheckLen < (minDist - 128))
+				if (!minDistSet || fCheckLen < (minDist - 128))
 				{
 					vec3_t enAngles;
 					VectorSubtract(g_entities[i].r.currentOrigin, self->r.currentOrigin, enAngles);
 					vectoangles(enAngles, enAngles);
 					if ((InFieldOfVision(self->s.apos.trBase, 120, enAngles) || self->s.genericenemyindex > level.time) && ExampleAnimEntClearLOS(self, g_entities[i].r.currentOrigin))
 					{
+						minDistSet = qtrue;
 						minDist = fCheckLen;
 						bestIndex = i;
 					}
@@ -2339,13 +2343,14 @@ void ExampleAnimEntEnemyHandling(gentity_t *self, float enDist)
 
 				fCheckLen = VectorLength(checkLen);
 
-				if (fCheckLen < (minDist - 128))
+				if (!minDistSet || fCheckLen < (minDist - 128))
 				{
 					vec3_t enAngles;
 					VectorSubtract(g_entities[i].client->ps.origin, self->r.currentOrigin, enAngles);
 					vectoangles(enAngles, enAngles);
 					if ((InFieldOfVision(self->s.apos.trBase, 120, enAngles) || self->s.genericenemyindex > level.time) && ExampleAnimEntClearLOS(self, g_entities[i].client->ps.origin))
 					{
+						minDistSet = qtrue;
 						minDist = fCheckLen;
 						bestIndex = i;
 					}
@@ -2369,13 +2374,14 @@ void ExampleAnimEntEnemyHandling(gentity_t *self, float enDist)
 
 					fCheckLen = VectorLength(checkLen);
 
-					if (fCheckLen < (minDist - 128))
+					if (!minDistSet || fCheckLen < (minDist - 128))
 					{
 						vec3_t enAngles;
 						VectorSubtract(g_entities[i].r.currentOrigin, self->r.currentOrigin, enAngles);
 						vectoangles(enAngles, enAngles);
 						if ((InFieldOfVision(self->s.apos.trBase, 120, enAngles) || self->s.genericenemyindex > level.time) && ExampleAnimEntClearLOS(self, g_entities[i].r.currentOrigin))
 						{
+							minDistSet = qtrue;
 							minDist = fCheckLen;
 							bestIndex = i;
 						}
@@ -2389,7 +2395,6 @@ void ExampleAnimEntEnemyHandling(gentity_t *self, float enDist)
 	if (bestIndex != -1)
 	{
 		self->bolt_Motion = bestIndex;
-		enDist = minDist;
 		self->speed = level.time + 4000; //4 seconds til we forget about the enemy
 		ExampleAnimEntAlertOthers(self);
 		self->bolt_RArm = level.time + Q_irand(500, 1000);
@@ -2449,7 +2454,8 @@ void ExampleAnimEntUpdateSelf(gentity_t *self)
 		{
 			vec3_t goalPos;
 			int didMove = 0;
-			float enDist = 999999999;
+			float enDist = 0; // We shouldn't need to initialize this, because we're using enDistSet, but gcc doesn't trust it...
+			qboolean enDistSet = qfalse;
 			float runSpeed = 18;
 			vec3_t enemyOrigin;
 			qboolean hasEnemyLOS = qfalse;
@@ -2493,6 +2499,7 @@ void ExampleAnimEntUpdateSelf(gentity_t *self)
 					VectorSubtract(self->r.currentOrigin, g_entities[self->bolt_Motion].client->ps.origin, enSubVec);
 	
 					enDist = VectorLength(enSubVec);
+					enDistSet = qtrue;
 
 					VectorCopy(g_entities[self->bolt_Motion].client->ps.origin, enemyOrigin);
 
@@ -2515,13 +2522,14 @@ void ExampleAnimEntUpdateSelf(gentity_t *self)
 					VectorSubtract(self->r.currentOrigin, g_entities[self->bolt_Motion].r.currentOrigin, enSubVec);
 	
 					enDist = VectorLength(enSubVec);
+					enDistSet = qtrue;
 
 					VectorCopy(g_entities[self->bolt_Motion].r.currentOrigin, enemyOrigin);
 
 					hasEnemyLOS = ExampleAnimEntClearLOS(self, enemyOrigin);
 				}
 
-				if (hasEnemyLOS && enDist < 512 && self->splashRadius < level.time)
+				if (hasEnemyLOS && (enDistSet && enDist < 512) && self->splashRadius < level.time)
 				{
 					if (rand()%10 <= 8)
 					{
@@ -2546,7 +2554,7 @@ void ExampleAnimEntUpdateSelf(gentity_t *self)
 					self->splashRadius = level.time + Q_irand(2000, 5000);
 				}
 
-				if (hasEnemyLOS && (enDist < 512 || self->watertype == ANIMENT_TYPE_RODIAN) && self->splashMethodOfDeath)
+				if (hasEnemyLOS && ((enDistSet && enDist < 512) || self->watertype == ANIMENT_TYPE_RODIAN) && self->splashMethodOfDeath)
 				{
 					VectorCopy(self->r.currentOrigin, goalPos);
 				}
@@ -2590,6 +2598,7 @@ void ExampleAnimEntUpdateSelf(gentity_t *self)
 						VectorSubtract(self->r.currentOrigin, g_entities[self->bolt_Motion].client->ps.origin, enSubVec);
 	
 						enDist = VectorLength(enSubVec);
+						enDistSet = qtrue;
 					}
 				}
 			}
@@ -2609,11 +2618,12 @@ void ExampleAnimEntUpdateSelf(gentity_t *self)
 						VectorSubtract(self->r.currentOrigin, g_entities[self->bolt_Motion].r.currentOrigin, enSubVec);
 	
 						enDist = VectorLength(enSubVec);
+						enDistSet = qtrue;
 					}
 				}
 			}
 
-			ExampleAnimEntEnemyHandling(self, enDist);
+			ExampleAnimEntEnemyHandling(self, enDist, enDistSet);
 
 			if (self->bolt_Motion != ENTITYNUM_NONE &&
 				g_entities[self->bolt_Motion].inuse &&

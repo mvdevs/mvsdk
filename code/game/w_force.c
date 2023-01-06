@@ -4072,7 +4072,7 @@ void FindGenericEnemyIndex(gentity_t *self)
 	float tlen;
 	gentity_t *ent;
 	gentity_t *besten = NULL;
-	float blen = 99999999;
+	float blen;
 	vec3_t a;
 
 	while (i < MAX_CLIENTS)
@@ -4084,7 +4084,7 @@ void FindGenericEnemyIndex(gentity_t *self)
 			VectorSubtract(ent->client->ps.origin, self->client->ps.origin, a);
 			tlen = VectorLength(a);
 
-			if (tlen < blen &&
+			if ((!besten || tlen < blen) &&
 				InFront(ent->client->ps.origin, self->client->ps.origin, self->client->ps.viewangles, 0.8f ) &&
 				OrgVisible(self->client->ps.origin, ent->client->ps.origin, self->s.number))
 			{

@@ -2919,7 +2919,7 @@ int Saga_TargetClosestObjective(bot_state_t *bs, int flag)
 	int i = 0;
 	int bestindex = -1;
 	float testdistance = 0;
-	float bestdistance = 999999999;
+	float bestdistance;
 	gentity_t *goalent;
 	vec3_t a, dif;
 	vec3_t mins, maxs;
@@ -2946,7 +2946,7 @@ int Saga_TargetClosestObjective(bot_state_t *bs, int flag)
 			VectorSubtract(gWPArray[i]->origin, bs->origin, a);
 			testdistance = VectorLength(a);
 
-			if (testdistance < bestdistance)
+			if (bestindex == -1 || testdistance < bestdistance)
 			{
 				bestdistance = testdistance;
 				bestindex = i;
