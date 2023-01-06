@@ -1334,6 +1334,10 @@ qboolean trap_MVAPI_LocateGameData( mvsharedEntity_t *mvEnts, int numGEntities, 
 /* Level 2 */
 qboolean trap_MVAPI_DisableStructConversion( qboolean disable );                                                  // Level: 2
 
+/* Level 4 */
+qboolean trap_MVAPI_ResetServerTime( qboolean enable );                                                           // Level: 4
+qboolean trap_MVAPI_EnablePlayerSnapshots( qboolean enable );                                                     // Level: 4
+
 #include "../api/mvapi.h"
 #include "g_multiversion.h"
 

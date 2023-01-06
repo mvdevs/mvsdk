@@ -254,3 +254,5 @@ equ trap_MVAPI_SendConnectionlessPacket					-701	;G_MVAPI_SEND_CONNECTIONLESSPAC
 equ trap_MVAPI_GetConnectionlessPacket					-702	;G_MVAPI_GET_CONNECTIONLESSPACKET
 equ trap_MVAPI_LocateGameData							-703	;G_MVAPI_LOCATE_GAME_DATA
 equ trap_MVAPI_DisableStructConversion					-706	;G_MVAPI_DISABLE_STRUCT_CONVERSION
+equ trap_MVAPI_ResetServerTime							-711	;G_MVAPI_RESET_SERVER_TIME
+equ trap_MVAPI_EnablePlayerSnapshots					-712	;G_MVAPI_ENABLE_PLAYERSNAPSHOTS
