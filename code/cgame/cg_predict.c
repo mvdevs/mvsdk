@@ -258,7 +258,7 @@ static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 		return;
 	}
 
-	f = (float)( cg.time - prev->serverTime ) / ( next->serverTime - prev->serverTime );
+	f = cg.frameInterpolation;
 
 	i = next->ps.bobCycle;
 	if ( i < prev->ps.bobCycle ) {
