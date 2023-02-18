@@ -524,7 +524,7 @@ static void CG_OffsetThirdPersonView( void )
 	// The next thing to do is to see if we need to calculate a new camera target location.
 
 	// If we went back in time for some reason, or if we just started, reset the sample.
-	if (cameraLastFrame == 0 || cameraLastFrame > cg.time)
+	if (cameraLastFrame == 0 || cameraLastFrame > cg.time || cg.thisFrameTeleport)
 	{
 		CG_ResetThirdPersonViewDamp();
 	}
