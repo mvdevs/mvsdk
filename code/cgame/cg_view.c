@@ -257,13 +257,14 @@ CG_CalcTargetThirdPersonViewLocation
 */
 static void CG_CalcIdealThirdPersonViewTarget(void)
 {
-#ifdef ATST
+	/*
+	float thirdPersonVertOffset = cg_thirdPersonVertOffset.value;
+
 	if (cg.snap && cg.snap->ps.usingATST)
 	{
 		thirdPersonVertOffset = 200;
 	}
-#endif
-
+	*/
 	// Initialize IdealTarget
 	if (cg.hasFallVector)
 	{
@@ -297,12 +298,12 @@ CG_CalcTargetThirdPersonViewLocation
 static void CG_CalcIdealThirdPersonViewLocation(void)
 {
 	float thirdPersonRange = cg_thirdPersonRange.value;
-#ifdef ATST
+
 	if (cg.snap && cg.snap->ps.usingATST)
 	{
 		thirdPersonRange = 300;
 	}
-#endif
+
 	VectorMA(cam.target.ideal, -(thirdPersonRange), cam.fwd, cam.loc.ideal);
 }
 
