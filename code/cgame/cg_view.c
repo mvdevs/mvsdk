@@ -576,10 +576,10 @@ static void CG_OffsetThirdPersonView( void )
 		float	deltayaw;
 		float	pitch;
 
-		deltayaw = fabsf(focusAngles[YAW] - cam.lastYaw);
+		deltayaw = fabs(focusAngles[YAW] - cam.lastYaw);
 		if (deltayaw > 180.0f)
 		{ // Normalize this angle so that it is between 0 and 180.
-			deltayaw = fabsf(deltayaw - 360.0f);
+			deltayaw = fabs(deltayaw - 360.0f);
 		}
 		if (cam.smooth) {
 			if ( dtime > 0.0f ) {
