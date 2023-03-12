@@ -157,7 +157,7 @@ if (NOT InMV)
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4018 /wd4244 /wd4996 /wd4267 /wd4305")
 
 		# Multithreaded
-		set(CMAKE_C_FLAGS_RELEASE "/MT" CACHE TYPE INTERNAL FORCE)
+		set(CMAKE_C_FLAGS_RELEASE "/MT")
 
 		# Platform
 		set(GlobalDefines ${GlobalDefines} "UNICODE" "_UNICODE")
