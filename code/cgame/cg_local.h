@@ -1381,8 +1381,8 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 	int				numInlineModels;
-	qhandle_t		inlineDrawModel[MAX_MODELS];
-	vec3_t			inlineModelMidpoints[MAX_MODELS];
+	qhandle_t		*inlineDrawModel;
+	vec3_t			*inlineModelMidpoints;
 
 	clientInfo_t	clientinfo[MAX_CLIENTS];
 

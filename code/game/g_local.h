@@ -523,6 +523,7 @@ typedef struct {
 
 	// MVSDK
 	qboolean	bboxEncoding;
+	qboolean	modelindexTime2;
 } level_locals_t;
 
 
@@ -833,6 +834,7 @@ void mysrand( unsigned seed );
 int myrand( void );
 
 void MV_BBoxToTime2( gentity_t *ent );
+void MV_ModelindexToTime2( gentity_t *ent );
 
 //
 // g_client.c
@@ -1337,6 +1339,7 @@ qboolean trap_MVAPI_DisableStructConversion( qboolean disable );                
 /* Level 4 */
 qboolean trap_MVAPI_ResetServerTime( qboolean enable );                                                           // Level: 4
 qboolean trap_MVAPI_EnablePlayerSnapshots( qboolean enable );                                                     // Level: 4
+qboolean trap_MVAPI_EnableSubmodelBypass( qboolean enable );                                                      // Level: 4
 
 #include "../api/mvapi.h"
 #include "g_multiversion.h"

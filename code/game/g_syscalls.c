@@ -1052,3 +1052,8 @@ qboolean trap_MVAPI_EnablePlayerSnapshots( qboolean enable )
 	return syscall( G_MVAPI_ENABLE_PLAYERSNAPSHOTS, enable );
 }
 
+qboolean trap_MVAPI_EnableSubmodelBypass( qboolean enable )
+{
+	return syscall( G_MVAPI_ENABLE_SUBMODELBYPASS, enable );
+}
+

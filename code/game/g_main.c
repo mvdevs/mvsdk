@@ -309,11 +309,14 @@ static cvarTable_t		gameCvarTable[] = {
 	// This cvar only has an effect when the startversion is 1.02.
 	{ &g_mv_forcePowerDisableMode, "mv_forcePowerDisableMode", "1", CVAR_ARCHIVE, 0, qfalse },
 
-	// g_submodelWorkaround is technically just setting a flag for mvsdk clients to apply the clientside workaround
+	// g_submodelWorkaround was technically just setting a flag for mvsdk clients to apply the clientside workaround
 	// The cvar might seem more appropriate on cgame, but defaulting it to "0" on the client would make the workaround hardly usable
 	// and defaulting it to "1" on the the client might lead to mappers not realising they exceeded basejk limits when testing their maps.
 	// So we have a cvar in the game module to let servers enable the clientside workaround for bigger maps, defaulting to "0".
 	// Clients supporting the workaround are going to inform the server about it in their userinfo, no matter what this cvar is set to.
+	// By now g_submodelWorkaround also supports the value "2", which leads to the modelindex of submodel entities being copied to their
+	// time2 fields. This way we can use more than 8 bit for the modelindex. The time2 modelindex is only useful in combination with an
+	// engine that supports more than the default 256 submodels.
 	{ &g_submodelWorkaround, "g_submodelWorkaround", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	// Bots reset their teams on map_restart and map change on basejk. This is often undesired, so let the host decide.
@@ -493,6 +496,9 @@ void MVAPI_AfterInit(void)
 		mvStructConversionDisabled = qtrue;
 		trap_MVAPI_DisableStructConversion( mvStructConversionDisabled );
 	}
+
+	// Let the engine know we support more than 256 submodels
+	if ( mvapi >= 4 ) trap_MVAPI_EnableSubmodelBypass( qtrue );
 
 	// Call G_InitGame now, because we delayed it earilier
 	G_InitGame( Init_levelTime, Init_randomSeed, Init_restart );
@@ -688,8 +694,9 @@ void MV_UpdateSvFlags( void )
 	int intValue = 0;
 
 	// Check for the features and determine the flags
-	if ( level.bboxEncoding )           intValue |= MVSDK_SVFLAG_BBOX;
-	if ( g_submodelWorkaround.integer ) intValue |= MVSDK_SVFLAG_SUBMODEL_WORKAROUND;
+	if ( level.bboxEncoding )               intValue |= MVSDK_SVFLAG_BBOX;
+	if ( g_submodelWorkaround.integer & 1 ) intValue |= MVSDK_SVFLAG_SUBMODEL_WORKAROUND;
+	if ( level.modelindexTime2 )            intValue |= MVSDK_SVFLAG_SUBMODEL_TIME2;
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// !!! Forks of MVSDK should NOT modify the mvsdk_svFlags                              !!!
@@ -2845,5 +2852,36 @@ void MV_BBoxToTime2( gentity_t *ent )
 
 	// Encode the values for prediction
 	ent->s.time2 = (mins1 << 16) | (mins0 << 8) | maxs1;
+}
+
+/*
+================
+MV_ModelindexToTime2
+
+This function uses an entity state's time2 value to transmit the modelindex to work around the 8 bit modelindex limit.
+This function is supposed to be called for all entities after assigning the brushmodel.
+================
+*/
+void MV_ModelindexToTime2( gentity_t *ent )
+{
+	// Don't do this if the server hasn't enabled it.
+	if ( !(g_submodelWorkaround.integer & 2) )
+		return;
+
+	if ( !level.modelindexTime2 )
+	{ // Let clients know that a modelindex can be found in the time2 value now.
+		level.modelindexTime2 = qtrue;
+		MV_UpdateSvFlags();
+	}
+
+	// The original idea was to only store modelindex >= 255 in time2 and signal this by setting modelindex to 255, however
+	// as the serverside engine still needs to know the correct modelindex we just copy the modelindex over to time2 and
+	// work with that.
+	ent->s.time2 = ent->s.modelindex;
+
+	// NOTE: The submodels 254 and 255 (which have been supported before the time2 tunnel, but were very unlikely to
+	//       occur due to being the two highest submodels) are probably going to act strange due to BOX_MODEL_HANDLE
+	//       being defined as 255 and CAPSULE_MODEL_HANDLE being defined as 254. They're more likely to occur when maps
+	//       start to exceed the original MAX_SUBMODELS limit.
 }
 

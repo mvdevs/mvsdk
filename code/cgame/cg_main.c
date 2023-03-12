@@ -153,6 +153,7 @@ This must be the very first function compiled into the .q3vm file
 */
 qboolean menuInJK2MV = qfalse;
 int mvapi = 0;
+qboolean submodelBypass = qfalse;
 int Init_serverMessageNum;
 int Init_serverCommandSequence;
 int Init_clientNum;
@@ -320,6 +321,9 @@ void MVAPI_AfterInit(void)
 		MV_SetGameVersion( jk2version, qfalse );
 		MV_SetGamePlay( jk2startversion );
 	}
+
+	// Let the engine know we support more than 256 submodels
+	if ( mvapi >= 4 ) submodelBypass = trap_MVAPI_EnableSubmodelBypass( qtrue );
 
 	// Call CG_Init now, because we delayed it earilier
 	CG_Init( Init_serverMessageNum, Init_serverCommandSequence, Init_clientNum );
@@ -1632,8 +1636,14 @@ Ghoul2 Insert End
 
 	// register the inline models
 	cgs.numInlineModels = trap_CM_NumInlineModels();
+
+	// Considering the cgame module doesn't make use of the ~ 2 mb memory pool in BG we can safely allocate some of it
+	// for the inline models instead of having them hardcoded to 256. In a QVM the qhandle_t should be 4 byte and the
+	// vec3_t should be 12 byte. For 256 models that's barely 4 kb.
+	cgs.inlineDrawModel = (qhandle_t*)BG_Alloc( cgs.numInlineModels * sizeof(qhandle_t) );
+	cgs.inlineModelMidpoints = (vec3_t*)BG_Alloc( cgs.numInlineModels * sizeof(vec3_t) );
 	for ( i = 1 ; i < cgs.numInlineModels ; i++ ) {
-		char	name[10];
+		char	name[16];
 		vec3_t			mins, maxs;
 		int				j;
 
@@ -2467,6 +2477,8 @@ void MV_UpdateCgFlags( void )
 
 	// Check for the features and determine the flags
 	intValue |= MVSDK_CGFLAG_SUBMODEL_WORKAROUND;
+	intValue |= MVSDK_CGFLAG_SUBMODEL_TIME2;
+	if ( submodelBypass ) intValue |= MVSDK_CGFLAG_SUBMODEL_BYPASS;
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// !!! Forks of MVSDK should NOT modify the mvsdk_cgFlags                          !!!
