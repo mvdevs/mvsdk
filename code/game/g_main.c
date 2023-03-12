@@ -2878,10 +2878,5 @@ void MV_ModelindexToTime2( gentity_t *ent )
 	// as the serverside engine still needs to know the correct modelindex we just copy the modelindex over to time2 and
 	// work with that.
 	ent->s.time2 = ent->s.modelindex;
-
-	// NOTE: The submodels 254 and 255 (which have been supported before the time2 tunnel, but were very unlikely to
-	//       occur due to being the two highest submodels) are probably going to act strange due to BOX_MODEL_HANDLE
-	//       being defined as 255 and CAPSULE_MODEL_HANDLE being defined as 254. They're more likely to occur when maps
-	//       start to exceed the original MAX_SUBMODELS limit.
 }
 
