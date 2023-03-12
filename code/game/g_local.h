@@ -1327,6 +1327,9 @@ int trap_MVAPI_GetVersion( void );                                              
 int trap_FS_FLock( fileHandle_t h, flockCmd_t cmd, qboolean nb );                                                 // Level: 3
 void trap_MVAPI_SetVersion( mvversion_t version );                                                                // Level: 3
 
+/* Level 4 */
+void trap_MVAPI_Print( int flags, const char *string );                                                           // Level: 4
+
 // JK2MV Syscalls [Game]
 /* Level 1 */
 qboolean trap_MVAPI_SendConnectionlessPacket( const mvaddr_t *addr, const char *message );                        // Level: 1

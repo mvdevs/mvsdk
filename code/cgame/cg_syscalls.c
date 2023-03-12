@@ -912,3 +912,8 @@ qboolean trap_MVAPI_EnableSubmodelBypass( qboolean enable )
 {
 	return syscall( CG_MVAPI_ENABLE_SUBMODELBYPASS, enable );
 }
+
+void trap_MVAPI_Print( int flags, const char *string )
+{
+	syscall( MVAPI_PRINT, string );
+}
