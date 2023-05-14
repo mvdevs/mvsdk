@@ -1721,6 +1721,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			CGCam_Shake(es->angles[0], es->time);
 		}
 		break;
+	case EV_USE:
+		DEBUGNAME("EV_USE");
+		break;
 	case EV_USE_ITEM0:
 		DEBUGNAME("EV_USE_ITEM0");
 		CG_UseItem( cent );
@@ -2014,7 +2017,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			CG_MissileHitWall(es->weapon, 0, position, dir, IMPACTSOUND_METAL, qfalse, 0);
 		}
 		break;
-
+	case EV_BULLET:
+		DEBUGNAME("EV_BULLET");
+		break;
 	case EV_PLAY_EFFECT:
 		DEBUGNAME("EV_PLAY_EFFECT");
 		switch(es->eventParm)
