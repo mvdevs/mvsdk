@@ -1923,9 +1923,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{
 			if (es->eventParm < MAX_CLIENTS)
 			{ //You try to do very bad thing!
-#ifdef _DEBUG
-				Com_Printf("WARNING: Tried to kill a client ghoul2 instance with a server event!\n");
-#endif
+				CG_DPrintf(S_COLOR_YELLOW "WARNING: Tried to kill a client ghoul2 instance with a server event!\n");
 				break;
 			}
 			trap_G2API_CleanGhoul2Models(&(cg_entities[es->eventParm].ghoul2));
