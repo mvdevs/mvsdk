@@ -1538,7 +1538,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		break;
 
 	case EV_BECOME_JEDIMASTER:
-		DEBUGNAME("EV_SABER_UNHOLSTER");
+		DEBUGNAME("EV_BECOME_JEDIMASTER");
 		{
 			trace_t tr;
 			vec3_t playerMins = {-15, -15, DEFAULT_MINS_2+8};
