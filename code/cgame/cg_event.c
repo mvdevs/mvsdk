@@ -1565,7 +1565,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			if (cg.snap->ps.clientNum == es->number)
 			{
 				trap_S_StartLocalSound(cgs.media.happyMusic, CHAN_LOCAL);
-				CGCam_SetMusicMult(0.3, 5000);
+				CGCam_SetMusicMult(0.3f, 5000);
 			}
 		}
 		break;
@@ -2300,7 +2300,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		if (es->eventParm && es->number == cg.snap->ps.clientNum)
 		{
 			trap_S_StartLocalSound(cgs.media.dramaticFailure, CHAN_LOCAL);
-			CGCam_SetMusicMult(0.3, 5000);
+			CGCam_SetMusicMult(0.3f, 5000);
 		}
 		break;
 
