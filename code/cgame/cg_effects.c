@@ -742,7 +742,14 @@ void CG_CreateDebris(int entnum, vec3_t org, vec3_t mins, vec3_t maxs, int debri
 	vec3_t velocity, a, shardorg, dif, difx;
 	float windowmass;
 	float shardsthrow = 0;
-	int omodel = debrismodel;
+	int omodel;
+
+	omodel = Com_Clampi(DEBRIS_SPECIALCASE_GLASS, DEBRIS_SPECIALCASE_ROCK, debrismodel);
+
+	if (omodel != debrismodel)
+	{
+		CG_DPrintf(S_COLOR_YELLOW "WARNING: CG_CreateDebris: debris model is %d\n", debrismodel);
+	}
 
 	if (omodel == DEBRIS_SPECIALCASE_GLASS && !dbModels_Glass[0])
 	{ //glass no longer exists, using it for metal.

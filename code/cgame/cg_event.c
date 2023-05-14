@@ -100,6 +100,10 @@ static void CG_Obituary( entityState_t *ent ) {
 	}
 	ci = &cgs.clientinfo[target];
 
+	if ( ci->infoValid == qfalse ) {
+		CG_DPrintf( S_COLOR_YELLOW "WARNING: CG_Obituary: target client info is not valid\n" );
+		return;
+	}
 	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
 		attacker = ENTITYNUM_WORLD;
 		attackerInfo = NULL;
@@ -685,6 +689,11 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
 		return;
 	}
 
+	if (!(knownWeapon > WP_NONE && knownWeapon < WP_NUM_WEAPONS))
+	{
+		return;
+	}
+
 	source = &cg_entities[ clientNum ];
 
 	if (!source)
@@ -869,9 +878,10 @@ void CG_GetCTFMessageEvent(entityState_t *es)
 	clientInfo_t *ci = NULL;
 	const char *teamName = NULL;
 
-	if (clIndex < MAX_CLIENTS)
+	if (clIndex >= 0 && clIndex < MAX_CLIENTS)
 	{
 		ci = &cgs.clientinfo[clIndex];
+		ci = ci->infoValid ? ci : NULL;
 	}
 
 	if (teamIndex < 50)
@@ -992,16 +1002,27 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		CG_Printf( "ent:%3i  event:%3i ", es->number, event );
 	}
 
-	if ( !event ) {
-		DEBUGNAME("ZEROEVENT");
+	if ( event == EV_NONE ) {
+		DEBUGNAME("EV_NONE");
+		return;
+	}
+
+	if ( !VALID_INDEX(cg_entities, es->number) ) {
+		CG_DPrintf( S_COLOR_YELLOW "WARNING: CG_EntityEvent: entity number is %d\n", es->number );
 		return;
 	}
 
 	clientNum = es->clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
-		clientNum = 0;
+		CG_DPrintf( S_COLOR_YELLOW "WARNING: CG_EntityEvent: client number is %d\n", clientNum );
+		return;
 	}
+
 	ci = &cgs.clientinfo[ clientNum ];
+	if ( ci->infoValid == qfalse ) {
+		CG_DPrintf( S_COLOR_YELLOW "WARNING: CG_EntityEvent: client info is not valid\n" );
+		return;
+	}
 
 	switch ( event ) {
 	//
@@ -1045,6 +1066,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_FOOTSTEP:
 		DEBUGNAME("EV_FOOTSTEP");
 		if (cg_footsteps.integer) {
+			assert(ci->footsteps == FOOTSTEP_NORMAL); // ci->footsteps is always 0, set only by memset
 			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
 				cgs.media.footsteps[ ci->footsteps ][rand()&3] );
 		}
@@ -2052,6 +2074,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{
 			vec3_t fxDir;
 
+			if ( !VALID_INDEX(cgs.gameEffects, es->eventParm) )
+				break;
+
 			AngleVectors(es->angles, fxDir, 0, 0);
 			
 			if (!fxDir[0] && !fxDir[1] && !fxDir[2])
@@ -2194,6 +2219,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_ENTITY_SOUND:
 		DEBUGNAME("EV_ENTITY_SOUND");
 		//somewhat of a hack - weapon is the caller entity's index, trickedentindex is the proper sound channel
+		if ( !VALID_INDEX(cg_entities, es->weapon) ) {
+			break;
+		}
 		if ( VALID_INDEX(cgs.gameSounds, es->eventParm) && cgs.gameSounds[ es->eventParm ] ) {
 			trap_S_StartSound (NULL, es->weapon, es->trickedentindex, cgs.gameSounds[ es->eventParm ] );
 		} else {
@@ -2209,6 +2237,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_GLASS_SHATTER:
 		DEBUGNAME("EV_GLASS_SHATTER");
+
+		if ( !VALID_INDEX(cg_entities, es->genericenemyindex) ) {
+			break;
+		}
 		CG_GlassShatter(es->genericenemyindex, es->origin, es->angles, es->trickedentindex, es->pos.trTime);
 		break;
 
@@ -2342,7 +2374,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_WEAPON_CHARGE:
 		DEBUGNAME("EV_WEAPON_CHARGE");
 		assert(es->eventParm > WP_NONE && es->eventParm < WP_NUM_WEAPONS);
-		if (VALID_INDEX(cg_weapons, es->eventParm) && cg_weapons[es->eventParm].chargeSound)
+		if ((es->eventParm > WP_NONE && es->eventParm < WP_NUM_WEAPONS) && cg_weapons[es->eventParm].chargeSound)
 		{
 			trap_S_StartSound(NULL, es->number, CHAN_WEAPON, cg_weapons[es->eventParm].chargeSound);
 		}
@@ -2351,7 +2383,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_WEAPON_CHARGE_ALT:
 		DEBUGNAME("EV_WEAPON_CHARGE_ALT");
 		assert(es->eventParm > WP_NONE && es->eventParm < WP_NUM_WEAPONS);
-		if (VALID_INDEX(cg_weapons, es->eventParm) && cg_weapons[es->eventParm].altChargeSound)
+		if ((es->eventParm > WP_NONE && es->eventParm < WP_NUM_WEAPONS) && cg_weapons[es->eventParm].altChargeSound)
 		{
 			trap_S_StartSound(NULL, es->number, CHAN_WEAPON, cg_weapons[es->eventParm].altChargeSound);
 		}

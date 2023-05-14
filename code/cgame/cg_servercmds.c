@@ -985,9 +985,15 @@ void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, 
 	}
 
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
-		clientNum = 0;
+		CG_DPrintf( S_COLOR_YELLOW "WARNING: CG_VoiceChatLocal: client number is %d\n", clientNum );
+		return;
 	}
 	ci = &cgs.clientinfo[ clientNum ];
+
+	if ( ci->infoValid == qfalse ) {
+		CG_DPrintf( S_COLOR_YELLOW "WARNING: CG_VoiceChatLocal: client info is not valid\n" );
+		return;
+	}
 
 	cgs.currentVoiceClient = clientNum;
 
