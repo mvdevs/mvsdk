@@ -27,6 +27,7 @@ message(STATUS "${MVSDK} Version: ${MVSDK_VERSION}")
 
 # Languages
 enable_language(C)
+set(CMAKE_C_STANDARD 99)
 
 if(CMAKE_CONFIGURATION_TYPES)
 	set(MultiConfigGenerator TRUE)
